@@ -1,9 +1,9 @@
-import { useMemo, useState } from 'react'
+import { useState } from 'react'
 import { useI18n } from '../components/i18n'
 import { Glass } from '../components/Glass'
 import { SectionHead } from '../components/SectionHead'
 import { useReveal } from '../components/useReveal'
-import { STUDIES } from '../content/content'
+import { Evidence } from '../components/Evidence'
 
 const C = 200
 const R = 138
@@ -58,8 +58,6 @@ export function Aptitude() {
   const { t } = useI18n()
   const a = t.aptitude
   const [focus, setFocus] = useState(-1)
-  const [filter, setFilter] = useState('all')
-  const list = useMemo(() => STUDIES.filter((s) => filter === 'all' || s.g.includes(filter as 'p')), [filter])
   const a2Head = useReveal<HTMLDivElement>()
 
   return (
@@ -149,32 +147,7 @@ export function Aptitude() {
           </Glass>
         </div>
 
-        <Glass className="evidence" radius={38} bevel={15} frost={0.74} dim={0.42}>
-          <div className="evidence__head">
-            <div>
-              <h3>{a.evidenceTitle}</h3>
-              <p>{a.evidenceIntro}</p>
-            </div>
-            <div className="chips" role="group" aria-label={a.evidenceTitle}>
-              {a.filters.map((f) => (
-                <button key={f.id} className="chip" aria-pressed={filter === f.id} onClick={() => setFilter(f.id)}>
-                  {f.label}
-                </button>
-              ))}
-            </div>
-          </div>
-          <ul className="studies">
-            {list.map((s) => (
-              <li key={s.id}>
-                <span className="abbr">{s.id}</span>
-                <div>
-                  <strong>{s.cite}</strong>
-                  <span>{s.title}</span>
-                </div>
-              </li>
-            ))}
-          </ul>
-        </Glass>
+        <Evidence />
       </div>
     </section>
   )

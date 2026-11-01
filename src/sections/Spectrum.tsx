@@ -1,9 +1,10 @@
-import { useEffect, useLayoutEffect, useRef, useState, type KeyboardEvent } from 'react'
+import { useRef, useState, type KeyboardEvent } from 'react'
 import { useI18n } from '../components/i18n'
 import { Glass } from '../components/Glass'
 import { SectionHead } from '../components/SectionHead'
+import { useLens } from '../components/useLens'
 import { DIMS, DIM_RGB } from '../content/content'
-import { engine, Spring } from '../gl/engine'
+import { engine } from '../gl/engine'
 
 const RAY_ORDER = ['P', 'G', 'R', 'T', 'A']
 
@@ -13,7 +14,6 @@ export function Spectrum() {
   const [sel, setSel] = useState(0)
   const tabs = useRef<(HTMLButtonElement | null)[]>([])
   const lens = useRef<HTMLElement>(null)
-  const x = useRef(new Spring(0, 210, 22))
   const swipe = useRef<{ x: number; y: number } | null>(null)
 
   const choose = (i: number) => {
@@ -22,37 +22,7 @@ export function Spectrum() {
     engine.focusRay(RAY_ORDER.indexOf(DIMS[i]))
   }
 
-  useLayoutEffect(() => {
-    const place = () => {
-      const a = tabs.current[sel]
-      if (!a) return
-      x.current.target = a.offsetLeft
-      if (lens.current) lens.current.style.width = `${a.offsetWidth}px`
-    }
-    place()
-    x.current.x = x.current.target
-    window.addEventListener('resize', place, { passive: true })
-    return () => window.removeEventListener('resize', place)
-    // First placement only; `sel` changes retarget below.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
-
-  useLayoutEffect(() => {
-    const a = tabs.current[sel]
-    if (a) x.current.target = a.offsetLeft
-  }, [sel])
-
-  useEffect(
-    () =>
-      engine.onFrame((dt) => {
-        x.current.step(dt)
-        const el = lens.current
-        if (!el) return
-        const stretch = Math.min(Math.abs(x.current.v) / 3000, 0.3)
-        el.style.transform = `translate3d(${x.current.x.toFixed(2)}px,0,0) scale(${(1 + stretch).toFixed(3)},${(1 - stretch * 0.5).toFixed(3)})`
-      }),
-    [],
-  )
+  useLens(lens, tabs, sel)
 
   const onKey = (e: KeyboardEvent) => {
     const step = e.key === 'ArrowRight' ? 1 : e.key === 'ArrowLeft' ? -1 : 0

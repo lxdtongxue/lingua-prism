@@ -31,6 +31,7 @@ PATH=/opt/homebrew/bin:$PATH npm run dev
 - 新增一块玻璃：`<Glass radius={30} bevel={13} frost={0.74} dim={0.42}>…</Glass>`。
 - 悬浮在 DOM 内容之上的元素（导航、弹窗）用 CSS 类 `.chrome`。WebGL 看不到 DOM，所以这类元素不能用 `Glass`。
 - 带自有动画的玻璃（比如滑块）要自己写 `transform`，并传 `reveal={false}`。
+- 需要液态选中效果的标签组用 `useLens`（见 `src/components/useLens.ts`），滑块会自动跟随布局变化。滑块的 `Glass` 要传 `layer={1}`，否则会被父面板盖住。
 
 ## 两种玻璃
 

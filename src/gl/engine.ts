@@ -63,6 +63,7 @@ type Pane = {
   hover: Spring
   ptrS: Spring
   rip: { x: number; y: number; age: number; amp: number }
+  parent?: Pane | null
 }
 
 const QUALITY = [
@@ -806,7 +807,8 @@ class Engine {
     gl.uniform1fv(s.u.uRayG, new Float32Array(this.rayGain.map((g) => g.x)))
     this.tex(0, this.textTex)
     gl.uniform1i(s.u.uTxt, 0)
-    gl.uniform1f(s.u.uTxtA, this.textA.x)
+    // Narrow screens stack body copy over the rays, so the words stay quieter there.
+    gl.uniform1f(s.u.uTxtA, this.textA.x * mix(0.42, 1, clamp((this.cssW - 420) / 480, 0, 1)))
     const atlasRow = 2048 / 2 / 6
     const rowH = Math.min(this.vh * 0.125, this.cssW * 0.085 + 24)
     gl.uniform1f(s.u.uRowH, rowH)
@@ -903,7 +905,12 @@ class Engine {
     // Children register before their parents, so stacking is explicit.
     const stack = [...this.panes].filter((p) => p.near).sort((a, b) => a.o.layer - b.o.layer)
     for (const p of stack) {
-      const alpha = clamp(p.rev.x, 0, 1)
+      if (p.parent === undefined) {
+        const up = p.el.parentElement?.closest<HTMLElement>('.glass')
+        p.parent = up ? (this.byEl.get(up) ?? null) : null
+      }
+      // Nested glass can't appear before the pane that holds it.
+      const alpha = clamp(p.rev.x, 0, 1) * (p.parent ? clamp(p.parent.rev.x, 0, 1) : 1)
       if (alpha < 0.004) continue
       const py = p.y - docTop
       if (py + p.h < -60 || py > this.cssH + 60) continue
