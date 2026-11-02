@@ -894,11 +894,11 @@ class Engine {
     this.tex(0, this.textTex)
     gl.uniform1i(s.u.uTxt, 0)
     // Narrow screens stack body copy over the rays, so the words stay quieter there.
-    gl.uniform1f(s.u.uTxtA, this.textA.x * mix(0.72, 1, clamp((this.cssW - 420) / 480, 0, 1)))
+    gl.uniform1f(s.u.uTxtA, this.textA.x * mix(0.5, 0.6, clamp((this.cssW - 420) / 480, 0, 1)))
     const atlasRow = 2048 / 2 / 6
     const rowH = Math.min(this.vh * 0.125, this.cssW * 0.13 + 24)
     // Small type blurs into bands, so phones get a tighter blur.
-    gl.uniform1f(s.u.uTxtSoft, mix(0.9, 2, clamp((this.cssW - 420) / 480, 0, 1)))
+    gl.uniform1f(s.u.uTxtSoft, mix(0.35, 0.8, clamp((this.cssW - 420) / 480, 0, 1)))
     gl.uniform1f(s.u.uRowH, rowH)
     gl.uniform1f(s.u.uTxtLod, Math.max(0, Math.log2(atlasRow / (rowH * this.pxScale * this.sceneScale))))
     gl.drawArrays(gl.TRIANGLES, 0, 3)

@@ -1,0 +1,1302 @@
+[
+ {
+  "id": "pl",
+  "zh": "波兰语",
+  "region": "中东欧",
+  "g": {
+   "job": 2,
+   "study": 2,
+   "travel": 1,
+   "academic": 2
+  },
+  "r": {
+   "coverage": 2,
+   "quality": 4,
+   "offline": 2,
+   "online": 3
+  },
+  "g_detail": {
+   "job_trade": 2,
+   "job_translation": 2,
+   "job_tech": 2,
+   "job_engineering": 2,
+   "job_tourism": 2,
+   "job_education": 2,
+   "acad_humanities": 2,
+   "acad_stem": 2,
+   "acad_arts": 2
+  },
+  "r_raw": {
+   "coverage": 5,
+   "quality": null,
+   "offline": null,
+   "online": null
+  },
+  "raw": {
+   "universities": 5,
+   "first_class_points": 2,
+   "cert_in_china": 1,
+   "qs500": 3,
+   "tourists_10k": 9.95
+  },
+  "D_LA": 1.0,
+  "D_VL": 0.2,
+  "D_SD": 0.63,
+  "source": {
+   "coverage": "掌上高考开设院校数",
+   "offline": "同 coverage",
+   "study": "QS 2026 前 500",
+   "travel": "各国旅游局 2024 中国游客",
+   "quality": "一流专业点 + 国内证书",
+   "job/academic/online": "claude_estimate（团队确认）"
+  }
+ },
+ {
+  "id": "ru",
+  "zh": "俄语",
+  "region": "俄语区与中亚",
+  "g": {
+   "job": 4,
+   "study": 4,
+   "travel": 4,
+   "academic": 3
+  },
+  "r": {
+   "coverage": 5,
+   "quality": 5,
+   "offline": 5,
+   "online": 4
+  },
+  "g_detail": {
+   "job_trade": 4,
+   "job_translation": 4,
+   "job_tech": 4,
+   "job_engineering": 4,
+   "job_tourism": 4,
+   "job_education": 4,
+   "acad_humanities": 3,
+   "acad_stem": 3,
+   "acad_arts": 3
+  },
+  "r_raw": {
+   "coverage": 161,
+   "quality": null,
+   "offline": null,
+   "online": null
+  },
+  "raw": {
+   "universities": 161,
+   "first_class_points": 42,
+   "cert_in_china": 1,
+   "qs500": 13,
+   "tourists_10k": 169.44
+  },
+  "D_LA": 0.97,
+  "D_VL": 0.77,
+  "D_SD": 0.87,
+  "source": {
+   "coverage": "掌上高考开设院校数",
+   "offline": "同 coverage",
+   "study": "QS 2026 前 500",
+   "travel": "各国旅游局 2024 中国游客",
+   "quality": "一流专业点 + 国内证书",
+   "job/academic/online": "claude_estimate（团队确认）"
+  }
+ },
+ {
+  "id": "cs",
+  "zh": "捷克语",
+  "region": "中东欧",
+  "g": {
+   "job": 2,
+   "study": 2,
+   "travel": 1,
+   "academic": 2
+  },
+  "r": {
+   "coverage": 3,
+   "quality": 1,
+   "offline": 3,
+   "online": 2
+  },
+  "g_detail": {
+   "job_trade": 2,
+   "job_translation": 2,
+   "job_tech": 2,
+   "job_engineering": 2,
+   "job_tourism": 2,
+   "job_education": 2,
+   "acad_humanities": 2,
+   "acad_stem": 2,
+   "acad_arts": 2
+  },
+  "r_raw": {
+   "coverage": 6,
+   "quality": null,
+   "offline": null,
+   "online": null
+  },
+  "raw": {
+   "universities": 6,
+   "first_class_points": 1,
+   "cert_in_china": 0,
+   "qs500": 3,
+   "tourists_10k": 17.4
+  },
+  "D_LA": 0.93,
+  "D_VL": 0.2,
+  "D_SD": 0.87,
+  "source": {
+   "coverage": "掌上高考开设院校数",
+   "offline": "同 coverage",
+   "study": "QS 2026 前 500",
+   "travel": "各国旅游局 2024 中国游客",
+   "quality": "一流专业点 + 国内证书",
+   "job/academic/online": "claude_estimate（团队确认）"
+  }
+ },
+ {
+  "id": "ar",
+  "zh": "阿拉伯语",
+  "region": "西亚与北非",
+  "g": {
+   "job": 4,
+   "study": 5,
+   "travel": 4,
+   "academic": 2
+  },
+  "r": {
+   "coverage": 4,
+   "quality": 3,
+   "offline": 4,
+   "online": 3
+  },
+  "g_detail": {
+   "job_trade": 4,
+   "job_translation": 4,
+   "job_tech": 4,
+   "job_engineering": 4,
+   "job_tourism": 4,
+   "job_education": 4,
+   "acad_humanities": 2,
+   "acad_stem": 2,
+   "acad_arts": 2
+  },
+  "r_raw": {
+   "coverage": 35,
+   "quality": null,
+   "offline": null,
+   "online": null
+  },
+  "raw": {
+   "universities": 35,
+   "first_class_points": 17,
+   "cert_in_china": 0,
+   "qs500": 19,
+   "tourists_10k": 154
+  },
+  "D_LA": 0.9,
+  "D_VL": 0.67,
+  "D_SD": 0.67,
+  "source": {
+   "coverage": "掌上高考开设院校数",
+   "offline": "同 coverage",
+   "study": "QS 2026 前 500",
+   "travel": "各国旅游局 2024 中国游客",
+   "quality": "一流专业点 + 国内证书",
+   "job/academic/online": "claude_estimate（团队确认）"
+  }
+ },
+ {
+  "id": "be",
+  "zh": "白俄罗斯语",
+  "region": "俄语区与中亚",
+  "g": {
+   "job": 1,
+   "study": 2,
+   "travel": 1,
+   "academic": 1
+  },
+  "r": {
+   "coverage": 1,
+   "quality": 1,
+   "offline": 1,
+   "online": 1
+  },
+  "g_detail": {
+   "job_trade": 1,
+   "job_translation": 1,
+   "job_tech": 1,
+   "job_engineering": 1,
+   "job_tourism": 1,
+   "job_education": 1,
+   "acad_humanities": 1,
+   "acad_stem": 1,
+   "acad_arts": 1
+  },
+  "r_raw": {
+   "coverage": 4,
+   "quality": null,
+   "offline": null,
+   "online": null
+  },
+  "raw": {
+   "universities": 4,
+   "first_class_points": 0,
+   "cert_in_china": 0,
+   "qs500": 1,
+   "tourists_10k": null
+  },
+  "D_LA": 0.83,
+  "D_VL": 0.7,
+  "D_SD": 0.83,
+  "source": {
+   "coverage": "掌上高考开设院校数",
+   "offline": "同 coverage",
+   "study": "QS 2026 前 500",
+   "travel": "各国旅游局 2024 中国游客",
+   "quality": "一流专业点 + 国内证书",
+   "job/academic/online": "claude_estimate（团队确认）"
+  }
+ },
+ {
+  "id": "el",
+  "zh": "希腊语",
+  "region": "南欧与拉美",
+  "g": {
+   "job": 2,
+   "study": 3,
+   "travel": 1,
+   "academic": 2
+  },
+  "r": {
+   "coverage": 1,
+   "quality": 2,
+   "offline": 1,
+   "online": 3
+  },
+  "g_detail": {
+   "job_trade": 2,
+   "job_translation": 2,
+   "job_tech": 2,
+   "job_engineering": 2,
+   "job_tourism": 2,
+   "job_education": 2,
+   "acad_humanities": 2,
+   "acad_stem": 2,
+   "acad_arts": 2
+  },
+  "r_raw": {
+   "coverage": 1,
+   "quality": null,
+   "offline": null,
+   "online": null
+  },
+  "raw": {
+   "universities": 1,
+   "first_class_points": 2,
+   "cert_in_china": 0,
+   "qs500": 4,
+   "tourists_10k": 13.8
+  },
+  "D_LA": 0.8,
+  "D_VL": 0.63,
+  "D_SD": 0.37,
+  "source": {
+   "coverage": "掌上高考开设院校数",
+   "offline": "同 coverage",
+   "study": "QS 2026 前 500",
+   "travel": "各国旅游局 2024 中国游客",
+   "quality": "一流专业点 + 国内证书",
+   "job/academic/online": "claude_estimate（团队确认）"
+  }
+ },
+ {
+  "id": "it",
+  "zh": "意大利语",
+  "region": "南欧与拉美",
+  "g": {
+   "job": 3,
+   "study": 4,
+   "travel": 2,
+   "academic": 3
+  },
+  "r": {
+   "coverage": 3,
+   "quality": 5,
+   "offline": 3,
+   "online": 4
+  },
+  "g_detail": {
+   "job_trade": 3,
+   "job_translation": 3,
+   "job_tech": 3,
+   "job_engineering": 3,
+   "job_tourism": 3,
+   "job_education": 3,
+   "acad_humanities": 3,
+   "acad_stem": 3,
+   "acad_arts": 3
+  },
+  "r_raw": {
+   "coverage": 21,
+   "quality": null,
+   "offline": null,
+   "online": null
+  },
+  "raw": {
+   "universities": 21,
+   "first_class_points": 10,
+   "cert_in_china": 1,
+   "qs500": 15,
+   "tourists_10k": 17.6
+  },
+  "D_LA": 0.73,
+  "D_VL": 0.2,
+  "D_SD": 0.37,
+  "source": {
+   "coverage": "掌上高考开设院校数",
+   "offline": "同 coverage",
+   "study": "QS 2026 前 500",
+   "travel": "各国旅游局 2024 中国游客",
+   "quality": "一流专业点 + 国内证书",
+   "job/academic/online": "claude_estimate（团队确认）"
+  }
+ },
+ {
+  "id": "pt",
+  "zh": "葡萄牙语",
+  "region": "南欧与拉美",
+  "g": {
+   "job": 3,
+   "study": 3,
+   "travel": 2,
+   "academic": 2
+  },
+  "r": {
+   "coverage": 4,
+   "quality": 4,
+   "offline": 4,
+   "online": 4
+  },
+  "g_detail": {
+   "job_trade": 3,
+   "job_translation": 3,
+   "job_tech": 3,
+   "job_engineering": 3,
+   "job_tourism": 3,
+   "job_education": 3,
+   "acad_humanities": 2,
+   "acad_stem": 2,
+   "acad_arts": 2
+  },
+  "r_raw": {
+   "coverage": 25,
+   "quality": null,
+   "offline": null,
+   "online": null
+  },
+  "raw": {
+   "universities": 25,
+   "first_class_points": 8,
+   "cert_in_china": 1,
+   "qs500": 9,
+   "tourists_10k": 29
+  },
+  "D_LA": 0.73,
+  "D_VL": 0.2,
+  "D_SD": 0.93,
+  "source": {
+   "coverage": "掌上高考开设院校数",
+   "offline": "同 coverage",
+   "study": "QS 2026 前 500",
+   "travel": "各国旅游局 2024 中国游客",
+   "quality": "一流专业点 + 国内证书",
+   "job/academic/online": "claude_estimate（团队确认）"
+  }
+ },
+ {
+  "id": "uk",
+  "zh": "乌克兰语",
+  "region": "俄语区与中亚",
+  "g": {
+   "job": 2,
+   "study": 1,
+   "travel": 1,
+   "academic": 1
+  },
+  "r": {
+   "coverage": 1,
+   "quality": 2,
+   "offline": 1,
+   "online": 2
+  },
+  "g_detail": {
+   "job_trade": 2,
+   "job_translation": 2,
+   "job_tech": 2,
+   "job_engineering": 2,
+   "job_tourism": 2,
+   "job_education": 2,
+   "acad_humanities": 1,
+   "acad_stem": 1,
+   "acad_arts": 1
+  },
+  "r_raw": {
+   "coverage": 2,
+   "quality": null,
+   "offline": null,
+   "online": null
+  },
+  "raw": {
+   "universities": 2,
+   "first_class_points": 2,
+   "cert_in_china": 0,
+   "qs500": 0,
+   "tourists_10k": null
+  },
+  "D_LA": 0.63,
+  "D_VL": 0.77,
+  "D_SD": 0.73,
+  "source": {
+   "coverage": "掌上高考开设院校数",
+   "offline": "同 coverage",
+   "study": "QS 2026 前 500",
+   "travel": "各国旅游局 2024 中国游客",
+   "quality": "一流专业点 + 国内证书",
+   "job/academic/online": "claude_estimate（团队确认）"
+  }
+ },
+ {
+  "id": "fr",
+  "zh": "法语",
+  "region": "西欧",
+  "g": {
+   "job": 4,
+   "study": 5,
+   "travel": 3,
+   "academic": 4
+  },
+  "r": {
+   "coverage": 5,
+   "quality": 5,
+   "offline": 5,
+   "online": 5
+  },
+  "g_detail": {
+   "job_trade": 4,
+   "job_translation": 4,
+   "job_tech": 4,
+   "job_engineering": 4,
+   "job_tourism": 4,
+   "job_education": 4,
+   "acad_humanities": 4,
+   "acad_stem": 4,
+   "acad_arts": 4
+  },
+  "r_raw": {
+   "coverage": 110,
+   "quality": null,
+   "offline": null,
+   "online": null
+  },
+  "raw": {
+   "universities": 110,
+   "first_class_points": 25,
+   "cert_in_china": 1,
+   "qs500": 48,
+   "tourists_10k": 100
+  },
+  "D_LA": 0.63,
+  "D_VL": 0.2,
+  "D_SD": 0.57,
+  "source": {
+   "coverage": "掌上高考开设院校数",
+   "offline": "同 coverage",
+   "study": "QS 2026 前 500",
+   "travel": "各国旅游局 2024 中国游客",
+   "quality": "一流专业点 + 国内证书",
+   "job/academic/online": "claude_estimate（团队确认）"
+  }
+ },
+ {
+  "id": "fa",
+  "zh": "波斯语",
+  "region": "西亚与北非",
+  "g": {
+   "job": 2,
+   "study": 3,
+   "travel": 1,
+   "academic": 2
+  },
+  "r": {
+   "coverage": 2,
+   "quality": 2,
+   "offline": 2,
+   "online": 2
+  },
+  "g_detail": {
+   "job_trade": 2,
+   "job_translation": 2,
+   "job_tech": 2,
+   "job_engineering": 2,
+   "job_tourism": 2,
+   "job_education": 2,
+   "acad_humanities": 2,
+   "acad_stem": 2,
+   "acad_arts": 2
+  },
+  "r_raw": {
+   "coverage": 5,
+   "quality": null,
+   "offline": null,
+   "online": null
+  },
+  "raw": {
+   "universities": 5,
+   "first_class_points": 5,
+   "cert_in_china": 0,
+   "qs500": 4,
+   "tourists_10k": null
+  },
+  "D_LA": 0.53,
+  "D_VL": 0.7,
+  "D_SD": 0.43,
+  "source": {
+   "coverage": "掌上高考开设院校数",
+   "offline": "同 coverage",
+   "study": "QS 2026 前 500",
+   "travel": "各国旅游局 2024 中国游客",
+   "quality": "一流专业点 + 国内证书",
+   "job/academic/online": "claude_estimate（团队确认）"
+  }
+ },
+ {
+  "id": "hi",
+  "zh": "印地语",
+  "region": "南亚",
+  "g": {
+   "job": 2,
+   "study": 1,
+   "travel": 1,
+   "academic": 1
+  },
+  "r": {
+   "coverage": 3,
+   "quality": 2,
+   "offline": 3,
+   "online": 2
+  },
+  "g_detail": {
+   "job_trade": 2,
+   "job_translation": 2,
+   "job_tech": 2,
+   "job_engineering": 2,
+   "job_tourism": 2,
+   "job_education": 2,
+   "acad_humanities": 1,
+   "acad_stem": 1,
+   "acad_arts": 1
+  },
+  "r_raw": {
+   "coverage": 9,
+   "quality": null,
+   "offline": null,
+   "online": null
+  },
+  "raw": {
+   "universities": 9,
+   "first_class_points": 6,
+   "cert_in_china": 0,
+   "qs500": 0,
+   "tourists_10k": 3.9
+  },
+  "D_LA": 0.5,
+  "D_VL": 0.93,
+  "D_SD": 1.0,
+  "source": {
+   "coverage": "掌上高考开设院校数",
+   "offline": "同 coverage",
+   "study": "QS 2026 前 500",
+   "travel": "各国旅游局 2024 中国游客",
+   "quality": "一流专业点 + 国内证书",
+   "job/academic/online": "claude_estimate（团队确认）"
+  }
+ },
+ {
+  "id": "tr",
+  "zh": "土耳其语",
+  "region": "西亚与北非",
+  "g": {
+   "job": 2,
+   "study": 3,
+   "travel": 2,
+   "academic": 2
+  },
+  "r": {
+   "coverage": 1,
+   "quality": 4,
+   "offline": 1,
+   "online": 3
+  },
+  "g_detail": {
+   "job_trade": 2,
+   "job_translation": 2,
+   "job_tech": 2,
+   "job_engineering": 2,
+   "job_tourism": 2,
+   "job_education": 2,
+   "acad_humanities": 2,
+   "acad_stem": 2,
+   "acad_arts": 2
+  },
+  "r_raw": {
+   "coverage": 4,
+   "quality": null,
+   "offline": null,
+   "online": null
+  },
+  "raw": {
+   "universities": 4,
+   "first_class_points": 2,
+   "cert_in_china": 1,
+   "qs500": 6,
+   "tourists_10k": 40.97
+  },
+  "D_LA": 0.43,
+  "D_VL": 0.2,
+  "D_SD": 0.77,
+  "source": {
+   "coverage": "掌上高考开设院校数",
+   "offline": "同 coverage",
+   "study": "QS 2026 前 500",
+   "travel": "各国旅游局 2024 中国游客",
+   "quality": "一流专业点 + 国内证书",
+   "job/academic/online": "claude_estimate（团队确认）"
+  }
+ },
+ {
+  "id": "ko",
+  "zh": "韩语",
+  "region": "东亚",
+  "g": {
+   "job": 4,
+   "study": 4,
+   "travel": 5,
+   "academic": 3
+  },
+  "r": {
+   "coverage": 4,
+   "quality": 5,
+   "offline": 4,
+   "online": 5
+  },
+  "g_detail": {
+   "job_trade": 4,
+   "job_translation": 4,
+   "job_tech": 4,
+   "job_engineering": 4,
+   "job_tourism": 4,
+   "job_education": 4,
+   "acad_humanities": 3,
+   "acad_stem": 3,
+   "acad_arts": 3
+  },
+  "r_raw": {
+   "coverage": 63,
+   "quality": null,
+   "offline": null,
+   "online": null
+  },
+  "raw": {
+   "universities": 63,
+   "first_class_points": 20,
+   "cert_in_china": 1,
+   "qs500": 13,
+   "tourists_10k": 460.3
+  },
+  "D_LA": 0.4,
+  "D_VL": 0.87,
+  "D_SD": 0.57,
+  "source": {
+   "coverage": "掌上高考开设院校数",
+   "offline": "同 coverage",
+   "study": "QS 2026 前 500",
+   "travel": "各国旅游局 2024 中国游客",
+   "quality": "一流专业点 + 国内证书",
+   "job/academic/online": "claude_estimate（团队确认）"
+  }
+ },
+ {
+  "id": "en",
+  "zh": "英语",
+  "region": "英语世界",
+  "g": {
+   "job": 5,
+   "study": 5,
+   "travel": 5,
+   "academic": 5
+  },
+  "r": {
+   "coverage": 5,
+   "quality": 5,
+   "offline": 5,
+   "online": 5
+  },
+  "g_detail": {
+   "job_trade": 5,
+   "job_translation": 5,
+   "job_tech": 5,
+   "job_engineering": 5,
+   "job_tourism": 5,
+   "job_education": 5,
+   "acad_humanities": 5,
+   "acad_stem": 5,
+   "acad_arts": 5
+  },
+  "r_raw": {
+   "coverage": 882,
+   "quality": null,
+   "offline": null,
+   "online": null
+  },
+  "raw": {
+   "universities": 882,
+   "first_class_points": 238,
+   "cert_in_china": 1,
+   "qs500": 177,
+   "tourists_10k": 342.6
+  },
+  "D_LA": 0.37,
+  "D_VL": 0.2,
+  "D_SD": 0.67,
+  "source": {
+   "coverage": "掌上高考开设院校数",
+   "offline": "同 coverage",
+   "study": "QS 2026 前 500",
+   "travel": "各国旅游局 2024 中国游客",
+   "quality": "一流专业点 + 国内证书",
+   "job/academic/online": "claude_estimate（团队确认）"
+  }
+ },
+ {
+  "id": "tl",
+  "zh": "菲律宾语",
+  "region": "东南亚",
+  "g": {
+   "job": 1,
+   "study": 1,
+   "travel": 2,
+   "academic": 1
+  },
+  "r": {
+   "coverage": 1,
+   "quality": 1,
+   "offline": 1,
+   "online": 2
+  },
+  "g_detail": {
+   "job_trade": 1,
+   "job_translation": 1,
+   "job_tech": 1,
+   "job_engineering": 1,
+   "job_tourism": 1,
+   "job_education": 1,
+   "acad_humanities": 1,
+   "acad_stem": 1,
+   "acad_arts": 1
+  },
+  "r_raw": {
+   "coverage": 4,
+   "quality": null,
+   "offline": null,
+   "online": null
+  },
+  "raw": {
+   "universities": 4,
+   "first_class_points": 1,
+   "cert_in_china": 0,
+   "qs500": 0,
+   "tourists_10k": 31.4
+  },
+  "D_LA": 0.3,
+  "D_VL": 0.2,
+  "D_SD": 0.2,
+  "source": {
+   "coverage": "掌上高考开设院校数",
+   "offline": "同 coverage",
+   "study": "QS 2026 前 500",
+   "travel": "各国旅游局 2024 中国游客",
+   "quality": "一流专业点 + 国内证书",
+   "job/academic/online": "claude_estimate（团队确认）"
+  }
+ },
+ {
+  "id": "ja",
+  "zh": "日语",
+  "region": "东亚",
+  "g": {
+   "job": 5,
+   "study": 4,
+   "travel": 5,
+   "academic": 4
+  },
+  "r": {
+   "coverage": 5,
+   "quality": 5,
+   "offline": 5,
+   "online": 5
+  },
+  "g_detail": {
+   "job_trade": 5,
+   "job_translation": 5,
+   "job_tech": 5,
+   "job_engineering": 5,
+   "job_tourism": 5,
+   "job_education": 5,
+   "acad_humanities": 4,
+   "acad_stem": 4,
+   "acad_arts": 4
+  },
+  "r_raw": {
+   "coverage": 358,
+   "quality": null,
+   "offline": null,
+   "online": null
+  },
+  "raw": {
+   "universities": 358,
+   "first_class_points": 66,
+   "cert_in_china": 1,
+   "qs500": 13,
+   "tourists_10k": 698.1
+  },
+  "D_LA": 0.33,
+  "D_VL": 1.0,
+  "D_SD": 0.27,
+  "source": {
+   "coverage": "掌上高考开设院校数",
+   "offline": "同 coverage",
+   "study": "QS 2026 前 500",
+   "travel": "各国旅游局 2024 中国游客",
+   "quality": "一流专业点 + 国内证书",
+   "job/academic/online": "claude_estimate（团队确认）"
+  }
+ },
+ {
+  "id": "id",
+  "zh": "印尼语",
+  "region": "东南亚",
+  "g": {
+   "job": 3,
+   "study": 3,
+   "travel": 4,
+   "academic": 1
+  },
+  "r": {
+   "coverage": 3,
+   "quality": 4,
+   "offline": 3,
+   "online": 3
+  },
+  "g_detail": {
+   "job_trade": 3,
+   "job_translation": 3,
+   "job_tech": 3,
+   "job_engineering": 3,
+   "job_tourism": 3,
+   "job_education": 3,
+   "acad_humanities": 1,
+   "acad_stem": 1,
+   "acad_arts": 1
+  },
+  "r_raw": {
+   "coverage": 11,
+   "quality": null,
+   "offline": null,
+   "online": null
+  },
+  "raw": {
+   "universities": 11,
+   "first_class_points": 3,
+   "cert_in_china": 1,
+   "qs500": 5,
+   "tourists_10k": 119
+  },
+  "D_LA": 0.27,
+  "D_VL": 0.2,
+  "D_SD": 0.27,
+  "source": {
+   "coverage": "掌上高考开设院校数",
+   "offline": "同 coverage",
+   "study": "QS 2026 前 500",
+   "travel": "各国旅游局 2024 中国游客",
+   "quality": "一流专业点 + 国内证书",
+   "job/academic/online": "claude_estimate（团队确认）"
+  }
+ },
+ {
+  "id": "ms",
+  "zh": "马来语",
+  "region": "东南亚",
+  "g": {
+   "job": 2,
+   "study": 4,
+   "travel": 4,
+   "academic": 1
+  },
+  "r": {
+   "coverage": 3,
+   "quality": 2,
+   "offline": 3,
+   "online": 2
+  },
+  "g_detail": {
+   "job_trade": 2,
+   "job_translation": 2,
+   "job_tech": 2,
+   "job_engineering": 2,
+   "job_tourism": 2,
+   "job_education": 2,
+   "acad_humanities": 1,
+   "acad_stem": 1,
+   "acad_arts": 1
+  },
+  "r_raw": {
+   "coverage": 7,
+   "quality": null,
+   "offline": null,
+   "online": null
+  },
+  "raw": {
+   "universities": 7,
+   "first_class_points": 2,
+   "cert_in_china": 0,
+   "qs500": 10,
+   "tourists_10k": 328.7
+  },
+  "D_LA": 0.23,
+  "D_VL": 0.2,
+  "D_SD": 0.23,
+  "source": {
+   "coverage": "掌上高考开设院校数",
+   "offline": "同 coverage",
+   "study": "QS 2026 前 500",
+   "travel": "各国旅游局 2024 中国游客",
+   "quality": "一流专业点 + 国内证书",
+   "job/academic/online": "claude_estimate（团队确认）"
+  }
+ },
+ {
+  "id": "th",
+  "zh": "泰语",
+  "region": "东南亚",
+  "g": {
+   "job": 3,
+   "study": 2,
+   "travel": 5,
+   "academic": 1
+  },
+  "r": {
+   "coverage": 4,
+   "quality": 4,
+   "offline": 4,
+   "online": 3
+  },
+  "g_detail": {
+   "job_trade": 3,
+   "job_translation": 3,
+   "job_tech": 3,
+   "job_engineering": 3,
+   "job_tourism": 3,
+   "job_education": 3,
+   "acad_humanities": 1,
+   "acad_stem": 1,
+   "acad_arts": 1
+  },
+  "r_raw": {
+   "coverage": 43,
+   "quality": null,
+   "offline": null,
+   "online": null
+  },
+  "raw": {
+   "universities": 43,
+   "first_class_points": 8,
+   "cert_in_china": 1,
+   "qs500": 2,
+   "tourists_10k": 673.3
+  },
+  "D_LA": 0.2,
+  "D_VL": 0.97,
+  "D_SD": 0.47,
+  "source": {
+   "coverage": "掌上高考开设院校数",
+   "offline": "同 coverage",
+   "study": "QS 2026 前 500",
+   "travel": "各国旅游局 2024 中国游客",
+   "quality": "一流专业点 + 国内证书",
+   "job/academic/online": "claude_estimate（团队确认）"
+  }
+ },
+ {
+  "id": "de",
+  "zh": "德语",
+  "region": "西欧",
+  "g": {
+   "job": 4,
+   "study": 5,
+   "travel": 3,
+   "academic": 5
+  },
+  "r": {
+   "coverage": 5,
+   "quality": 5,
+   "offline": 5,
+   "online": 5
+  },
+  "g_detail": {
+   "job_trade": 4,
+   "job_translation": 4,
+   "job_tech": 4,
+   "job_engineering": 4,
+   "job_tourism": 4,
+   "job_education": 4,
+   "acad_humanities": 5,
+   "acad_stem": 5,
+   "acad_arts": 5
+  },
+  "r_raw": {
+   "coverage": 90,
+   "quality": null,
+   "offline": null,
+   "online": null
+  },
+  "raw": {
+   "universities": 90,
+   "first_class_points": 23,
+   "cert_in_china": 1,
+   "qs500": 43,
+   "tourists_10k": 84.3
+  },
+  "D_LA": 0.57,
+  "D_VL": 0.2,
+  "D_SD": 0.77,
+  "source": {
+   "coverage": "掌上高考开设院校数",
+   "offline": "同 coverage",
+   "study": "QS 2026 前 500",
+   "travel": "各国旅游局 2024 中国游客",
+   "quality": "一流专业点 + 国内证书",
+   "job/academic/online": "claude_estimate（团队确认）"
+  }
+ },
+ {
+  "id": "es",
+  "zh": "西班牙语",
+  "region": "南欧与拉美",
+  "g": {
+   "job": 4,
+   "study": 5,
+   "travel": 3,
+   "academic": 3
+  },
+  "r": {
+   "coverage": 4,
+   "quality": 5,
+   "offline": 4,
+   "online": 5
+  },
+  "g_detail": {
+   "job_trade": 4,
+   "job_translation": 4,
+   "job_tech": 4,
+   "job_engineering": 4,
+   "job_tourism": 4,
+   "job_education": 4,
+   "acad_humanities": 3,
+   "acad_stem": 3,
+   "acad_arts": 3
+  },
+  "r_raw": {
+   "coverage": 87,
+   "quality": null,
+   "offline": null,
+   "online": null
+  },
+  "raw": {
+   "universities": 87,
+   "first_class_points": 14,
+   "cert_in_china": 1,
+   "qs500": 26,
+   "tourists_10k": 86.2
+  },
+  "D_LA": 0.7,
+  "D_VL": 0.2,
+  "D_SD": 0.33,
+  "source": {
+   "coverage": "掌上高考开设院校数",
+   "offline": "同 coverage",
+   "study": "QS 2026 前 500",
+   "travel": "各国旅游局 2024 中国游客",
+   "quality": "一流专业点 + 国内证书",
+   "job/academic/online": "claude_estimate（团队确认）"
+  }
+ },
+ {
+  "id": "ro",
+  "zh": "罗马尼亚语",
+  "region": "中东欧",
+  "g": {
+   "job": 2,
+   "study": 1,
+   "travel": 1,
+   "academic": 1
+  },
+  "r": {
+   "coverage": 1,
+   "quality": 1,
+   "offline": 1,
+   "online": 2
+  },
+  "g_detail": {
+   "job_trade": 2,
+   "job_translation": 2,
+   "job_tech": 2,
+   "job_engineering": 2,
+   "job_tourism": 2,
+   "job_education": 2,
+   "acad_humanities": 1,
+   "acad_stem": 1,
+   "acad_arts": 1
+  },
+  "r_raw": {
+   "coverage": 3,
+   "quality": null,
+   "offline": null,
+   "online": null
+  },
+  "raw": {
+   "universities": 3,
+   "first_class_points": 1,
+   "cert_in_china": 0,
+   "qs500": 0,
+   "tourists_10k": null
+  },
+  "D_LA": 0.83,
+  "D_VL": 0.2,
+  "D_SD": 0.5,
+  "source": {
+   "coverage": "掌上高考开设院校数",
+   "offline": "同 coverage",
+   "study": "QS 2026 前 500",
+   "travel": "各国旅游局 2024 中国游客",
+   "quality": "一流专业点 + 国内证书",
+   "job/academic/online": "claude_estimate（团队确认）"
+  }
+ },
+ {
+  "id": "ur",
+  "zh": "乌尔都语",
+  "region": "南亚",
+  "g": {
+   "job": 2,
+   "study": 1,
+   "travel": 1,
+   "academic": 1
+  },
+  "r": {
+   "coverage": 2,
+   "quality": 2,
+   "offline": 2,
+   "online": 1
+  },
+  "g_detail": {
+   "job_trade": 2,
+   "job_translation": 2,
+   "job_tech": 2,
+   "job_engineering": 2,
+   "job_tourism": 2,
+   "job_education": 2,
+   "acad_humanities": 1,
+   "acad_stem": 1,
+   "acad_arts": 1
+  },
+  "r_raw": {
+   "coverage": 5,
+   "quality": null,
+   "offline": null,
+   "online": null
+  },
+  "raw": {
+   "universities": 5,
+   "first_class_points": 2,
+   "cert_in_china": 0,
+   "qs500": 0,
+   "tourists_10k": 7.4
+  },
+  "D_LA": 0.6,
+  "D_VL": 0.83,
+  "D_SD": 0.97,
+  "source": {
+   "coverage": "掌上高考开设院校数",
+   "offline": "同 coverage",
+   "study": "QS 2026 前 500",
+   "travel": "各国旅游局 2024 中国游客",
+   "quality": "一流专业点 + 国内证书",
+   "job/academic/online": "claude_estimate（团队确认）"
+  }
+ },
+ {
+  "id": "kk",
+  "zh": "哈萨克语",
+  "region": "俄语区与中亚",
+  "g": {
+   "job": 3,
+   "study": 2,
+   "travel": 3,
+   "academic": 1
+  },
+  "r": {
+   "coverage": 1,
+   "quality": 1,
+   "offline": 1,
+   "online": 1
+  },
+  "g_detail": {
+   "job_trade": 3,
+   "job_translation": 3,
+   "job_tech": 3,
+   "job_engineering": 3,
+   "job_tourism": 3,
+   "job_education": 3,
+   "acad_humanities": 1,
+   "acad_stem": 1,
+   "acad_arts": 1
+  },
+  "r_raw": {
+   "coverage": 3,
+   "quality": null,
+   "offline": null,
+   "online": null
+  },
+  "raw": {
+   "universities": 3,
+   "first_class_points": 1,
+   "cert_in_china": 0,
+   "qs500": 3,
+   "tourists_10k": 65.5
+  },
+  "D_LA": 0.43,
+  "D_VL": 0.9,
+  "D_SD": 0.53,
+  "source": {
+   "coverage": "掌上高考开设院校数",
+   "offline": "同 coverage",
+   "study": "QS 2026 前 500",
+   "travel": "各国旅游局 2024 中国游客",
+   "quality": "一流专业点 + 国内证书",
+   "job/academic/online": "claude_estimate（团队确认）"
+  }
+ }
+]

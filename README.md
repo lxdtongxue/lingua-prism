@@ -6,6 +6,28 @@
 
 时间是上传到 GitHub 的时间（北京时间，UTC+8），取自 GitHub Actions 的部署记录。
 
+### v5
+
+**G、R、P 量化**
+
+- 接入 `decision_data.json` 和 `countries.json`，25 门语言的目标、资源和地区数据全部到位，G、R 不再是占位。
+- 新增问卷页 `survey/`，按说明实现完整六部分：取向量表、学习目标、学习条件、兴趣偏好、两难情境和结果确认，含跳转规则和 K1 到 K7 一致性检查。
+- 基础版约 6 屏，G、R、P 用滑块调，范围 0 到 40，默认 20。进阶版（代码里是 `sponsor`）由问卷按量表和层次分析法自动生成权重，并显示结果确认页。
+- T、A 权重固定 20，不再提供滑块。A 的测验、百分位和解释在两个版本里完全相同。
+- 进阶版另有细分目标、目标国家、逐语言兴趣、语法接受度和推荐理由报告。
+- 语言详情增加 G、R、P 的分数和解释。语言推荐的占位演示模式和点亮兴趣按钮已移除。
+- 说明里的测试用例都写成了单元测试：25 门语言的用户甲、用户乙、丙、丁，四组权重用例，2.5 节性质和 K1 到 K7。
+
+**A**
+
+- 更新包里的 `tall_norms.json` 和第 3 节数据与线上完全相同，无需替换。
+- 页面注明 A 的部分语法数据由 AI 编码及所用模型。
+
+**首页**
+
+- slogan 改为“循语言之理，见世界之棱。”，英文为“Follow the grain of language, see the facets of the world.”。
+- 背景文字减弱模糊、降低亮度，看得清但不抢眼。
+
 ### v4（2026-11-03 00:14:51）
 
 **辨音测验（SD）**
@@ -213,6 +235,8 @@ PATH=/opt/homebrew/bin:$PATH npm run dev
 | `src/sections/` | 页面各段：首屏、测试中心、语言推荐、框架、五维、能力、目标、参考文献、页脚 |
 | `src/a/score.ts` | A 算法，`npm test` 按方案第 7 节的算例验证 |
 | `src/a/similarity.ts` | T 算法，数据在 `src/data/asjp_ldnd.json` |
+| `src/decision/` | G、R、P 算法、权重和问卷，数据在 `src/data/decision_data.json` |
+| `survey/index.html` | 问卷页入口 |
 | `src/tall/` | 做题页：流程、题目校验、音频。填题说明见 `src/tall/README.md` |
 | `public/tall/` | 题目配置和图片、音频 |
 | `test/index.html`、`src/test.tsx` | 做题页入口，和首页分开构建 |

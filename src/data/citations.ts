@@ -7,6 +7,7 @@ export const CITATIONS = [
   'Pan, J., & Marsden, E. (2026). Validating the theory-informed Tests of Aptitude for Language Learning (TALL) as predictors of L2 proficiency: Initial evidence from multiple regression analyses. *Studies in Second Language Acquisition*, 1–27. https://doi.org/10.1017/S0272263126101995',
   'Skirgård, H., Haynie, H. J., Blasi, D. E., Hammarström, H., Collins, J., Latarche, J. J., … Gray, R. D. (2023). Grambank reveals the importance of genealogical constraints on linguistic diversity and highlights the impact of language loss. *Science Advances, 9*(16), eadg6175. https://doi.org/10.1126/sciadv.adg6175',
   'Moran, S., & McCloy, D. (Eds.). (2019). *PHOIBLE 2.0*. Max Planck Institute for the Science of Human History. https://phoible.org',
+  'Saaty, T. L. (1980). *The analytic hierarchy process*. McGraw-Hill.',
 ]
 
 // Stand-in values the plan requires the page to flag (section 3.2).

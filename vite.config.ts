@@ -18,6 +18,6 @@ export default defineConfig({
   build: {
     target: 'es2022',
     cssMinify: true,
-    rollupOptions: { input: { main: 'index.html', test: 'test/index.html' } },
+    rollupOptions: { input: { main: 'index.html', test: 'test/index.html', survey: 'survey/index.html' } },
   },
 })

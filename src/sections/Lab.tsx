@@ -1,26 +1,28 @@
 import { useEffect, useLayoutEffect, useMemo, useRef, useState, type KeyboardEvent, type PointerEvent } from 'react'
-import { ChevronRight, Info, ListOrdered, SlidersHorizontal } from 'lucide-react'
+import { ChevronRight, ClipboardList, FileText, Info, ListOrdered, SlidersHorizontal } from 'lucide-react'
 import { useI18n } from '../components/i18n'
 import { CLEAR } from '../components/Card'
 import { Glass } from '../components/Glass'
 import { SectionHead } from '../components/SectionHead'
 import { Sheet } from '../components/Sheet'
-import { DEMO_LANGS, DIMS, type Dim } from '../content/content'
+import { DIMS, NATIVE_NAMES, type Dim } from '../content/content'
 import demands from '../data/language_demands.json'
 import { scoreT } from '../a/similarity'
 import { PROVISIONAL } from '../data/citations'
-import { A_DEFAULT_WEIGHT, ABILITIES, explainA, scoreA, weightedScore, type Ability, type Lang as Demand } from '../a/score'
+import { ABILITIES, explainA, scoreA, weightedScore, type Ability, type Lang as Demand } from '../a/score'
 import { useTall } from '../components/tall'
 import { LANGUAGES, sortedLanguages, toggleLanguage, useKnownLanguages, type Slot } from '../components/languages'
 import { goTo } from '../components/pager'
+import { setSlider, setTier, useDecision } from '../components/decision'
+import { questions, REGION_EN } from '../decision/questions'
+import { autoWeights, bestGoal, fixedWeights, interestOf, LANGS, modeTier, questionnaireWeights, report, scoresFor, SLIDER_MAX, weightInput, type Accept, type Scored, type Weights } from '../decision/score'
 import { engine, Spring } from '../gl/engine'
 
-type Goal = 'job' | 'study' | 'travel' | 'academic'
 type W = Dim
 const SHOW_TOP = 8
 const THUMB_W = 46
 
-function Slider({ dim, label, value, onChange, locked }: { dim: W; label: string; value: number; onChange: (v: number) => void; locked?: boolean }) {
+function Slider({ dim, label, value, max = 100, onChange, locked }: { dim: W; label: string; value: number; max?: number; onChange: (v: number) => void; locked?: boolean }) {
   const track = useRef<HTMLDivElement>(null)
   const thumb = useRef<HTMLSpanElement>(null)
   const fill = useRef<HTMLSpanElement>(null)
@@ -39,25 +41,25 @@ function Slider({ dim, label, value, onChange, locked }: { dim: W; label: string
         pos.current.step(dt)
         held.current.step(dt)
         const w = track.current?.clientWidth ?? 0
-        const x = THUMB_W / 2 + (pos.current.x / 100) * (w - THUMB_W)
+        const x = THUMB_W / 2 + (pos.current.x / max) * (w - THUMB_W)
         const stretch = Math.min(Math.abs(pos.current.v) / 900, 0.3)
         const grow = 1 + held.current.x * 0.16
         if (thumb.current) thumb.current.style.transform = `translate3d(${x.toFixed(2)}px,0,0) scale(${(grow * (1 + stretch)).toFixed(3)},${(grow * (1 - stretch * 0.4)).toFixed(3)})`
         if (fill.current) fill.current.style.transform = `scaleX(${(x / Math.max(1, w)).toFixed(4)})`
       }),
-    [],
+    [max],
   )
 
   const at = (e: PointerEvent) => {
     const r = track.current!.getBoundingClientRect()
-    onChange(Math.round(Math.min(100, Math.max(0, ((e.clientX - r.left - THUMB_W / 2) / (r.width - THUMB_W)) * 100))))
+    onChange(Math.round(Math.min(max, Math.max(0, ((e.clientX - r.left - THUMB_W / 2) / (r.width - THUMB_W)) * max))))
   }
   const onKey = (e: KeyboardEvent) => {
     if (locked) return
     const d = e.key === 'ArrowRight' || e.key === 'ArrowUp' ? 5 : e.key === 'ArrowLeft' || e.key === 'ArrowDown' ? -5 : 0
     if (!d) return
     e.preventDefault()
-    onChange(Math.min(100, Math.max(0, value + d)))
+    onChange(Math.min(max, Math.max(0, value + d)))
   }
 
   return (
@@ -73,7 +75,7 @@ function Slider({ dim, label, value, onChange, locked }: { dim: W; label: string
         tabIndex={0}
         aria-label={label}
         aria-valuemin={0}
-        aria-valuemax={100}
+        aria-valuemax={max}
         aria-valuenow={value}
         aria-disabled={locked}
         onKeyDown={onKey}
@@ -119,7 +121,7 @@ type Row = { id: string; name: string; native?: string; values: Partial<Record<D
 
 const HARD: Record<Ability, 'grammar' | 'sound' | 'script'> = { LA: 'grammar', SD: 'sound', VL: 'script' }
 
-function RankList({ rows, dims, onOpen, liked, onLike, refs }: { rows: Row[]; dims: readonly Dim[]; onOpen: (id: string) => void; liked: Set<string>; onLike: (id: string) => void; refs?: Map<string, HTMLLIElement> }) {
+function RankList({ rows, onOpen, refs }: { rows: Row[]; onOpen: (id: string) => void; refs?: Map<string, HTMLLIElement> }) {
   const { t } = useI18n()
   const l = t.lab
   return (
@@ -139,8 +141,8 @@ function RankList({ rows, dims, onOpen, liked, onLike, refs }: { rows: Row[]; di
               <strong>{r.name}</strong>
               {r.native && <span>{r.native}</span>}
             </span>
-            <span className="rank__bars" style={{ '--n': dims.length } as React.CSSProperties}>
-              {dims.map((k) => {
+            <span className="rank__bars" style={{ '--n': DIMS.length } as React.CSSProperties}>
+              {DIMS.map((k) => {
                 const v = r.values[k]
                 return (
                   <span key={k} className={`bar tone-${k}${v == null ? ' bar--off' : ''}`} title={l.dimShort[k]}>
@@ -150,11 +152,6 @@ function RankList({ rows, dims, onOpen, liked, onLike, refs }: { rows: Row[]; di
               })}
             </span>
             <span className="rank__score">{r.score == null ? '—' : Math.round(r.score)}</span>
-          </button>
-          <button type="button" className={`like${liked.has(r.id) ? ' on' : ''}`} aria-pressed={liked.has(r.id)} aria-label={`${l.like}: ${r.name}`} onClick={() => onLike(r.id)}>
-            <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
-              <path d="M12 3.2 21 19.5H3Z" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinejoin="round" />
-            </svg>
           </button>
         </li>
       ))}
@@ -167,35 +164,36 @@ export function Lab() {
   const l = t.lab
   const { percentiles, count, placeholder } = useTall()
   const known = useKnownLanguages()
-  const [goal, setGoal] = useState<Goal>('study')
-  const [demo, setDemo] = useState(false)
-  const [weights, setW] = useState<Record<W, number>>({ T: 40, A: A_DEFAULT_WEIGHT, G: 60, R: 40, P: 30 })
-  const [liked, setLiked] = useState<Set<string>>(() => new Set())
-  const [open, setOpen] = useState<'adjust' | 'all' | 'langs' | null>(null)
+  const { answers, tier, sliders } = useDecision()
+  const c = questions[lang]
+  const [open, setOpen] = useState<'adjust' | 'all' | 'langs' | 'report' | null>(null)
   const [detail, setDetail] = useState<string | null>(null)
   const [lastDetail, setLastDetail] = useState<string | null>(null)
 
   const hasA = count > 0
-  const dims: readonly Dim[] = demo ? DIMS : (['T', 'A', 'P'] as const)
-  const w: Record<W, number> = { ...weights, A: hasA ? weights.A : 0, ...(demo ? {} : { G: 0, R: 0 }) }
+  const weightsIn = tier === 'sponsor' && answers.confirmed ? weightInput(answers) : null
+  const auto = weightsIn ? questionnaireWeights(weightsIn) : null
 
-  const rows = useMemo(() => {
+  const { rows, w } = useMemo(() => {
     // Languages you already have are never recommended.
     const have = new Set([...known.l1, ...known.l2])
-    const pool = (demo ? demands.filter((d) => DEMO_LANGS.some((x) => x.id === d.id)) : demands).filter((d) => !have.has(d.id))
-    const list: Row[] = pool.map((d) => {
+    const pool = demands.filter((d) => !have.has(d.id))
+    const scored = pool.map((d) => ({ d, s: scoresFor(LANGS.find((x) => x.id === d.id)!, answers, tier) }))
+    const missing = (['G', 'R', 'P'] as const).filter((k) => scored.length > 0 && scored.every((x) => x.s[k] === null))
+    const chosen = auto ? autoWeights({ G: auto.G, R: auto.R, P: auto.P }, missing) : sliders
+    const w: Weights = { ...fixedWeights(hasA), ...chosen }
+    const list: Row[] = scored.map(({ d, s }) => {
       const a = scoreA(d as Demand, percentiles)
-      const p = liked.size ? (liked.has(d.id) ? 100 : 0) : null
-      const ph = DEMO_LANGS.find((x) => x.id === d.id)
       const t = scoreT(d.id, [...have])
-      const values: Row['values'] = { T: t?.value ?? null, A: a, P: p }
-      if (demo && ph) Object.assign(values, { G: ph.G[goal] * 100, R: ph.R * 100 })
-      return { id: d.id, name: lang === 'zh' ? d.zh : d.en, native: ph?.native, values, a, t, score: weightedScore(values, w), lang: d }
+      const values: Row['values'] = { T: t?.value ?? null, A: a, ...s }
+      return { id: d.id, name: lang === 'zh' ? d.zh : d.en, native: NATIVE_NAMES[d.id], values, a, t, score: weightedScore(values, w), lang: d }
     })
-    return list.sort((x, y) => (y.score ?? -1) - (x.score ?? -1))
-    // `w` is rebuilt from its inputs every render.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [demo, known, goal, weights, liked, percentiles, lang, hasA])
+    return { rows: list.sort((x, y) => (y.score ?? -1) - (x.score ?? -1)), w }
+  }, [known, answers, tier, sliders, percentiles, lang, hasA, auto])
+
+  const off = (d: Scored) => rows.length > 0 && rows.every((r) => r.values[d] == null)
+  const surveyHref = `${import.meta.env.BASE_URL}survey/`
+  const reports = tier === 'sponsor' && answers.confirmed ? report(rows, w) : []
 
   const shown = rows.slice(0, SHOW_TOP)
 
@@ -221,14 +219,6 @@ export function Lab() {
     })
   }, [rows])
 
-  const toggle = (id: string) =>
-    setLiked((s) => {
-      const n = new Set(s)
-      if (n.has(id)) n.delete(id)
-      else n.add(id)
-      return n
-    })
-
   const openDetail = (id: string) => {
     setLastDetail(id)
     setDetail(id)
@@ -249,6 +239,21 @@ export function Lab() {
           : l.whyBalanced) + (why.even ? l.whyEven : '')
   const flags = PROVISIONAL.filter((x) => x.zh === pick?.lang.zh)
   const partial = pick?.lang.la_source === 'grambank+ai_fill'
+  const dec = LANGS.find((x) => x.id === pick?.id)
+  const goal = bestGoal(answers.goals)
+  const whyG = dec && pick?.values.G != null ? l.whyG.replace('{goal}', c.goalsShort[goal]).replace('{level}', l.levels[dec.g[goal] - 1]) : l.surveyFirst
+  const whyR = dec ? l.whyR.replace('{cover}', l.levels[dec.r.coverage - 1]).replace('{mode}', c.modeWords[answers.mode]).replace('{level}', l.levels[modeTier(dec, answers.mode) - 1]) : ''
+  const interest = dec ? interestOf(dec, answers) : null
+  const acceptKeys: Accept[] = tier === 'sponsor' ? ['VL', 'SD', 'LA'] : ['VL', 'SD']
+  const whyP = pick?.values.P == null
+    ? l.surveyFirst
+    : [
+        interest != null ? l.whyP.replace('{region}', lang === 'zh' ? (dec?.region ?? '') : (REGION_EN[dec?.region ?? ''] ?? '')).replace('{score}', String(interest)) : '',
+        // A language at the bottom of the scale doesn't demand this, so there is nothing to warn about.
+        ...acceptKeys.filter((k) => answers.accept[k] != null && answers.accept[k] !== 3 && (dec?.[`D_${k}`] ?? 0) > 0.2).map((k) => l.whyAccept.replace('{need}', l.needs[k]).replace('{choice}', c.willing[(answers.accept[k] as number) - 1])),
+      ].join('')
+  const dimLine = (d: (typeof DIMS)[number], name: string) => `${l.dimShort[d]}（${Math.round(rows.find((x) => x.name === name)?.values[d] ?? 0)}）`
+  const nameById = (id: string) => rows.find((x) => x.id === id)?.name ?? id
 
   return (
     <section id="lab" className="section">
@@ -270,12 +275,12 @@ export function Lab() {
               <span className="micro">{l.summary}</span>
               <strong>{hasA ? l.haveTall.replace('{n}', String(count)) : l.noTall}</strong>
             </span>
-            <span className="lab__meters" style={{ '--n': dims.length } as React.CSSProperties}>
-              {dims.map((k) => (
+            <span className="lab__meters" style={{ '--n': DIMS.length } as React.CSSProperties}>
+              {DIMS.map((k) => (
                 <span key={k} className={`meter tone-${k}`}>
                   <b>{k}</b>
                   <i>
-                    <u style={{ transform: `scaleX(${w[k] / 100})` }} />
+                    <u style={{ transform: `scaleX(${w[k] / SLIDER_MAX})` }} />
                   </i>
                 </span>
               ))}
@@ -285,12 +290,16 @@ export function Lab() {
               {l.adjust}
             </span>
           </Glass>
+          <a className="lab__survey" href={surveyHref}>
+            <ClipboardList size={16} strokeWidth={1.8} />
+            {answers.done ? l.surveyEdit : l.surveyStart}
+          </a>
           </div>
 
           <Glass className="lab__out" radius={32} {...CLEAR} frost={0.34} dim={0.34} delay={100}>
             <header>
               <h3>{l.results}</h3>
-              {demo ? <em className="tag tag--demo">{l.demoTag}</em> : <em className="tag">{l.experimental}</em>}
+              <em className="tag">{tier === 'sponsor' ? c.sponsorName : c.basicName}</em>
               {placeholder && <em className="tag tag--demo">{l.placeholderTag}</em>}
             </header>
             {!hasA && (
@@ -299,11 +308,17 @@ export function Lab() {
               </button>
             )}
             {rows.length === 0 && <p className="note">{l.emptyPool}</p>}
-            <RankList rows={shown} dims={dims} onOpen={openDetail} liked={liked} onLike={toggle} refs={rowEls.current} />
+            <RankList rows={shown} onOpen={openDetail} refs={rowEls.current} />
             {rows.length > SHOW_TOP && (
               <button type="button" className="lab__more" onClick={() => setOpen('all')}>
                 <ListOrdered size={16} strokeWidth={1.8} />
                 {l.seeAll.replace('{n}', String(rows.length))}
+              </button>
+            )}
+            {reports.length > 0 && (
+              <button type="button" className="lab__more" onClick={() => setOpen('report')}>
+                <FileText size={16} strokeWidth={1.8} />
+                {l.reportOpen}
               </button>
             )}
           </Glass>
@@ -333,51 +348,64 @@ export function Lab() {
         <div className="lab__form">
           <fieldset>
             <legend>{l.weights}</legend>
-            <Slider dim="T" label={l.dimShort.T} value={w.T} onChange={(v) => setW((o) => ({ ...o, T: v }))} />
-            <Slider dim="A" label={l.dimShort.A} value={w.A} locked={!hasA} onChange={(v) => setW((o) => ({ ...o, A: v }))} />
+            <p className="note">{l.fixedNote}</p>
             {!hasA && <p className="locked tone-A">{l.locked}</p>}
-            <Slider dim="P" label={l.dimShort.P} value={w.P} onChange={(v) => setW((o) => ({ ...o, P: v }))} />
+            {auto ? (
+              <>
+                <p className="note">{l.autoNote}</p>
+                {(['G', 'R', 'P'] as const).map((k) => (
+                  <div className={`slider__label tone-${k}`} key={k}>
+                    <b>{k}</b>
+                    <span>{l.dimShort[k]}</span>
+                    <output>{Math.round(w[k])}</output>
+                  </div>
+                ))}
+                <a className="lab__survey" href={surveyHref}>
+                  {l.surveyEdit}
+                </a>
+              </>
+            ) : (
+              (['G', 'R', 'P'] as const).map((k) => (
+                <div key={k}>
+                  <Slider dim={k} label={l.dimShort[k]} value={sliders[k]} max={SLIDER_MAX} locked={off(k)} onChange={(v) => setSlider(k, v)} />
+                  {off(k) && <p className="locked">{l.fillFirst}</p>}
+                </div>
+              ))
+            )}
           </fieldset>
           <fieldset>
-            <legend>{l.demoLabel}</legend>
-            <label className="switch">
-              <input type="checkbox" checked={demo} onChange={(e) => setDemo(e.target.checked)} />
-              <span>{l.demoSwitch}</span>
-            </label>
-            <p className="note">{l.demoNote}</p>
+            <legend>{l.tierLabel}</legend>
+            <div className="chips">
+              {(['basic', 'sponsor'] as const).map((id) => (
+                <button key={id} type="button" className="chip" aria-pressed={tier === id} onClick={() => setTier(id)}>
+                  {id === 'basic' ? c.basicName : c.sponsorName}
+                </button>
+              ))}
+            </div>
+            <p className="note">{l.tierNote}</p>
           </fieldset>
-          {demo && (
-            <>
-              <fieldset>
-                <legend>{l.goal}</legend>
-                <div className="chips">
-                  {l.goals.map(([id, label]) => (
-                    <button key={id} type="button" className="chip" aria-pressed={goal === id} onClick={() => setGoal(id as Goal)}>
-                      {label}
-                    </button>
-                  ))}
-                </div>
-              </fieldset>
-              <fieldset>
-                {(['G', 'R'] as const).map((k) => (
-                  <Slider key={k} dim={k} label={l.dimShort[k]} value={weights[k]} onChange={(v) => setW((o) => ({ ...o, [k]: v }))} />
-                ))}
-              </fieldset>
-            </>
-          )}
         </div>
+      </Sheet>
+
+      <Sheet open={open === 'report'} onClose={() => setOpen(null)} kicker={l.results} title={l.reportOpen}>
+        <ol className="cites">
+          {reports.map((r) => (
+            <li key={r.id}>
+              {l.reportTop.replace('{name}', nameById(r.id)).replace('{rank}', String(r.rank)).replace('{a}', dimLine(r.top[0], nameById(r.id))).replace('{b}', r.top[1] ? dimLine(r.top[1], nameById(r.id)) : '')}
+              {r.weak && l.reportWeak.replace('{dim}', dimLine(r.weak, nameById(r.id)))}
+              {r.flips.map((f) => l.reportFlip.replace('{dim}', l.dimShort[f.dim]).replace('{name}', nameById(f.id))).join('')}
+            </li>
+          ))}
+        </ol>
       </Sheet>
 
       <Sheet open={open === 'all'} onClose={() => setOpen(null)} kicker={l.kicker} title={l.results}>
         <RankList
           rows={rows}
-          dims={dims}
           onOpen={(id) => {
             setOpen(null)
             openDetail(id)
           }}
-          liked={liked}
-          onLike={toggle}
         />
       </Sheet>
 
@@ -391,6 +419,16 @@ export function Lab() {
         </div>
         <p className="sheet__lead">{pick.t ? l.whyT.replace('{name}', nameOf(pick.t.nearest)).replace('{s}', String(Math.round(pick.t.value))) : l.whyTNone}</p>
         <p className="sheet__lead">{whyText}</p>
+        <ul className="facets">
+          {([['G', whyG], ['R', whyR], ['P', whyP]] as const).map(([k, text]) => (
+            <li key={k}>
+              <strong>
+                {l.dimShort[k]} {pick.values[k] == null ? '—' : Math.round(pick.values[k] as number)}
+              </strong>
+              <span>{text}</span>
+            </li>
+          ))}
+        </ul>
         <div className="bars">
           {ABILITIES.map((k) => (
             <div className="pbar" key={k}>
@@ -404,7 +442,7 @@ export function Lab() {
         </div>
         <p className="sheet__note">
           <Info size={15} strokeWidth={1.8} />
-          {l.tNote} {l.aNote}
+          {l.tNote} {l.aNote} {l.aiNote}
         </p>
         {(flags.length > 0 || partial) && (
           <p className="note">
