@@ -21,8 +21,6 @@ export function Evidence() {
   const list = useRef<HTMLUListElement>(null)
   const rows = useRef(new Map<string, HTMLLIElement>())
   const before = useRef<Snapshot | null>(null)
-  useLens(lens, tabs, filter)
-
   // Records where everything is on screen, mid-animation included, so a quick
   // second tap continues from the current position instead of jumping.
   const choose = (i: number) => {
@@ -37,6 +35,8 @@ export function Evidence() {
     before.current = snapshot
     setFilter(i)
   }
+
+  useLens(lens, tabs, filter, choose)
 
   // FLIP: rows glide to their new slots while the pane resizes like liquid.
   useLayoutEffect(() => {
@@ -73,14 +73,11 @@ export function Evidence() {
   }, [filter])
 
   return (
-    <Glass className="evidence" radius={38} bevel={15} frost={0.74} dim={0.42}>
+    <div className="evidence">
       <div className="evidence__head">
-        <div>
-          <h3>{a.evidenceTitle}</h3>
-          <p>{a.evidenceIntro}</p>
-        </div>
+        <p>{a.evidenceIntro}</p>
         <div className="seg" role="group" aria-label={a.evidenceTitle}>
-          <Glass className="seg__lens" radius={999} bevel={20} depth={1.2} frost={0.15} dim={0} tint={[1, 1, 1, 0.085]} shadow={0.45} reveal={false} layer={1} elRef={lens} aria-hidden="true" />
+          <Glass className="seg__lens" radius={999} bevel={20} depth={1.2} frost={0.15} dim={0} tint={[1, 1, 1, 0.085]} shadow={0.45} reveal={false} layer={3} elRef={lens} aria-hidden="true" />
           {a.filters.map((f, i) => (
             <button
               key={f.id}
@@ -114,6 +111,6 @@ export function Evidence() {
           </li>
         ))}
       </ul>
-    </Glass>
+    </div>
   )
 }

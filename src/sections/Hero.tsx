@@ -2,8 +2,8 @@ import { useEffect, useRef, type CSSProperties, type PointerEvent } from 'react'
 import { useI18n } from '../components/i18n'
 import { Glass } from '../components/Glass'
 import { engine } from '../gl/engine'
+import { goTo, pager } from '../components/pager'
 
-const jump = (id: string) => document.getElementById(id)?.scrollIntoView({ behavior: engine.reduced ? 'auto' : 'smooth' })
 const at = (d: string) => ({ '--d': d }) as CSSProperties
 
 export function Hero() {
@@ -21,7 +21,7 @@ export function Hero() {
 
   // Touch: a horizontal drag steers the beam. touch-action: pan-y keeps vertical scrolling native.
   const onDown = (e: PointerEvent) => {
-    if (e.pointerType !== 'mouse') drag.current = e.clientX
+    if (e.pointerType !== 'mouse' && !pager.enabled) drag.current = e.clientX
   }
   const onMove = (e: PointerEvent) => {
     if (drag.current !== null) engine.setSteer((e.clientX - drag.current) / (window.innerWidth * 0.42))
@@ -47,13 +47,14 @@ export function Hero() {
         </h1>
         <div className="hero__copy">
           <p className="lead intro" style={at('1.55s')}>
-            {h.lead}
+            <span className="desk-only">{h.lead}</span>
+            <span className="phone-only">{h.leadShort}</span>
           </p>
           <div className="hero__cta intro" style={at('1.7s')}>
-            <Glass as="button" type="button" className="btn btn--solid" radius={999} bevel={27} depth={0.7} frost={0.3} dim={0} tint={[0.96, 0.97, 1, 0.86]} press reveal={false} onClick={() => jump('spectrum')}>
+            <Glass as="button" type="button" className="btn btn--solid" radius={999} bevel={27} depth={0.7} frost={0.3} dim={0} tint={[0.96, 0.97, 1, 0.86]} press reveal={false} onClick={() => goTo('spectrum')}>
               {h.cta1}
             </Glass>
-            <Glass as="button" type="button" className="btn" radius={999} bevel={27} depth={1} frost={0.4} dim={0.2} press reveal={false} onClick={() => jump('lab')}>
+            <Glass as="button" type="button" className="btn" radius={999} bevel={27} depth={1} frost={0.1} dim={0.1} press reveal={false} onClick={() => goTo('lab')}>
               {h.cta2}
             </Glass>
           </div>

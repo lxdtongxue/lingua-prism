@@ -23,6 +23,7 @@ export type PaneOptions = {
   shadow?: number
   delay?: number
   layer?: number
+  force?: boolean
 }
 
 type Program = { p: WebGLProgram; u: Record<string, WebGLUniformLocation | null> }
@@ -64,6 +65,7 @@ type Pane = {
   ptrS: Spring
   rip: { x: number; y: number; age: number; amp: number }
   parent?: Pane | null
+  inPage?: boolean
 }
 
 const QUALITY = [
@@ -100,6 +102,11 @@ class Engine {
   private time = 0
   private running = false
   reduced = typeof matchMedia !== 'undefined' && matchMedia('(prefers-reduced-motion: reduce)').matches
+  // Phones page sideways instead of scrolling, so the canvas stays put and the
+  // scene is offset per page.
+  pager = false
+  private pagePos = 0
+  private pageAlpha = new Spring(1, 110, 21)
 
   // Pipeline state.
   private prog!: Record<'scene' | 'down' | 'up' | 'bg' | 'rect' | 'tri', Program>
@@ -138,6 +145,7 @@ class Engine {
   private steerInput = 0
   private introT = 0
   private introStart = -1
+  private introHeld = false
   private rotS = new Spring(0, 30, 9)
   private prismFade = new Spring(0, 30, 12)
   private heroPress = new Spring(0, 200, 20)
@@ -148,6 +156,10 @@ class Engine {
 
   get ready() {
     return !!this.gl
+  }
+
+  private get overscan() {
+    return this.pager ? 0 : OVERSCAN
   }
 
   mount(stage: HTMLElement, canvas: HTMLCanvasElement) {
@@ -206,9 +218,10 @@ class Engine {
       shadow: 1,
       delay: 0,
       layer: 0,
+      force: false,
       ...Object.fromEntries(Object.entries(opts).filter(([, v]) => v !== undefined)),
     }
-    const showNow = !o.reveal || this.reduced
+    const showNow = !o.force && (!o.reveal || this.reduced || this.pager)
     const pane: Pane = {
       el,
       o,
@@ -255,6 +268,47 @@ class Engine {
     p.cs[0].target = c[0]
     p.cs[1].target = c[1]
     p.cs[2].target = c[2]
+  }
+
+  holdIntro() {
+    this.introHeld = true
+  }
+
+  releaseIntro() {
+    this.introHeld = false
+  }
+
+  setPager(on: boolean) {
+    if (on === this.pager) return
+    this.pager = on
+    if (on) {
+      for (const p of this.panes) {
+        p.revealed = true
+        p.rev.x = p.rev.target = 1
+      }
+    } else this.pagePos = 0
+    if (!this.canvas) return
+    this.cssW = 0
+    this.onResize()
+  }
+
+  // A detail sheet takes over the stage, so the page's own glass steps aside.
+  setPageAlpha(a: number, snap = false) {
+    this.pageAlpha.target = a
+    if (snap) this.pageAlpha.x = a
+  }
+
+  dismiss(el: HTMLElement) {
+    const p = this.byEl.get(el)
+    if (!p) return
+    p.revealed = true
+    p.rev.target = 0
+    p.rev.k = 280
+    p.rev.c = 30
+  }
+
+  setPage(pos: number) {
+    this.pagePos = pos
   }
 
   // Index follows RAY_COLORS; -1 evens all five out again.
@@ -387,8 +441,8 @@ class Engine {
     this.gl = gl
     try {
       const sceneU = [
-        'uCss', 'uDocTop', 'uT', 'uVH', 'uE', 'uX', 'uIn', 'uFan', 'uSpread', 'uI1', 'uI2', 'uHero', 'uPR', 'uC',
-        'uPool', 'uPoolC', 'uRay', 'uRayG', 'uTxt', 'uTxtA', 'uTxtLod', 'uRowH',
+        'uCss', 'uDocTop', 'uDocLeft', 'uT', 'uVH', 'uE', 'uX', 'uIn', 'uFan', 'uSpread', 'uI1', 'uI2', 'uHero', 'uPR', 'uC',
+        'uPool', 'uPoolC', 'uRay', 'uRayG', 'uTxt', 'uTxtA', 'uTxtLod', 'uTxtSoft', 'uRowH',
       ]
       const glassU = [
         'uQuad', 'uRes', 'uRect', 'uRadius', 'uBevel', 'uDepth', 'uFrost', 'uDim', 'uAlpha', 'uPx', 'uHover', 'uShadow',
@@ -398,7 +452,7 @@ class Engine {
         scene: this.compile(QUAD_VS, SCENE_FS, sceneU),
         down: this.compile(QUAD_VS, DOWN_FS, ['uTex', 'uTexel']),
         up: this.compile(QUAD_VS, UP_FS, ['uTex', 'uTexel']),
-        bg: this.compile(QUAD_VS, BG_FS, ['uScene', 'uBlur', 'uCss', 'uDocTop', 'uFloor', 'uFloorFade', 'uT', 'uHero']),
+        bg: this.compile(QUAD_VS, BG_FS, ['uScene', 'uBlur', 'uCss', 'uDocTop', 'uFloor', 'uFloorFade', 'uT', 'uHero', 'uDocLeft', 'uVH', 'uE', 'uX', 'uIn', 'uFan', 'uSpread', 'uI1', 'uI2', 'uPR', 'uRay']),
         rect: this.compile(PANE_VS, GLASS_RECT_FS, glassU),
         tri: this.compile(PANE_VS, GLASS_TRI_FS, glassU),
       }
@@ -418,7 +472,6 @@ class Engine {
     gl.bindTexture(gl.TEXTURE_2D, blank)
     gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, 1, 1, 0, gl.RGBA, gl.UNSIGNED_BYTE, new Uint8Array([0, 0, 0, 255]))
     this.textTex = blank
-    this.tier = matchMedia('(pointer: coarse)').matches ? 1 : 0
   }
 
   private async loadAtlas() {
@@ -476,7 +529,7 @@ class Engine {
     if (w === this.cssW && Math.abs(lvh - this.lvh) < 2 && this.gl && this.scene) return
     this.cssW = w
     this.lvh = lvh
-    this.cssH = Math.ceil(lvh + OVERSCAN * 2)
+    this.cssH = Math.ceil(lvh + this.overscan * 2)
     this.resizeGL()
   }
 
@@ -616,8 +669,8 @@ class Engine {
     this.time += this.reduced ? dt * 0.15 : dt
     // The intro follows the wall clock so a throttled tab still finishes it.
     const wall = now / 1000
-    if (this.introStart < 0 && this.gl) this.introStart = wall + 0.25
-    this.introT = this.reduced ? 3 : Math.max(0, wall - this.introStart)
+    if (this.introStart < 0 && this.gl && !this.introHeld) this.introStart = wall + 0.05
+    this.introT = this.reduced ? 3 : this.introStart < 0 ? 0 : Math.max(0, wall - this.introStart)
 
     for (const fn of this.ticks) fn(dt, this.time)
     this.stepPanes(dt, now)
@@ -633,6 +686,15 @@ class Engine {
   private stepPanes(dt: number, now: number) {
     const sy = window.scrollY
     const vh = this.vh
+    if (this.pager) {
+      // Observers can't see past the pager's clip, and a neighbouring page has to
+      // be ready the moment a finger drags it in.
+      const w = this.cssW
+      for (const p of this.panes) {
+        const r = p.el.getBoundingClientRect()
+        p.near = r.width > 0 && r.right > -w * 0.1 && r.left < w * 1.1
+      }
+    }
     // Writes first, then reads, so we never force layout mid-frame.
     for (const p of this.panes) {
       if (!p.near) continue
@@ -705,8 +767,11 @@ class Engine {
   private draw(dt: number) {
     const gl = this.gl!
     if (!this.scene) return
-    const sy = Math.max(0, window.scrollY)
-    const docTop = sy - OVERSCAN
+    const sy = this.pager ? 0 : Math.max(0, window.scrollY)
+    const docTop = sy - this.overscan
+    const page = this.pager ? this.pagePos : 0
+    const worldAt = (p: number): [number, number] => [p * this.cssW * 0.35, p * this.vh * 0.9]
+    const [wx, wy] = worldAt(page)
     const t = this.time
     const canvas = this.canvas!
     canvas.style.transform = `translate3d(0,${docTop}px,0)`
@@ -727,13 +792,17 @@ class Engine {
       R = r.width / 2
     }
     // The prism stands on a mirror: the floor sits just under its base.
-    if (hero) floor = cy + R * 0.58
+    const cxWorld = cx + wx
+    const cyWorld = cy + wy
+    if (hero) floor = cyWorld + R * 0.58
 
-    const heroFade = clamp(1 - sy / (this.vh * 1.5), 0, 1)
+    this.pageAlpha.step(dt)
+    const pageA = clamp(this.pageAlpha.x, 0, 1)
+    const heroFade = (this.pager ? clamp(1 - Math.abs(page) * 1.5, 0, 1) : clamp(1 - sy / (this.vh * 1.5), 0, 1)) * pageA
     const sway = this.reduced ? 0 : Math.sin(t * 0.21) * 0.3 + Math.sin(t * 0.13 + 1.3) * 0.2
 
     // Mouse steers from anywhere over the hero; touch steers via setSteer().
-    if (!this.ptr.touch && this.ptr.inside && sy < this.vh) {
+    if (!this.ptr.touch && this.ptr.inside && sy < this.vh && page < 0.5) {
       this.steer.target = clamp((this.ptr.x / this.cssW - 0.5) * 2, -1, 1)
     } else {
       this.steer.target = this.steerInput !== 0 ? this.steerInput : sway
@@ -745,8 +814,8 @@ class Engine {
     const fan = (mix(62, 17, k) + st * 7.5) * DEG
     const spread = (mix(5.2, 4.6, k) + Math.abs(st) * 0.9) * DEG
     const inDir: [number, number] = [Math.cos(inA), Math.sin(inA)]
-    const e: [number, number] = [cx - inDir[0] * R * 0.42, cy - inDir[1] * R * 0.42]
-    const x: [number, number] = [cx + Math.cos(fan) * R * 0.42, cy + Math.sin(fan) * R * 0.42]
+    const e: [number, number] = [cxWorld - inDir[0] * R * 0.42, cyWorld - inDir[1] * R * 0.42]
+    const x: [number, number] = [cxWorld + Math.cos(fan) * R * 0.42, cyWorld + Math.sin(fan) * R * 0.42]
 
     const i1 = this.reduced ? 1 : clamp(this.introT / 1.2, 0, 1)
     const i2 = this.reduced ? 1 : clamp((this.introT - 0.75) / 1.6, 0, 1)
@@ -760,7 +829,7 @@ class Engine {
       lx = this.ptr.x
       ly = this.ptr.y
     } else {
-      const a = t * 0.34 + sy * 0.0016
+      const a = t * 0.34 + sy * 0.0016 + page * 0.9
       lx = this.cssW * (0.5 + 0.46 * Math.cos(a))
       ly = this.vh * (0.42 + 0.46 * Math.sin(a * 0.8))
     }
@@ -778,13 +847,14 @@ class Engine {
     gl.disable(gl.BLEND)
     gl.useProgram(s.p)
     gl.uniform2f(s.u.uCss, this.cssW, this.cssH)
-    gl.uniform1f(s.u.uDocTop, docTop)
+    gl.uniform1f(s.u.uDocTop, docTop + wy)
+    gl.uniform1f(s.u.uDocLeft, wx)
     gl.uniform1f(s.u.uT, t)
     gl.uniform1f(s.u.uVH, this.vh)
     gl.uniform2f(s.u.uE, e[0], e[1])
     gl.uniform2f(s.u.uX, x[0], x[1])
     gl.uniform2f(s.u.uIn, inDir[0], inDir[1])
-    gl.uniform2f(s.u.uC, cx, cy)
+    gl.uniform2f(s.u.uC, cxWorld, cyWorld)
     gl.uniform1f(s.u.uPR, R)
     gl.uniform1f(s.u.uFan, fan)
     gl.uniform1f(s.u.uSpread, spread)
@@ -795,9 +865,11 @@ class Engine {
     const poolCol = new Float32Array(18)
     this.pools.slice(0, 6).forEach((p, i) => {
       const r = p.el?.getBoundingClientRect()
-      const py = r ? r.top + sy + p.dy * r.height : 0
+      // In pager mode every section sits at y = 0, so each pool gets its own spot in the scene.
+      const [px, py0] = this.pager ? worldAt(i) : [0, 0]
+      const py = r ? r.top + sy + p.dy * r.height + py0 : 0
       const drift = Math.sin(t * 0.17 + i * 2.1) * 60
-      poolData.set([p.x * this.cssW + drift, py + Math.cos(t * 0.14 + i) * 40, p.r * Math.max(this.vh, this.cssW * 0.6), p.a], i * 4)
+      poolData.set([p.x * this.cssW + px + drift, py + Math.cos(t * 0.14 + i) * 40, p.r * Math.max(this.vh, this.cssW * 0.6), p.a], i * 4)
       poolCol.set([p.cs[0].x, p.cs[1].x, p.cs[2].x], i * 3)
     })
     gl.uniform4fv(s.u.uPool, poolData)
@@ -808,9 +880,11 @@ class Engine {
     this.tex(0, this.textTex)
     gl.uniform1i(s.u.uTxt, 0)
     // Narrow screens stack body copy over the rays, so the words stay quieter there.
-    gl.uniform1f(s.u.uTxtA, this.textA.x * mix(0.42, 1, clamp((this.cssW - 420) / 480, 0, 1)))
+    gl.uniform1f(s.u.uTxtA, this.textA.x * mix(0.72, 1, clamp((this.cssW - 420) / 480, 0, 1)))
     const atlasRow = 2048 / 2 / 6
-    const rowH = Math.min(this.vh * 0.125, this.cssW * 0.085 + 24)
+    const rowH = Math.min(this.vh * 0.125, this.cssW * 0.13 + 24)
+    // Small type blurs into bands, so phones get a tighter blur.
+    gl.uniform1f(s.u.uTxtSoft, mix(0.9, 2, clamp((this.cssW - 420) / 480, 0, 1)))
     gl.uniform1f(s.u.uRowH, rowH)
     gl.uniform1f(s.u.uTxtLod, Math.max(0, Math.log2(atlasRow / (rowH * this.pxScale * this.sceneScale))))
     gl.drawArrays(gl.TRIANGLES, 0, 3)
@@ -849,11 +923,22 @@ class Engine {
     gl.uniform1i(bg.u.uScene, 0)
     gl.uniform1i(bg.u.uBlur, 1)
     gl.uniform2f(bg.u.uCss, this.cssW, this.cssH)
-    gl.uniform1f(bg.u.uDocTop, docTop)
+    gl.uniform1f(bg.u.uDocTop, docTop + wy)
     gl.uniform1f(bg.u.uFloor, floor)
     gl.uniform1f(bg.u.uFloorFade, this.vh * 0.46)
     gl.uniform1f(bg.u.uT, t)
     gl.uniform1f(bg.u.uHero, heroFade)
+    gl.uniform1f(bg.u.uDocLeft, wx)
+    gl.uniform1f(bg.u.uVH, this.vh)
+    gl.uniform2f(bg.u.uE, e[0], e[1])
+    gl.uniform2f(bg.u.uX, x[0], x[1])
+    gl.uniform2f(bg.u.uIn, inDir[0], inDir[1])
+    gl.uniform1f(bg.u.uFan, fan)
+    gl.uniform1f(bg.u.uSpread, spread)
+    gl.uniform1f(bg.u.uI1, ease(i1))
+    gl.uniform1f(bg.u.uI2, ease(i2))
+    gl.uniform1f(bg.u.uPR, R)
+    gl.uniform3fv(bg.u.uRay, new Float32Array(RAY_COLORS.flat()))
     gl.drawArrays(gl.TRIANGLES, 0, 3)
 
     // Glass ---------------------------------------------------------------
@@ -910,7 +995,8 @@ class Engine {
         p.parent = up ? (this.byEl.get(up) ?? null) : null
       }
       // Nested glass can't appear before the pane that holds it.
-      const alpha = clamp(p.rev.x, 0, 1) * (p.parent ? clamp(p.parent.rev.x, 0, 1) : 1)
+      if (p.inPage === undefined) p.inPage = !!p.el.closest('.page')
+      const alpha = clamp(p.rev.x, 0, 1) * (p.parent ? clamp(p.parent.rev.x, 0, 1) : 1) * (p.inPage ? pageA : 1)
       if (alpha < 0.004) continue
       const py = p.y - docTop
       if (py + p.h < -60 || py > this.cssH + 60) continue

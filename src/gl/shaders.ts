@@ -31,7 +31,7 @@ void main(){
 export const SCENE_FS = HEADER + /* glsl */ `
 in vec2 vUv; out vec4 o;
 uniform vec2 uCss;
-uniform float uDocTop, uT, uVH;
+uniform float uDocTop, uDocLeft, uT, uVH;
 uniform vec2 uE, uX, uIn;
 uniform float uFan, uSpread, uI1, uI2, uHero, uPR;
 uniform vec2 uC;
@@ -40,7 +40,7 @@ uniform vec3 uPoolC[6];
 uniform vec3 uRay[5];
 uniform float uRayG[5];
 uniform sampler2D uTxt;
-uniform float uTxtA, uTxtLod, uRowH;
+uniform float uTxtA, uTxtLod, uTxtSoft, uRowH;
 
 float fld(vec2 q, float t){
   return sin(q.x * 1.3 + sin(q.y * 1.1 + t * .11) * 1.2)
@@ -58,7 +58,7 @@ float sdTri(vec2 p, float r){
 
 void main(){
   vec2 css = vec2(vUv.x, 1. - vUv.y) * uCss;
-  vec2 P = vec2(css.x, css.y + uDocTop);
+  vec2 P = vec2(css.x + uDocLeft, css.y + uDocTop);
   vec2 q = P / uVH;
   float t = uT;
 
@@ -90,7 +90,7 @@ void main(){
       float fi = float(i) - 2.;
       float gap = (uCss.x * .016 + 16.) * (1.3 + .7 * sin(ph * 3.1 + .4));
       float xi = cx + fi * gap + sin(P.y * .0024 + t * .16 + fi) * 14.;
-      float dd = abs(P.x - xi) * cosA;
+      float dd = abs(css.x - xi) * cosA;
       float wave = .74 + .26 * sin(P.y * .0046 - t * .55 + fi * 1.4);
       float glow = exp(-dd * dd / 3.4) * .95 + exp(-dd * dd / 300.) * .24 + exp(-dd * dd / 9000.) * .085;
       c += uRay[i] * glow * wave * river * uRayG[i];
@@ -106,7 +106,7 @@ void main(){
     if(cap > 0.){
       float id = abs(iv.x * uIn.y - iv.y * uIn.x);
       float reach = 1. - smoothstep(uI1 * uVH * 2.2 - uVH * .2, uI1 * uVH * 2.2, uVH * 2. - is);
-      float core = exp(-id * id / 3.2) * 1.4 + exp(-id * id / 160.) * .3 + exp(-id * id / 2600.) * .07;
+      float core = exp(-id * id / 22.) * .5 + exp(-id * id / 160.) * .3 + exp(-id * id / 2600.) * .07;
       c += vec3(.96, .98, 1.) * core * reach * uHero * cap;
       lit += vec3(exp(-id * id / 3200.)) * reach * .34 * cap;
     }
@@ -123,7 +123,7 @@ void main(){
         float fall = exp(-s / (uVH * 1.25));
         float front = 1. - smoothstep(uI2 * uVH * 2.4 - uVH * .25, uI2 * uVH * 2.4, s);
         float shimmer = .86 + .14 * sin(s * .012 - t * 1.4 + float(i) * 1.9);
-        float core = exp(-dist * dist / (wd * wd)) * 1.3;
+        float core = exp(-dist * dist / (wd * wd * 7.)) * .45;
         float halo = exp(-dist * dist / (wd * wd * 70.)) * .3;
         float bloom = exp(-dist * dist / (wd * wd * 900.)) * .07;
         c += uRay[i] * (core + halo + bloom) * fall * front * shimmer * uHero * cap;
@@ -145,8 +145,16 @@ void main(){
   float speed = .007 * (1. + mod(r * 1.7, 3.) * .35);
   float tv = (fract(yy) + mod(r, 6.)) / 6.;
   float tu = P.x / (rowH * 12.) + dir * t * speed + r * .37;
-  float tx = textureLod(uTxt, vec2(tu, tv), uTxtLod).r;
-  c += tx * uTxtA * (vec3(.0012, .0014, .002) + lit * .34 * uHero + pool * .05);
+  // A wide eight-tap blur: the words read as drifting light, not as text.
+  float lod = uTxtLod + uTxtSoft;
+  vec2 bl = vec2(.0009, .0029) * pow(2., lod);
+  float tx = 0.;
+  for(int i = 0; i < 8; i++){
+    float a = float(i) * .7854 + .39;
+    tx += textureLod(uTxt, vec2(tu, tv) + vec2(cos(a), sin(a)) * bl, lod).r;
+  }
+  tx *= .125;
+  c += tx * uTxtA * (vec3(.11, .125, .17) * uHero + vec3(.012, .014, .02) + lit * .34 * uHero + pool * .1);
 
   c = 1. - exp(-c * 1.32);
   o = vec4(c, 1.);
@@ -186,7 +194,9 @@ export const BG_FS = HEADER + /* glsl */ `
 in vec2 vUv; out vec4 o;
 uniform sampler2D uScene, uBlur;
 uniform vec2 uCss;
-uniform float uDocTop, uFloor, uFloorFade, uT, uHero;
+uniform float uDocTop, uFloor, uFloorFade, uT, uHero, uDocLeft, uVH, uFan, uSpread, uI1, uI2, uPR;
+uniform vec2 uE, uX, uIn;
+uniform vec3 uRay[5];
 
 float hash(vec2 p){ p = fract(p * vec2(123.34, 456.21)); p += dot(p, p + 45.32); return fract(p.x * p.y); }
 
@@ -205,6 +215,29 @@ void main(){
     vec3 r = mix(sharp, soft, smoothstep(.0, .75, k));
     float a = (1. - k) * (1. - k) * .62 * edge * uHero;
     c = c * (1. - a * .55) + r * a;
+  }
+  // Light filaments live here, at full canvas resolution, so they never stair-step.
+  if(uHero > .001){
+    vec2 P = vec2(vUv.x * uCss.x + uDocLeft, docY);
+    vec2 iv = P - uE;
+    float is = -dot(iv, uIn);
+    float cap = smoothstep(-uPR * .1, uPR * .22, is);
+    float id = abs(iv.x * uIn.y - iv.y * uIn.x);
+    float reach = 1. - smoothstep(uI1 * uVH * 2.2 - uVH * .2, uI1 * uVH * 2.2, uVH * 2. - is);
+    c += vec3(.96, .98, 1.) * exp(-id * id / 1.7) * .95 * cap * reach * uHero;
+    for(int i = 0; i < 5; i++){
+      float a = uFan + (float(i) - 2.) * uSpread;
+      vec2 d = vec2(cos(a), sin(a));
+      vec2 rv = P - uX;
+      float s = dot(rv, d);
+      float rc = smoothstep(-uPR * .08, uPR * .18, s);
+      if(rc > 0.){
+        float dist = abs(rv.x * d.y - rv.y * d.x);
+        float wd = .95 + s * .0028;
+        float front = 1. - smoothstep(uI2 * uVH * 2.4 - uVH * .25, uI2 * uVH * 2.4, s);
+        c += uRay[i] * exp(-dist * dist / (wd * wd)) * exp(-s / (uVH * 1.25)) * front * rc * uHero;
+      }
+    }
   }
   float line = exp(-below * below / 1.6) * uHero * smoothstep(.02, .55, vUv.x) * smoothstep(1., .8, vUv.x);
   c += vec3(.5, .55, .7) * line * .2;
@@ -283,26 +316,26 @@ void main(){
 
   vec3 n = normalize(vec3(tilt, 1.));
   vec3 rf = refract(vec3(0., 0., -1.), n, 1. / 1.48);
-  vec2 off = rf.xy / max(-rf.z, .25) * uBevel * 1.15;
+  vec2 off = rf.xy / max(-rf.z, .25) * uBevel * 2.6;
 
   vec2 uv = vec2(vPx.x, uRes.y - vPx.y) / uRes;
   vec2 o2 = vec2(off.x, -off.y) / uRes;
-  float disp = .05 + u * .1;
+  float disp = .07 + u * .2;
   vec3 sharp = vec3(
     texture(uScene, uv + o2 * (1. + disp)).r,
     texture(uScene, uv + o2).g,
     texture(uScene, uv + o2 * (1. - disp)).b
   );
   vec3 soft = texture(uBlur, uv + o2).rgb;
-  float frost = mix(uFrost, uFrost * .3, smoothstep(.1, 1., u));
+  float frost = mix(uFrost, 0., smoothstep(.0, .55, u));
   vec3 c = mix(sharp, soft, frost);
 
   float lum = dot(c, vec3(.3, .59, .11));
   c = mix(vec3(lum), c, 1.32);
-  c = c / (1. + lum * uDim * 1.6);
-  c = mix(c, c * (1. - uDim * .62) + vec3(.012, .014, .022), uDim);
+  c = c / (1. + lum * uDim * 1.2);
+  c = c * (1. - uDim * .5);
   c = mix(c, uTint.rgb, uTint.a);
-  c += vec3(.012, .013, .017) * (1. + uHover);
+  c += vec3(.008, .009, .012) * (1. + uHover);
 
   // Light in the pane's plane.
   vec2 toL = uLight - vPx;
@@ -316,7 +349,7 @@ void main(){
   float facing = dot(g, ld);
   float a1 = pow(max(facing, 0.), 2.2);
   float a2 = pow(max(-facing, 0.), 3.2);
-  float rimL = .1 + a1 * .95 + a2 * .42;
+  float rimL = .16 + a1 * 1.1 + a2 * .55;
 
   float spec = pow(max(dot(n, H), 0.), 150.) * smoothstep(.25, .9, u);
   float wide = pow(max(dot(n, H), 0.), 16.) * smoothstep(.2, 1., u) * .08;
@@ -325,7 +358,7 @@ void main(){
   // Environment reflection: look outward along the surface normal.
   vec2 envUv = uv + vec2(g.x, -g.y) * (uBevel * 3.4 + 60. * uPx) / uRes;
   vec3 env = texture(uBlur, clamp(envUv, .001, .999)).rgb;
-  c += env * fres * 1.25;
+  c += env * fres * 1.6;
 
   float ang = atan(g.y, g.x) / 6.2831;
   vec3 iris = iri(ang * 1.5 + uT * .018 + dot(p, vec2(.0006, .0009)) / uPx);

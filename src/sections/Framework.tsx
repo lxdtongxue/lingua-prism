@@ -1,43 +1,60 @@
+import { useState } from 'react'
+import { Languages, Scale, UserRound } from 'lucide-react'
 import { useI18n } from '../components/i18n'
-import { Glass } from '../components/Glass'
+import { Card } from '../components/Card'
+import { Sheet } from '../components/Sheet'
 import { SectionHead } from '../components/SectionHead'
+
+const ICONS = [Languages, UserRound, Scale]
 
 export function Framework() {
   const { t } = useI18n()
   const f = t.framework
+  const [open, setOpen] = useState<number | null>(null)
+  const [last, setLast] = useState(0)
+  const it = f.items[last]
   return (
     <section id="framework" className="section">
       <div className="wrap">
         <SectionHead kicker={f.kicker} title={f.title} intro={f.intro} />
         <div className="levels">
-          {f.items.map((it, i) => (
-            <Glass as="article" className="level" radius={34} bevel={15} frost={0.74} dim={0.42} delay={i * 110} key={it.level}>
-              <header>
-                <span className="micro">{it.level}</span>
-                <span className="dots">
-                  {it.dims.map((d) => (
-                    <i key={d} className={`dot dot--${d}`}>
-                      {d}
-                    </i>
-                  ))}
-                </span>
-              </header>
-              <h3>{it.q}</h3>
-              <p className="eg">{it.eg}</p>
-              <dl>
-                <div>
-                  <dt>{f.objectLabel}</dt>
-                  <dd>{it.object}</dd>
-                </div>
-                <div>
-                  <dt>{f.sourceLabel}</dt>
-                  <dd>{it.src}</dd>
-                </div>
-              </dl>
-            </Glass>
+          {f.items.map((x, i) => (
+            <Card
+              key={x.level}
+              icon={ICONS[i]}
+              kicker={x.level}
+              title={x.q}
+              desc={x.brief}
+              delay={i * 110}
+              onOpen={() => {
+                setLast(i)
+                setOpen(i)
+              }}
+            >
+              <span className="dots">
+                {x.dims.map((d) => (
+                  <i key={d} className={`dot dot--${d}`}>
+                    {d}
+                  </i>
+                ))}
+              </span>
+            </Card>
           ))}
         </div>
       </div>
+      <Sheet open={open !== null} onClose={() => setOpen(null)} kicker={it.level} title={it.q}>
+        <p className="sheet__lead">{it.eg}</p>
+        <dl className="facts">
+          <div>
+            <dt>{f.objectLabel}</dt>
+            <dd>{it.object}</dd>
+          </div>
+          <div>
+            <dt>{f.sourceLabel}</dt>
+            <dd>{it.src}</dd>
+          </div>
+        </dl>
+      </Sheet>
     </section>
   )
 }

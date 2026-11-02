@@ -1,7 +1,10 @@
 import { useEffect, useLayoutEffect, useMemo, useRef, useState, type KeyboardEvent, type PointerEvent } from 'react'
+import { SlidersHorizontal } from 'lucide-react'
 import { useI18n } from '../components/i18n'
+import { CLEAR } from '../components/Card'
 import { Glass } from '../components/Glass'
 import { SectionHead } from '../components/SectionHead'
+import { Sheet } from '../components/Sheet'
 import { DEMO_LANGS, DIMS, type Dim } from '../content/content'
 import { engine, Spring } from '../gl/engine'
 
@@ -108,6 +111,7 @@ export function Lab() {
   const [goal, setGoal] = useState<Goal>('study')
   const [w, setW] = useState<Record<W, number>>({ T: 40, G: 80, R: 50, P: 60 })
   const [liked, setLiked] = useState<Set<string>>(() => new Set(['ja']))
+  const [open, setOpen] = useState(false)
 
   const ranked = useMemo(() => {
     const rows = DEMO_LANGS.map((d) => {
@@ -124,6 +128,11 @@ export function Lab() {
   const prev = useRef(new Map<string, number>())
   useLayoutEffect(() => {
     rowEls.current.forEach((el, id) => {
+      // A hidden tab has no layout to animate from.
+      if (!el.offsetParent) {
+        prev.current.delete(id)
+        return
+      }
       const top = el.offsetTop
       const old = prev.current.get(id)
       if (old !== undefined && old !== top && !engine.reduced) {
@@ -149,45 +158,35 @@ export function Lab() {
       <div className="wrap">
         <SectionHead kicker={l.kicker} title={l.title} intro={l.intro} />
         <div className="lab">
-          <Glass className="lab__ctl" radius={38} bevel={15} frost={0.74} dim={0.42}>
-            <fieldset>
-              <legend>{l.known}</legend>
-              <div className="chips">
-                {l.knownOpts.map(([id, label]) => (
-                  <button key={id} className="chip" aria-pressed={known === id} onClick={() => setKnown(id as Known)}>
-                    {label}
-                  </button>
-                ))}
-              </div>
-            </fieldset>
-            <fieldset>
-              <legend>{l.goal}</legend>
-              <div className="chips">
-                {l.goals.map(([id, label]) => (
-                  <button key={id} className="chip" aria-pressed={goal === id} onClick={() => setGoal(id as Goal)}>
-                    {label}
-                  </button>
-                ))}
-              </div>
-            </fieldset>
-            <fieldset>
-              <legend>{l.weights}</legend>
+          <Glass as="button" type="button" className="lab__ctl" radius={32} {...CLEAR} press onClick={() => setOpen(true)}>
+            <span className="lab__sum">
+              <span className="micro">{l.summary}</span>
+              <strong>
+                {l.knownOpts.find(([id]) => id === known)?.[1]} · {l.goals.find(([id]) => id === goal)?.[1]}
+              </strong>
+            </span>
+            <span className="lab__meters">
               {WEIGHTED.map((k) => (
-                <Slider key={k} dim={k} label={l.dimShort[k]} value={w[k]} onChange={(v) => setW((o) => ({ ...o, [k]: v }))} />
+                <span key={k} className={`meter tone-${k}`}>
+                  <b>{k}</b>
+                  <i>
+                    <u style={{ transform: `scaleX(${w[k] / 100})` }} />
+                  </i>
+                </span>
               ))}
-              <p className="locked tone-A">
-                <b>A</b>
-                <span>{l.locked}</span>
-              </p>
-            </fieldset>
+            </span>
+            <span className="lab__adjust">
+              <SlidersHorizontal size={16} strokeWidth={1.8} />
+              {l.adjust}
+            </span>
           </Glass>
 
-          <Glass className="lab__out" radius={38} bevel={15} frost={0.74} dim={0.42} delay={100}>
+          <Glass className="lab__out" radius={32} {...CLEAR} frost={0.34} dim={0.34} delay={100}>
             <header>
               <h3>{l.results}</h3>
               <em className="tag tag--demo">{l.demoTag}</em>
             </header>
-            <p className="note">{l.demoNote}</p>
+            <p className="note lab__note">{l.demoNote}</p>
             <ol className="rank">
               {ranked.map(({ d, v }, i) => (
                 <li
@@ -221,6 +220,40 @@ export function Lab() {
           </Glass>
         </div>
       </div>
+      <Sheet open={open} onClose={() => setOpen(false)} kicker={l.kicker} title={l.adjust}>
+        <div className="lab__form">
+            <fieldset>
+              <legend>{l.known}</legend>
+              <div className="chips">
+                {l.knownOpts.map(([id, label]) => (
+                  <button key={id} className="chip" aria-pressed={known === id} onClick={() => setKnown(id as Known)}>
+                    {label}
+                  </button>
+                ))}
+              </div>
+            </fieldset>
+            <fieldset>
+              <legend>{l.goal}</legend>
+              <div className="chips">
+                {l.goals.map(([id, label]) => (
+                  <button key={id} className="chip" aria-pressed={goal === id} onClick={() => setGoal(id as Goal)}>
+                    {label}
+                  </button>
+                ))}
+              </div>
+            </fieldset>
+            <fieldset>
+              <legend>{l.weights}</legend>
+              {WEIGHTED.map((k) => (
+                <Slider key={k} dim={k} label={l.dimShort[k]} value={w[k]} onChange={(v) => setW((o) => ({ ...o, [k]: v }))} />
+              ))}
+              <p className="locked tone-A">
+                <b>A</b>
+                <span>{l.locked}</span>
+              </p>
+            </fieldset>
+        </div>
+      </Sheet>
     </section>
   )
 }

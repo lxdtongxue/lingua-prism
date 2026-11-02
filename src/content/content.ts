@@ -18,10 +18,13 @@ const zh = {
   nav: { framework: '框架', spectrum: '五维', aptitude: '能力', lab: '实验台', roadmap: '路线' },
   langSwitch: 'EN',
   langLabel: 'Switch to English',
+  intro: { hintMouse: '向下滚动，或稍候片刻', hintTouch: '向上滑动，或稍候片刻' },
+  close: '关闭',
   hero: {
     eyebrow: '第二、第三外语选择框架',
     title: ['下一门语言，', '不该靠猜。'],
     lead: '同一门语言，对不同的人意味着不同的选择。语棱把这个决定分解成五束光：语言关系、学习能力、学习目标、资源条件和个人偏好。',
+    leadShort: '把选语言这件事，分解成五束看得见的光。',
     cta1: '看五束光',
     cta2: '进入实验台',
     hintMouse: '移动光标，改变入射角',
@@ -43,6 +46,7 @@ const zh = {
       {
         level: 'Language-level',
         name: '语言层面',
+        brief: '语言之间的客观关系',
         q: '语言之间有什么关系？',
         object: '语言',
         eg: '中文与日语在部分词汇形式上存在怎样的对应？两种语言的语法类型有哪些相似与差异？',
@@ -52,6 +56,7 @@ const zh = {
       {
         level: 'Learner-level',
         name: '个体层面',
+        brief: '能力画像与学习表现',
         q: '这个学习者有什么特点？',
         object: '具体的学习者',
         eg: '这个人在特定学能任务中的表现如何？面对陌生词汇时，会调用哪些线索？',
@@ -61,6 +66,7 @@ const zh = {
       {
         level: 'Decision-level',
         name: '决策层面',
+        brief: '目标、资源与个人偏好',
         q: '这个人为什么选择某门语言？',
         object: '一个具体的决策',
         eg: '某人想去德国读研，即使德语与已知语言差异较大，也可能比其他语言更值得选择。',
@@ -164,6 +170,7 @@ const zh = {
       { id: 'CST', name: '工作记忆执行控制', en: 'Executive Function of Working Memory', def: '在加工其他信息的同时保持待处理信息', sub: 'Complex Span Task', core: false, v: 0.58 },
     ],
     toolsTitle: '工具比较',
+    cards: { profile: ['能力画像', '五项能力，三项核心'], tools: ['工具比较', 'TALL · FLAT-C · LLAMA'], path: ['从能力到语言', '语言特征与学习任务'], studies: ['实证文献', '音系、词汇、语法三组'] },
     tools: [
       { name: 'TALL', tag: '首要候选', text: 'Pan 与 Marsden（2024）报告了初步验证研究，共五个子测验。仍需核查分项证据、实施成本、删减后的解释边界及材料使用权限。' },
       { name: 'FLAT-C', tag: '对照工具', text: '面向中国外语学习者开发。仍需核查各子测验的具体任务、计分规则、区分效度和使用条件。' },
@@ -198,6 +205,8 @@ const zh = {
     title: '调一调权重，看排序怎么变。',
     intro: '推荐不是一个神秘的总分。五维结果摊开给你看，由你决定什么更重要。',
     demoTag: '演示数据',
+    summary: '当前条件',
+    adjust: '调整参数',
     demoNote: '语言范围和所有数值都是占位示例，不代表研究结果。正式版将接入 25 门语言和真实数据。',
     known: '已掌握的语言',
     knownOpts: [
@@ -227,6 +236,7 @@ const zh = {
       { t: '计算方法设计', d: '明确各指标及子维度的计算方式，确定数据标准化与维度整合方法。' },
       { t: '权重确定', d: '选择合适的权重确定方法，明确权重依据，形成最终权重方案。' },
     ],
+    about: '字体与数据说明',
     end: '下一门语言，值得一个看得见依据的决定。',
     endCta: '回到实验台',
   },
@@ -248,10 +258,13 @@ const en: typeof zh = {
   nav: { framework: 'Framework', spectrum: 'Spectrum', aptitude: 'Aptitude', lab: 'Lab', roadmap: 'Roadmap' },
   langSwitch: '中',
   langLabel: '切换到中文',
+  intro: { hintMouse: 'Scroll down, or just wait a moment', hintTouch: 'Swipe up, or just wait a moment' },
+  close: 'Close',
   hero: {
     eyebrow: 'A framework for choosing a second or third foreign language',
     title: ['Your next language', 'shouldn’t be a guess.'],
     lead: 'The same language means something different to every learner. Lingua Prism splits the decision into five beams: language relations, learning ability, goals, resources and personal preference.',
+    leadShort: 'One choice, split into five beams you can see.',
     cta1: 'See the five beams',
     cta2: 'Open the lab',
     hintMouse: 'Move the cursor to change the angle of light',
@@ -273,6 +286,7 @@ const en: typeof zh = {
       {
         level: 'Language-level',
         name: 'Languages',
+        brief: 'Objective relations between languages',
         q: 'How are languages related?',
         object: 'The language',
         eg: 'How do Chinese and Japanese correspond in word forms? Where do their grammatical types align and differ?',
@@ -282,6 +296,7 @@ const en: typeof zh = {
       {
         level: 'Learner-level',
         name: 'Learners',
+        brief: 'Ability profile and performance',
         q: 'What is this learner like?',
         object: 'The individual learner',
         eg: 'How does this person perform on a given aptitude task? Which cues do they use when meeting an unfamiliar word?',
@@ -291,6 +306,7 @@ const en: typeof zh = {
       {
         level: 'Decision-level',
         name: 'Decisions',
+        brief: 'Goals, resources and preference',
         q: 'Why would this person choose this language?',
         object: 'One specific decision',
         eg: 'Someone planning graduate study in Germany may find German the better choice, even if it sits far from the languages they already know.',
@@ -394,6 +410,7 @@ const en: typeof zh = {
       { id: 'CST', name: 'Executive Function of Working Memory', en: '工作记忆执行控制', def: 'Holding information while processing something else', sub: 'Complex Span Task', core: false, v: 0.58 },
     ],
     toolsTitle: 'Comparing tools',
+    cards: { profile: ['Ability profile', 'Five abilities, three core'], tools: ['Comparing tools', 'TALL · FLAT-C · LLAMA'], path: ['Ability to language', 'Features and learning tasks'], studies: ['Empirical studies', 'Phonology, vocabulary, grammar'] },
     tools: [
       { name: 'TALL', tag: 'Lead candidate', text: 'Pan and Marsden (2024) report initial validation of its five subtests. Subtest evidence, cost, shortened-test interpretation and permissions still need checking.' },
       { name: 'FLAT-C', tag: 'Comparison', text: 'Built for Chinese learners of foreign languages. Subtest tasks, scoring, discriminant validity and terms of use still need checking.' },
@@ -428,6 +445,8 @@ const en: typeof zh = {
     title: 'Move the weights. Watch the order change.',
     intro: 'A recommendation shouldn’t be a mystery score. All five dimensions stay in view, and you decide what matters most.',
     demoTag: 'Demo data',
+    summary: 'Your setup',
+    adjust: 'Adjust',
     demoNote: 'The language list and every value here are placeholders, not research results. The full version will use all 25 languages and real data.',
     known: 'Languages you know',
     knownOpts: [
@@ -457,6 +476,7 @@ const en: typeof zh = {
       { t: 'Design the calculations', d: 'Specify how each dimension and facet is computed, standardised and integrated.' },
       { t: 'Set the weights', d: 'Choose a weighting method, justify it, and produce the final weighting scheme.' },
     ],
+    about: 'Font and data notes',
     end: 'Your next language deserves a decision you can see through.',
     endCta: 'Back to the lab',
   },

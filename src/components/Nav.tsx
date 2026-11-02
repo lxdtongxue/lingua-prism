@@ -1,18 +1,29 @@
-import { useEffect, useLayoutEffect, useRef, useState, type MouseEvent } from 'react'
+import { useEffect, useLayoutEffect, useRef, useState, type MouseEvent, type PointerEvent } from 'react'
 import { engine, Spring } from '../gl/engine'
+import { FlaskConical, Layers, Radar, Route, Triangle, Waypoints } from 'lucide-react'
 import { useI18n } from './i18n'
+import { goTo, pager, setDockMin, setPage } from './pager'
+import { usePagerState } from './usePagerGesture'
 
 const IDS = ['framework', 'spectrum', 'aptitude', 'lab', 'roadmap'] as const
+const ICONS = { framework: Layers, spectrum: Waypoints, aptitude: Radar, lab: FlaskConical, roadmap: Route }
+const clamp01 = (v: number) => Math.min(1, Math.max(0, v))
+const FOLD_SCROLL = 48
+const DRAG_PX = 6
 
 export function Nav() {
   const { t, lang, setLang } = useI18n()
-  const [active, setActive] = useState(-1)
+  const [scrolled, setActive] = useState(-1)
+  const { enabled, page } = usePagerState()
+  const active = enabled ? page - 1 : scrolled
   const dock = useRef<HTMLElement>(null)
   const drop = useRef<HTMLSpanElement>(null)
   const links = useRef<(HTMLAnchorElement | null)[]>([])
   const x = useRef(new Spring(0, 240, 25))
   const w = useRef(new Spring(0, 240, 25))
   const shown = useRef(new Spring(0, 200, 26))
+  const current = useRef(active)
+  const drag = useRef<{ id: number; startX: number; at: number; pick: number; moved: boolean } | null>(null)
 
   useEffect(() => {
     const seen = new Map<string, number>()
@@ -39,80 +50,208 @@ export function Nav() {
     return () => io.disconnect()
   }, [])
 
-  // The droplet slides on a spring and stretches with its own speed.
   useLayoutEffect(() => {
-    const place = () => {
-      const a = links.current[active]
-      if (!a || !dock.current) {
-        shown.current.target = 0
-        return
-      }
-      shown.current.target = 1
-      x.current.target = a.offsetLeft
-      w.current.target = a.offsetWidth
-      if (shown.current.x < 0.02) {
-        x.current.x = x.current.target
-        w.current.x = w.current.target
-      }
+    current.current = active
+    const a = links.current[active]
+    shown.current.target = a ? 1 : 0
+    if (a && shown.current.x < 0.02) {
+      x.current.x = a.offsetLeft
+      w.current.x = a.offsetWidth
     }
-    place()
-    window.addEventListener('resize', place, { passive: true })
-    document.fonts?.ready.then(place)
-    return () => window.removeEventListener('resize', place)
   }, [active, lang])
 
+  // The droplet slides on a spring and stretches with its own speed. It reads the
+  // active tab every frame, so it stays on it while the bar folds and unfolds.
   useEffect(
     () =>
       engine.onFrame((dt) => {
-        x.current.step(dt)
+        const d = drag.current
+        const nowAt = links.current[current.current]
+        if (d?.moved) {
+          const first = links.current[0]
+          const last = links.current[IDS.length - 1]
+          const tab = links.current[d.pick]
+          if (first && last && tab) {
+            w.current.target = tab.offsetWidth
+            const next = Math.max(first.offsetLeft, Math.min(last.offsetLeft + last.offsetWidth - w.current.x, d.at - w.current.x / 2))
+            x.current.v = (next - x.current.x) / Math.max(dt, 1 / 120)
+            x.current.x = x.current.target = next
+            shown.current.target = 1
+          }
+        } else if (pager.enabled && !pager.dockMin) {
+          // The droplet tracks the finger between tabs while a page is dragged.
+          const f = Math.max(0, Math.min(IDS.length - 1, pager.pos.x - 1))
+          const i = Math.min(IDS.length - 2, Math.floor(f))
+          const a = links.current[i]
+          const b = links.current[i + 1]
+          if (a && b) {
+            const m = f - i
+            x.current.target = x.current.x = a.offsetLeft + (b.offsetLeft - a.offsetLeft) * m
+            w.current.target = w.current.x = a.offsetWidth + (b.offsetWidth - a.offsetWidth) * m
+            x.current.v = pager.pos.v * (b.offsetLeft - a.offsetLeft)
+            shown.current.target = shown.current.x = clamp01(pager.pos.x)
+          }
+        } else if (nowAt) {
+          x.current.target = nowAt.offsetLeft
+          w.current.target = nowAt.offsetWidth
+        }
+        if (!d?.moved) x.current.step(dt)
         w.current.step(dt)
         shown.current.step(dt)
         const el = drop.current
         if (!el) return
         const stretch = Math.min(Math.abs(x.current.v) / 2600, 0.34)
-        const s = Math.max(0, Math.min(1, shown.current.x))
         el.style.width = `${w.current.x.toFixed(1)}px`
         el.style.transform = `translate3d(${x.current.x.toFixed(2)}px,0,0) scale(${(1 + stretch).toFixed(3)},${(1 - stretch * 0.42).toFixed(3)})`
-        el.style.opacity = s.toFixed(3)
+        el.style.opacity = clamp01(shown.current.x).toFixed(3)
       }),
     [],
   )
 
+  // A deliberate scroll down tucks the tab bar into one round icon. It reopens on a
+  // click or a scroll back up, never on hover.
+  useEffect(() => {
+    const seen = new WeakMap<object, number>()
+    let travel = 0
+    const onScroll = (e: Event) => {
+      const t = e.target === document ? document.documentElement : (e.target as HTMLElement)
+      if (t.closest?.('.sheet')) return
+      const y = t.scrollTop
+      const d = y - (seen.get(t) ?? 0)
+      seen.set(t, y)
+      if (y < 12) {
+        travel = 0
+        setDockMin(false)
+        return
+      }
+      if (performance.now() < pager.navUntil) {
+        travel = 0
+        return
+      }
+      travel = d > 0 === travel > 0 ? travel + d : d
+      if (Math.abs(travel) > FOLD_SCROLL) setDockMin(travel > 0)
+    }
+    document.addEventListener('scroll', onScroll, { passive: true, capture: true })
+    return () => document.removeEventListener('scroll', onScroll, { capture: true })
+  }, [])
+
+  // The title drifts to centre on the way down and the language switch dissolves.
+  const brand = useRef<HTMLAnchorElement>(null)
+  const lang2 = useRef<HTMLButtonElement>(null)
+  const fold = useRef(new Spring(0, 90, 19))
+  useEffect(
+    () =>
+      engine.onFrame((dt) => {
+        fold.current.target = pager.enabled ? Math.max(clamp01(pager.pos.x), pager.dockMin ? 1 : 0) : clamp01(window.scrollY / 280)
+        fold.current.step(dt)
+        const c = clamp01(fold.current.x)
+        const b = brand.current
+        const l = lang2.current
+        if (b) {
+          const left = b.offsetLeft
+          b.style.transform = `translate3d(${((window.innerWidth - b.offsetWidth) / 2 - left) * c}px,0,0)`
+        }
+        if (l) {
+          l.style.setProperty('--c', c.toFixed(3))
+          l.style.setProperty('--glow', Math.sin(c * Math.PI).toFixed(3))
+          l.style.visibility = c > 0.98 ? 'hidden' : ''
+        }
+      }),
+    [],
+  )
+
+  // The droplet can also be dragged along the bar.
+  const onDockDown = (e: PointerEvent) => {
+    if (pager.dockMin || e.button > 0) return
+    drag.current = { id: e.pointerId, startX: e.clientX, at: 0, pick: Math.max(0, current.current), moved: false }
+  }
+  const onDockMove = (e: PointerEvent) => {
+    const d = drag.current
+    const el = dock.current
+    if (!d || !el || d.id !== e.pointerId) return
+    if (!d.moved) {
+      if (Math.abs(e.clientX - d.startX) < DRAG_PX) return
+      d.moved = true
+      el.setPointerCapture(e.pointerId)
+    }
+    d.at = e.clientX - el.getBoundingClientRect().left
+    let gap = Infinity
+    links.current.forEach((a, i) => {
+      if (!a) return
+      const g = Math.abs(a.offsetLeft + a.offsetWidth / 2 - d.at)
+      if (g < gap) {
+        gap = g
+        if (i !== d.pick) {
+          d.pick = i
+          if (pager.enabled) setPage(i + 1)
+        }
+      }
+    })
+  }
+  const onDockUp = (e: PointerEvent) => {
+    const d = drag.current
+    if (!d || d.id !== e.pointerId) return
+    drag.current = null
+    if (d.moved) goTo(IDS[d.pick])
+  }
+
   const go = (e: MouseEvent, id: string) => {
     e.preventDefault()
-    document.getElementById(id)?.scrollIntoView({ behavior: engine.reduced ? 'auto' : 'smooth' })
-    history.replaceState(null, '', `#${id}`)
+    goTo(id)
+    if (!pager.enabled) history.replaceState(null, '', `#${id}`)
   }
 
   return (
     <>
       <header className="topbar">
-        <a className="brand chrome" href="#hero" onClick={(e) => go(e, 'hero')} aria-label={t.brand}>
+        <a className="brand chrome" ref={brand} href="#hero" onClick={(e) => go(e, 'hero')} aria-label={t.brand}>
           <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true">
             <path d="M12 3.5 21 20H3Z" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinejoin="round" />
           </svg>
-          <span>{t.brand}</span>
-          <small>{t.brandEn}</small>
+          <span data-wordmark={lang === 'en'}>{t.brand}</span>
+          <small data-wordmark={lang === 'zh'}>{t.brandEn}</small>
         </a>
-        <button className="chrome lang" onClick={() => setLang(lang === 'zh' ? 'en' : 'zh')} aria-label={t.langLabel}>
+        <button className="chrome lang" ref={lang2} onClick={() => setLang(lang === 'zh' ? 'en' : 'zh')} aria-label={t.langLabel}>
           {t.langSwitch}
         </button>
       </header>
-      <nav className="dock chrome" ref={dock} aria-label={t.brand}>
+      <nav
+        className="dock chrome"
+        ref={dock}
+        aria-label={t.brand}
+        onClickCapture={(e) => {
+          if (!pager.dockMin) return
+          e.preventDefault()
+          e.stopPropagation()
+          setDockMin(false)
+        }}
+        onPointerDown={onDockDown}
+        onPointerMove={onDockMove}
+        onPointerUp={onDockUp}
+        onPointerCancel={onDockUp}
+      >
         <span className="dock__drop" ref={drop} aria-hidden="true" />
-        {IDS.map((id, i) => (
+        <span className="dock__home" aria-hidden={active >= 0}>
+          <Triangle size={20} strokeWidth={1.8} />
+        </span>
+        {IDS.map((id, i) => {
+          const Icon = ICONS[id]
+          return (
           <a
             key={id}
             ref={(el) => {
               links.current[i] = el
             }}
             href={`#${id}`}
+            draggable={false}
             aria-current={active === i ? 'true' : undefined}
             onClick={(e) => go(e, id)}
           >
-            {t.nav[id]}
+            <Icon size={20} strokeWidth={1.8} />
+            <span>{t.nav[id]}</span>
           </a>
-        ))}
+          )
+        })}
       </nav>
     </>
   )

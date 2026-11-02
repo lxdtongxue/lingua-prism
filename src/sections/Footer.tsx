@@ -1,11 +1,10 @@
 import { useI18n } from '../components/i18n'
 
-export function Footer() {
+export function FooterBody() {
   const { t } = useI18n()
   const f = t.footer
   return (
-    <footer className="foot">
-      <div className="wrap foot__grid">
+    <>
         <div>
           <h4>{f.fontTitle}</h4>
           <p>{f.font}</p>
@@ -21,6 +20,15 @@ export function Footer() {
           <h4>{f.sampleTitle}</h4>
           <p>{f.sample}</p>
         </div>
+    </>
+  )
+}
+
+export function Footer() {
+  return (
+    <footer className="foot">
+      <div className="wrap foot__grid">
+        <FooterBody />
       </div>
     </footer>
   )
