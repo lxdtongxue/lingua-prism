@@ -109,23 +109,22 @@
   },
   "sd": {
     "timeLimitSeconds": 15,
-    "highlightDelaySeconds": 2,
     "audition": "sd/audition.mp3",
     "sounds": [
       {
         "id": "A",
         "image": "sd/SetA_A.jpg",
-        "audio": "sd/L1_A.mp3"
+        "audio": "sd/L1_A_twice.mp3"
       },
       {
         "id": "B",
         "image": "sd/SetA_B.jpg",
-        "audio": "sd/L1_B.mp3"
+        "audio": "sd/L1_B_twice.mp3"
       },
       {
         "id": "C",
         "image": "sd/SetA_C.jpg",
-        "audio": "sd/L1_C.mp3"
+        "audio": "sd/L1_C_twice.mp3"
       }
     ],
     "lead": [

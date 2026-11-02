@@ -8,7 +8,6 @@ type Phrase = { id: string; audio: string; sound: string }
 
 export type Sd = {
   timeLimitSeconds: number
-  highlightDelaySeconds: number
   audition: string
   sounds: { id: string; image: string; audio: string }[]
   lead: Phrase[]
@@ -82,7 +81,6 @@ export function validateItems(d: TallItems): string[] {
   check(d.sd?.sounds?.length === SD_SOUNDS, `sd.sounds needs ${SD_SOUNDS} entries`)
   check(sounds.size === d.sd?.sounds?.length, 'sd.sounds: duplicate ids')
   d.sd?.sounds?.forEach((s) => check(filled(s.image) && filled(s.audio), `sd sound ${s.id}: image and audio are required`))
-  check(d.sd?.highlightDelaySeconds >= 0, 'sd.highlightDelaySeconds must be 0 or more')
   check(d.sd?.lead?.length === SD_SOUNDS, `sd.lead needs ${SD_SOUNDS} phrases`)
   d.sd?.lead?.forEach((p) => check(filled(p.audio) && sounds.has(p.sound), `sd phrase ${p.id}: audio and a known sound are required`))
   check(d.sd?.phraseSets?.length === SD_SETS, `sd.phraseSets needs ${SD_SETS} sets`)

@@ -128,12 +128,11 @@ function VlTest({ d, auto, onDone }: { d: Vl; auto: Auto; onDone: (t: Trial[]) =
   )
 }
 
-// `lit` highlights the picture that matches the sound.
-function SoundPics({ sounds, lit, onPick }: { sounds: Sd['sounds']; lit?: string | null; onPick?: (id: string) => void }) {
+function SoundPics({ sounds, onPick }: { sounds: Sd['sounds']; onPick: (id: string) => void }) {
   return (
     <div className="pics pics--3">
       {sounds.map((s, n) => (
-        <button key={s.id} type="button" className={`pic${lit === s.id ? ' pic--lit' : ''}`} disabled={!onPick} aria-label={String(n + 1)} data-id={import.meta.env.DEV ? s.id : undefined} onClick={() => onPick?.(s.id)}>
+        <button key={s.id} type="button" className="pic" aria-label={String(n + 1)} data-id={import.meta.env.DEV ? s.id : undefined} onClick={() => onPick(s.id)}>
           <img src={asset(s.image)} alt="" draggable={false} />
         </button>
       ))}
@@ -141,21 +140,18 @@ function SoundPics({ sounds, lit, onPick }: { sounds: Sd['sounds']; lit?: string
   )
 }
 
-const SD_GAP_MS = 1000
+const SD_NEXT_GAP_MS = 1500
 
+// A board is three recordings. Each brings in its picture and the earlier ones stay,
+// so a board ends with all three on screen and the next starts empty.
 function SdStudy({ d, bank, auto, onEnd }: { d: Sd; bank: SoundBank; auto: Auto; onEnd: () => void }) {
-  // First the basic sounds and lead phrases in order, each lit at once. Then the
-  // other phrases mixed together, with the answer lit after a short wait to think.
-  const steps = useMemo(
-    () => [
-      ...d.sounds.map((s) => ({ audio: s.audio, sound: s.id, delay: 0, basic: true, pics: d.sounds })),
-      ...d.lead.map((p) => ({ audio: p.audio, sound: p.sound, delay: 0, basic: false, pics: d.sounds })),
-      ...shuffle(d.phraseSets.flat()).map((p) => ({ audio: p.audio, sound: p.sound, delay: d.highlightDelaySeconds * 1000, basic: false, pics: shuffle(d.sounds) })),
-    ],
-    [d],
-  )
+  const steps = useMemo(() => {
+    const words = d.sounds.map((s) => ({ audio: s.audio, sound: s.id, basic: true }))
+    const phrases = (set: Sd['lead']) => set.map((p) => ({ audio: p.audio, sound: p.sound, basic: false }))
+    const boards = [words, phrases(d.lead), ...shuffle(d.phraseSets).map((set) => phrases(shuffle(set)))]
+    return boards.flatMap((board, b) => board.map((step, i) => ({ ...step, board: b, shown: board.slice(0, i + 1).map((s) => s.sound) })))
+  }, [d])
   const [at, setAt] = useState(0)
-  const [lit, setLit] = useState<string | null>(null)
   const end = useRef(onEnd)
   useLayoutEffect(() => {
     end.current = onEnd
@@ -166,31 +162,24 @@ function SdStudy({ d, bank, auto, onEnd }: { d: Sd; bank: SoundBank; auto: Auto;
       return
     }
     let live = true
-    const timers = new Set<number>()
+    let timer = 0
     const wait = (ms: number) =>
       new Promise<void>((r) => {
-        timers.add(window.setTimeout(r, ms))
+        timer = window.setTimeout(r, ms)
       })
     const run = async () => {
       for (let n = 0; n < steps.length; n++) {
-        const step = steps[n]
         setAt(n)
-        setLit(step.delay ? null : step.sound)
-        await Promise.all([
-          bank.play(step.audio),
-          wait(step.delay).then(() => {
-            if (live) setLit(step.sound)
-          }),
-        ])
-        await wait(SD_GAP_MS)
+        await bank.play(steps[n].audio)
         if (!live) return
+        await wait(SD_NEXT_GAP_MS)
       }
       end.current()
     }
     void run()
     return () => {
       live = false
-      timers.forEach((id) => window.clearTimeout(id))
+      window.clearTimeout(timer)
       bank.stop()
     }
   }, [steps, bank, auto])
@@ -201,7 +190,13 @@ function SdStudy({ d, bank, auto, onEnd }: { d: Sd; bank: SoundBank; auto: Auto;
     <>
       <Bar share={at / steps.length} />
       <p className="exam__word exam__word--small">{step.basic ? e.sdBasic : e.sdPhrases}</p>
-      <SoundPics sounds={step.pics} lit={lit} />
+      <div className="pics pics--grow" key={step.board}>
+        {step.shown.map((id) => (
+          <div className="pic" key={id}>
+            <img src={asset(d.sounds.find((s) => s.id === id)?.image ?? '')} alt="" draggable={false} />
+          </div>
+        ))}
+      </div>
     </>
   )
 }
@@ -234,7 +229,6 @@ function SdTest({ d, bank, auto, onDone }: { d: Sd; bank: SoundBank; auto: Auto;
   return (
     <>
       <Bar share={i / order.length} />
-      <div className="exam__limit" key={i} style={{ animationDuration: `${d.timeLimitSeconds}s` }} />
       <SoundPics sounds={d.sounds} onPick={(id) => answer(id, id === item.answer)} />
     </>
   )
@@ -376,6 +370,7 @@ function Shell({ title, step, placeholder, onExit, tools, children }: { title: s
           </button>
         )}
       </header>
+      <p className="exam__rule">{e.rule}</p>
       <main className="exam__body">{children}</main>
       <footer className="exam__foot">{e.credit}</footer>
     </div>

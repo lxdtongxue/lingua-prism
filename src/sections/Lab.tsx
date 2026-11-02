@@ -22,9 +22,8 @@ const THUMB_W = 46
 
 function Slider({ dim, label, value, onChange, locked }: { dim: W; label: string; value: number; onChange: (v: number) => void; locked?: boolean }) {
   const track = useRef<HTMLDivElement>(null)
-  const thumb = useRef<HTMLElement>(null)
+  const thumb = useRef<HTMLSpanElement>(null)
   const fill = useRef<HTMLSpanElement>(null)
-  const rest = useRef<HTMLSpanElement>(null)
   const pos = useRef(new Spring(value, 420, 34))
   const held = useRef(new Spring(0, 320, 26))
   const dragged = useRef(false)
@@ -44,10 +43,7 @@ function Slider({ dim, label, value, onChange, locked }: { dim: W; label: string
         const stretch = Math.min(Math.abs(pos.current.v) / 900, 0.3)
         const grow = 1 + held.current.x * 0.16
         if (thumb.current) thumb.current.style.transform = `translate3d(${x.toFixed(2)}px,0,0) scale(${(grow * (1 + stretch)).toFixed(3)},${(grow * (1 - stretch * 0.4)).toFixed(3)})`
-        // The glass is drawn behind the page, so the track parts around it.
-        const gap = THUMB_W / 2 + 3
-        if (fill.current) fill.current.style.transform = `scaleX(${(Math.max(0, x - gap) / Math.max(1, w)).toFixed(4)})`
-        if (rest.current) rest.current.style.transform = `scaleX(${(Math.max(0, w - x - gap) / Math.max(1, w)).toFixed(4)})`
+        if (fill.current) fill.current.style.transform = `scaleX(${(x / Math.max(1, w)).toFixed(4)})`
       }),
     [],
   )
@@ -111,8 +107,8 @@ function Slider({ dim, label, value, onChange, locked }: { dim: W; label: string
       >
         <div className="slider__track" ref={track}>
           <span className="slider__fill" ref={fill} />
-          <span className="slider__rest" ref={rest} />
-          <Glass as="span" className="slider__thumb" radius={15} bevel={14} depth={1.7} frost={0} dim={0} tint={[1, 1, 1, 0.05]} shadow={0.55} reveal={false} layer={3} elRef={thumb} aria-hidden="true" />
+          {/* DOM glass, not canvas glass: it has to scroll and clip with the sheet. */}
+          <span className="slider__thumb" ref={thumb} />
         </div>
       </div>
     </div>
