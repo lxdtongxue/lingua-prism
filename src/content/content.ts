@@ -277,7 +277,7 @@ const zh = {
     data: 'TALL（Pan & Marsden, 2024）· ASJP（Holman et al., 2011）· Grambank（Skirgård et al., 2023）· PHOIBLE（Moran & McCloy, 2019）· 汉字词数据',
     dataLink: '数据来源与许可',
     sampleTitle: '样稿说明',
-    sample: '本页依据项目方案整理，语棱 Lingua Prism 为暂定名称。本站仅用于非商业研究和教学。',
+    sample: '本页依据项目方案整理。本站仅用于非商业研究和教学。',
   },
   test: {
     kicker: '测试中心 · TALL-TEST',
@@ -618,7 +618,7 @@ const en: typeof zh = {
     data: 'TALL (Pan & Marsden, 2024) · ASJP (Holman et al., 2011) · Grambank (Skirgård et al., 2023) · PHOIBLE (Moran & McCloy, 2019) · Sino-lexical data',
     dataLink: 'Sources and licenses',
     sampleTitle: 'About this sample',
-    sample: 'Based on the project proposal. Lingua Prism is a working title. This site is for non-commercial research and teaching only.',
+    sample: 'Based on the project proposal. This site is for non-commercial research and teaching only.',
   },
   test: {
     kicker: 'Test Center · TALL-TEST',
