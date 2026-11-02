@@ -1,6 +1,9 @@
 import { engine, Spring } from '../gl/engine'
 
-export const PAGES = ['hero', 'test', 'lab', 'framework', 'spectrum', 'aptitude', 'roadmap', 'references'] as const
+// Each sideways page is one tab. Its sections stack and scroll up and down inside it.
+export const GROUPS = [['hero'], ['test', 'lab'], ['framework', 'spectrum', 'aptitude'], ['roadmap'], ['references']]
+export const SECTIONS = GROUPS.flat()
+export const groupOf = (id: string) => GROUPS.findIndex((g) => g.includes(id))
 const query = matchMedia('(max-width: 900px)')
 
 type Listener = () => void
@@ -30,7 +33,7 @@ function applyMode() {
 }
 
 export function setPage(i: number, snap = false) {
-  pager.page = clamp(i, 0, PAGES.length - 1)
+  pager.page = clamp(i, 0, GROUPS.length - 1)
   pager.pos.target = pager.page
   if (snap || engine.reduced) {
     pager.pos.x = pager.page
@@ -51,13 +54,19 @@ const CLEAR_BOTTOM = 96
 export function goTo(id: string, instant = false) {
   // A jump is not the visitor scrolling, so it must not fold the tab bar.
   pager.navUntil = performance.now() + 1400
-  const i = PAGES.indexOf(id as (typeof PAGES)[number])
+  const i = groupOf(id)
+  const el = document.getElementById(id)
   if (pager.enabled && i >= 0) {
+    const same = i === pager.page
     setPage(i)
     history.replaceState(null, '', i ? `#${id}` : location.pathname + location.search)
+    const page = el?.closest<HTMLElement>('.tabpage')
+    if (page && el) {
+      const top = id === GROUPS[i][0] ? 0 : (el.querySelector('.wrap') ?? el).getBoundingClientRect().top - page.getBoundingClientRect().top + page.scrollTop - CLEAR_TOP
+      page.scrollTo({ top, behavior: instant || !same || engine.reduced ? 'auto' : 'smooth' })
+    }
     return
   }
-  const el = document.getElementById(id)
   if (!el) return
   // Centre the whole module when it fits; otherwise start at its heading.
   const box = (el.querySelector('.wrap') ?? el).getBoundingClientRect()
@@ -70,17 +79,18 @@ export function goTo(id: string, instant = false) {
 // reflow the page, so the jump repeats once unless the visitor has already moved.
 export function restoreHash() {
   const id = location.hash.slice(1)
-  if (pager.enabled || !PAGES.includes(id as (typeof PAGES)[number])) return
+  if (!SECTIONS.includes(id)) return
   goTo(id, true)
-  const landed = window.scrollY
+  const scroller = () => (pager.enabled ? (document.getElementById(id)?.closest('.tabpage')?.scrollTop ?? 0) : window.scrollY)
+  const landed = scroller()
   document.fonts?.ready.then(() => {
-    if (window.scrollY === landed) goTo(id, true)
+    if (scroller() === landed) goTo(id, true)
   })
 }
 
 // Runs before the first render so nothing flashes in the desktop layout.
 applyMode()
-const fromHash = PAGES.indexOf(location.hash.slice(1) as (typeof PAGES)[number])
+const fromHash = groupOf(location.hash.slice(1))
 if (pager.enabled && fromHash > 0) setPage(fromHash, true)
 
 query.addEventListener('change', () => {

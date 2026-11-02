@@ -51,16 +51,26 @@ export default function App() {
         <Nav />
         <Intro />
         <main className="page" ref={track}>
-          <Hero />
-          <Test />
-          <Lab />
-          <Framework />
-          <Spectrum />
-          <Aptitude />
-          <Roadmap />
-          <References />
+          <div className="tabpage">
+            <Hero />
+          </div>
+          <div className="tabpage">
+            <Test />
+            <Lab />
+          </div>
+          <div className="tabpage">
+            <Framework />
+            <Spectrum />
+            <Aptitude />
+          </div>
+          <div className="tabpage">
+            <Roadmap />
+          </div>
+          <div className="tabpage">
+            <References />
+            <Footer />
+          </div>
         </main>
-        <Footer />
         <div id="sheets" />
       </div>
     </I18n.Provider>

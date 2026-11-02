@@ -68,6 +68,7 @@ type Pane = {
   inPage?: boolean
 }
 
+const POOL_GAIN = 1.12
 const QUALITY = [
   { dpr: 2, scene: 0.72 },
   { dpr: 1.6, scene: 0.62 },
@@ -151,7 +152,7 @@ class Engine {
   private heroPress = new Spring(0, 200, 20)
 
   // Ambient pools, placed against sections.
-  private pools: { el: HTMLElement | null; x: number; dy: number; r: number; a: number; c: RGB; cs: [Spring, Spring, Spring] }[] = []
+  private pools: { el: HTMLElement | null; page: number; x: number; dy: number; r: number; a: number; c: RGB; cs: [Spring, Spring, Spring] }[] = []
   accent: RGB = [0.25, 0.72, 1]
 
   get ready() {
@@ -255,7 +256,7 @@ class Engine {
     }
   }
 
-  setPools(list: { el: HTMLElement | null; x: number; dy: number; r: number; a: number; c: RGB }[]) {
+  setPools(list: { el: HTMLElement | null; page: number; x: number; dy: number; r: number; a: number; c: RGB }[]) {
     this.pools = list.map((p) => ({
       ...p,
       cs: [new Spring(p.c[0], 40, 13), new Spring(p.c[1], 40, 13), new Spring(p.c[2], 40, 13)],
@@ -863,13 +864,18 @@ class Engine {
     gl.uniform1f(s.u.uHero, heroFade)
     const poolData = new Float32Array(32)
     const poolCol = new Float32Array(24)
+    // Sized by screen area, so light floods neither a narrow phone nor leaves a wide monitor dark.
+    const poolSize = Math.sqrt(this.cssW * this.vh)
     this.pools.slice(0, 8).forEach((p, i) => {
       const r = p.el?.getBoundingClientRect()
-      // In pager mode every section sits at y = 0, so each pool gets its own spot in the scene.
-      const [px, py0] = this.pager ? worldAt(i) : [0, 0]
+      // In pager mode every page starts at y = 0, so each page gets its own spot in the scene.
+      const [px, py0] = this.pager ? worldAt(p.page) : [0, 0]
       const py = r ? r.top + sy + p.dy * r.height + py0 : 0
       const drift = Math.sin(t * 0.17 + i * 2.1) * 60
-      poolData.set([p.x * this.cssW + px + drift, py + Math.cos(t * 0.14 + i) * 40, p.r * Math.max(this.vh, this.cssW * 0.6), p.a], i * 4)
+      // Pools on one sideways page overlap, so a crowded page shares its light out.
+      const crowd = this.pager ? this.pools.filter((q) => q.page === p.page).length : 1
+      const gain = POOL_GAIN * Math.min(1, 2 / crowd)
+      poolData.set([p.x * this.cssW + px + drift, py + Math.cos(t * 0.14 + i) * 40, p.r * poolSize, p.a * gain], i * 4)
       poolCol.set([p.cs[0].x, p.cs[1].x, p.cs[2].x], i * 3)
     })
     gl.uniform4fv(s.u.uPool, poolData)

@@ -1,6 +1,6 @@
 import { useEffect, useLayoutEffect, useRef, useSyncExternalStore, type RefObject } from 'react'
 import { engine } from '../gl/engine'
-import { PAGES, pager, setDockMin, setPage } from './pager'
+import { GROUPS, pager, setDockMin, setPage } from './pager'
 
 const LOCK_PX = 8
 const FOLD_PX = 56
@@ -65,7 +65,7 @@ export function usePagerGesture(track: RefObject<HTMLElement | null>) {
         pager.pos.v = 0
         el.setPointerCapture(e.pointerId)
       }
-      const last = PAGES.length - 1
+      const last = GROUPS.length - 1
       let p = d.start - dx / window.innerWidth
       if (p < 0) p *= 0.3
       if (p > last) p = last + (p - last) * 0.3
@@ -87,7 +87,7 @@ export function usePagerGesture(track: RefObject<HTMLElement | null>) {
       const turn = e.type === 'pointercancel' ? 0 : dx < -window.innerWidth * SWIPE || d.v < -FLICK ? 1 : dx > window.innerWidth * SWIPE || d.v > FLICK ? -1 : 0
       pager.pos.v = (-d.v * 1000) / window.innerWidth
       setPage(from + turn)
-      const id = PAGES[pager.page]
+      const id = GROUPS[pager.page][0]
       history.replaceState(null, '', pager.page ? `#${id}` : location.pathname + location.search)
     }
     const key = (e: KeyboardEvent) => {

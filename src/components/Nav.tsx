@@ -2,7 +2,7 @@ import { useEffect, useLayoutEffect, useRef, useState, type MouseEvent, type Poi
 import { engine, Spring } from '../gl/engine'
 import { BookOpen, FlaskConical, Layers, Target, Triangle } from 'lucide-react'
 import { useI18n } from './i18n'
-import { goTo, PAGES, pager, setDockMin, setPage } from './pager'
+import { goTo, groupOf, pager, SECTIONS, setDockMin, setPage } from './pager'
 import { usePagerState } from './usePagerGesture'
 
 // Each tab groups one or more pages and opens on the first of them.
@@ -12,8 +12,8 @@ const TABS = [
   { id: 'goals', icon: Target, pages: ['roadmap'] },
   { id: 'refs', icon: BookOpen, pages: ['references'] },
 ] as const
-const tabOf = PAGES.map((p) => TABS.findIndex((t) => (t.pages as readonly string[]).includes(p)))
-const IDS = PAGES.filter((p) => p !== 'hero')
+const IDS = SECTIONS.filter((id) => id !== 'hero')
+const tabOf = (id: string) => TABS.findIndex((t) => (t.pages as readonly string[]).includes(id))
 const clamp01 = (v: number) => Math.min(1, Math.max(0, v))
 const FOLD_SCROLL = 48
 const DRAG_PX = 6
@@ -23,7 +23,7 @@ export function Nav() {
   const { t, lang, setLang } = useI18n()
   const [scrolled, setActive] = useState(-1)
   const { enabled, page } = usePagerState()
-  const active = enabled ? tabOf[page] : scrolled
+  const active = enabled ? page - 1 : scrolled
   const dock = useRef<HTMLElement>(null)
   const drop = useRef<HTMLSpanElement>(null)
   const home = useRef<HTMLSpanElement>(null)
@@ -52,7 +52,7 @@ export function Nav() {
             best = id
           }
         })
-        setActive(best ? tabOf[PAGES.indexOf(best as (typeof PAGES)[number])] : -1)
+        setActive(best ? tabOf(best) : -1)
       },
       { rootMargin: '-46% 0px -46% 0px', threshold: [0, 0.01, 0.5, 1] },
     )
@@ -143,12 +143,12 @@ export function Nav() {
           }
         } else if (pager.enabled && !pager.dockMin) {
           // The droplet tracks the finger between tabs while a page is dragged.
-          const f = Math.max(0, Math.min(PAGES.length - 1, pager.pos.x))
-          const i = Math.min(PAGES.length - 2, Math.floor(f))
-          const from = links.current[Math.max(0, tabOf[i])]
-          const to = links.current[tabOf[i + 1]]
+          const f = Math.max(0, Math.min(TABS.length - 1, pager.pos.x - 1))
+          const i = Math.min(TABS.length - 2, Math.floor(f))
+          const from = links.current[i]
+          const to = links.current[i + 1]
           if (from && to) {
-            const m = tabOf[i] < 0 ? 1 : f - i
+            const m = f - i
             x.current.target = x.current.x = from.offsetLeft + (to.offsetLeft - from.offsetLeft) * m
             w.current.target = w.current.x = from.offsetWidth + (to.offsetWidth - from.offsetWidth) * m
             x.current.v = pager.pos.v * (to.offsetLeft - from.offsetLeft)
@@ -246,7 +246,7 @@ export function Nav() {
         gap = g
         if (i !== d.pick) {
           d.pick = i
-          if (pager.enabled) setPage(PAGES.indexOf(TABS[i].pages[0]))
+          if (pager.enabled) setPage(groupOf(TABS[i].pages[0]))
         }
       }
     })

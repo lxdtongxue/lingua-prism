@@ -47,8 +47,7 @@ export function Hero() {
         </h1>
         <div className="hero__copy">
           <p className="lead intro" style={at('1.55s')}>
-            <span className="desk-only">{h.lead}</span>
-            <span className="phone-only">{h.leadShort}</span>
+            {h.lead}
           </p>
           <div className="hero__cta intro" style={at('1.7s')}>
             <Glass as="button" type="button" className="btn btn--solid" radius={999} bevel={27} depth={0.7} frost={0.3} dim={0} tint={[0.96, 0.97, 1, 0.86]} press reveal={false} onClick={() => goTo('test')}>
