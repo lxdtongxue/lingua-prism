@@ -360,11 +360,21 @@ class Engine {
 
   // ---- Lifecycle ------------------------------------------------------
 
+  private suspended = false
+
   private onVis = () => {
     if (document.hidden) {
       cancelAnimationFrame(this.raf)
       this.running = false
-    } else this.start()
+    } else if (!this.suspended) this.start()
+  }
+
+  suspend(on: boolean) {
+    this.suspended = on
+    if (on) {
+      cancelAnimationFrame(this.raf)
+      this.running = false
+    } else if (!document.hidden) this.start()
   }
 
   private onLost = (e: Event) => {
@@ -861,9 +871,9 @@ class Engine {
     gl.uniform1f(s.u.uI1, ease(i1))
     gl.uniform1f(s.u.uI2, ease(i2))
     gl.uniform1f(s.u.uHero, heroFade)
-    const poolData = new Float32Array(24)
-    const poolCol = new Float32Array(18)
-    this.pools.slice(0, 6).forEach((p, i) => {
+    const poolData = new Float32Array(32)
+    const poolCol = new Float32Array(24)
+    this.pools.slice(0, 8).forEach((p, i) => {
       const r = p.el?.getBoundingClientRect()
       // In pager mode every section sits at y = 0, so each pool gets its own spot in the scene.
       const [px, py0] = this.pager ? worldAt(i) : [0, 0]

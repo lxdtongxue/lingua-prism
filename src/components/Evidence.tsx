@@ -1,7 +1,6 @@
 import { useLayoutEffect, useRef, useState } from 'react'
 import { useI18n } from './i18n'
-import { Glass } from './Glass'
-import { useLens } from './useLens'
+import { Seg } from './Seg'
 import { STUDIES } from '../content/content'
 import { engine } from '../gl/engine'
 
@@ -16,8 +15,6 @@ export function Evidence() {
   const a = t.aptitude
   const [filter, setFilter] = useState(0)
   const active = a.filters[filter].id
-  const lens = useRef<HTMLElement>(null)
-  const tabs = useRef<(HTMLButtonElement | null)[]>([])
   const list = useRef<HTMLUListElement>(null)
   const rows = useRef(new Map<string, HTMLLIElement>())
   const before = useRef<Snapshot | null>(null)
@@ -35,8 +32,6 @@ export function Evidence() {
     before.current = snapshot
     setFilter(i)
   }
-
-  useLens(lens, tabs, filter, choose)
 
   // FLIP: rows glide to their new slots while the pane resizes like liquid.
   useLayoutEffect(() => {
@@ -76,22 +71,7 @@ export function Evidence() {
     <div className="evidence">
       <div className="evidence__head">
         <p>{a.evidenceIntro}</p>
-        <div className="seg" role="group" aria-label={a.evidenceTitle}>
-          <Glass className="seg__lens" radius={999} bevel={20} depth={1.2} frost={0.15} dim={0} tint={[1, 1, 1, 0.085]} shadow={0.45} reveal={false} layer={3} elRef={lens} aria-hidden="true" />
-          {a.filters.map((f, i) => (
-            <button
-              key={f.id}
-              ref={(el) => {
-                tabs.current[i] = el
-              }}
-              className="seg__btn"
-              aria-pressed={filter === i}
-              onClick={() => choose(i)}
-            >
-              {f.label}
-            </button>
-          ))}
-        </div>
+        <Seg label={a.evidenceTitle} labels={a.filters.map((f) => f.label)} active={filter} onPick={choose} />
       </div>
       <ul className="studies" ref={list}>
         {STUDIES.map((s) => (

@@ -1,6 +1,6 @@
 import { engine, Spring } from '../gl/engine'
 
-export const PAGES = ['hero', 'framework', 'spectrum', 'aptitude', 'lab', 'roadmap'] as const
+export const PAGES = ['hero', 'test', 'lab', 'framework', 'spectrum', 'aptitude', 'roadmap', 'references'] as const
 const query = matchMedia('(max-width: 900px)')
 
 type Listener = () => void

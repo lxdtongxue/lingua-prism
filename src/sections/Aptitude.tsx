@@ -1,16 +1,16 @@
 import { useState } from 'react'
 import { useI18n } from '../components/i18n'
-import { BookMarked, Radar as RadarIcon, Route, Wrench } from 'lucide-react'
+import { Radar as RadarIcon, Route, Wrench } from 'lucide-react'
 import { Card } from '../components/Card'
 import { Sheet } from '../components/Sheet'
 import { SectionHead } from '../components/SectionHead'
 import { useReveal } from '../components/useReveal'
-import { Evidence } from '../components/Evidence'
 
 const C = 200
 const R = 138
+const AXES = 3
 const pt = (i: number, v: number) => {
-  const a = -Math.PI / 2 + (i * Math.PI * 2) / 5
+  const a = -Math.PI / 2 + (i * Math.PI * 2) / AXES
   return [C + Math.cos(a) * R * v, C + Math.sin(a) * R * v]
 }
 
@@ -56,7 +56,7 @@ function Radar({ focus, bare }: { focus: number; bare?: boolean }) {
   )
 }
 
-type View = 'profile' | 'tools' | 'path' | 'studies'
+type View = 'profile' | 'tools' | 'path'
 
 export function Aptitude() {
   const { t } = useI18n()
@@ -78,9 +78,6 @@ export function Aptitude() {
           </Card>
           <Card icon={Wrench} title={c.tools[0]} desc={c.tools[1]} delay={80} onOpen={() => setOpen('tools')} />
           <Card icon={Route} title={c.path[0]} desc={c.path[1]} delay={160} onOpen={() => setOpen('path')} />
-          <Card icon={BookMarked} title={c.studies[0]} desc={c.studies[1]} delay={240} onOpen={() => setOpen('studies')}>
-            <span className="bento__num">14</span>
-          </Card>
         </div>
       </div>
 
@@ -152,10 +149,6 @@ export function Aptitude() {
             </ul>
           </div>
         </div>
-      </Sheet>
-
-      <Sheet open={open === 'studies'} onClose={close} kicker={a.kicker} title={a.evidenceTitle} fill>
-        <Evidence />
       </Sheet>
     </section>
   )

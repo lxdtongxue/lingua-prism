@@ -1,19 +1,24 @@
 import { useEffect, useLayoutEffect, useMemo, useRef, useState, type KeyboardEvent, type PointerEvent } from 'react'
-import { SlidersHorizontal } from 'lucide-react'
+import { Info, ListOrdered, SlidersHorizontal } from 'lucide-react'
 import { useI18n } from '../components/i18n'
 import { CLEAR } from '../components/Card'
 import { Glass } from '../components/Glass'
 import { SectionHead } from '../components/SectionHead'
 import { Sheet } from '../components/Sheet'
 import { DEMO_LANGS, DIMS, type Dim } from '../content/content'
+import demands from '../data/language_demands.json'
+import { PROVISIONAL } from '../data/citations'
+import { A_DEFAULT_WEIGHT, ABILITIES, explainA, scoreA, weightedScore, type Ability, type Lang as Demand } from '../a/score'
+import { useTall } from '../components/tall'
+import { goTo } from '../components/pager'
 import { engine, Spring } from '../gl/engine'
 
 type Known = 'zh' | 'zh-en'
 type Goal = 'job' | 'study' | 'travel' | 'academic'
-const WEIGHTED = ['T', 'G', 'R', 'P'] as const
-type W = (typeof WEIGHTED)[number]
+type W = Dim
+const SHOW_TOP = 8
 
-function Slider({ dim, label, value, onChange }: { dim: W; label: string; value: number; onChange: (v: number) => void }) {
+function Slider({ dim, label, value, onChange, locked }: { dim: W; label: string; value: number; onChange: (v: number) => void; locked?: boolean }) {
   const track = useRef<HTMLDivElement>(null)
   const thumb = useRef<HTMLSpanElement>(null)
   const fill = useRef<HTMLSpanElement>(null)
@@ -46,6 +51,7 @@ function Slider({ dim, label, value, onChange }: { dim: W; label: string; value:
     onChange(Math.round(Math.min(100, Math.max(0, ((e.clientX - r.left) / r.width) * 100))))
   }
   const onKey = (e: KeyboardEvent) => {
+    if (locked) return
     const d = e.key === 'ArrowRight' || e.key === 'ArrowUp' ? 5 : e.key === 'ArrowLeft' || e.key === 'ArrowDown' ? -5 : 0
     if (!d) return
     e.preventDefault()
@@ -53,7 +59,7 @@ function Slider({ dim, label, value, onChange }: { dim: W; label: string; value:
   }
 
   return (
-    <div className={`slider tone-${dim}`}>
+    <div className={`slider tone-${dim}${locked ? ' slider--locked' : ''}`}>
       <div className="slider__label">
         <b>{dim}</b>
         <span>{label}</span>
@@ -67,8 +73,10 @@ function Slider({ dim, label, value, onChange }: { dim: W; label: string; value:
         aria-valuemin={0}
         aria-valuemax={100}
         aria-valuenow={value}
+        aria-disabled={locked}
         onKeyDown={onKey}
         onPointerDown={(e) => {
+          if (locked) return
           e.currentTarget.setPointerCapture(e.pointerId)
           held.current.target = 1
           // A finger may be starting a page scroll, so touch waits for a sideways drag or a tap.
@@ -104,24 +112,86 @@ function Slider({ dim, label, value, onChange }: { dim: W; label: string; value:
   )
 }
 
+type Row = { id: string; name: string; native?: string; values: Partial<Record<Dim, number | null>>; score: number | null; a: number | null; lang: (typeof demands)[number] }
+
+const HARD: Record<Ability, 'grammar' | 'sound' | 'script'> = { LA: 'grammar', SD: 'sound', VL: 'script' }
+
+function RankList({ rows, dims, onOpen, liked, onLike, refs }: { rows: Row[]; dims: readonly Dim[]; onOpen: (id: string) => void; liked: Set<string>; onLike: (id: string) => void; refs?: Map<string, HTMLLIElement> }) {
+  const { t } = useI18n()
+  const l = t.lab
+  return (
+    <ol className="rank">
+      {rows.map((r, i) => (
+        <li
+          key={r.id}
+          ref={(el) => {
+            if (!refs) return
+            if (el) refs.set(r.id, el)
+            else refs.delete(r.id)
+          }}
+        >
+          <button type="button" className="rank__row" onClick={() => onOpen(r.id)}>
+            <span className="rank__n">{i + 1}</span>
+            <span className="rank__name">
+              <strong>{r.name}</strong>
+              {r.native && <span>{r.native}</span>}
+            </span>
+            <span className="rank__bars" style={{ '--n': dims.length } as React.CSSProperties}>
+              {dims.map((k) => {
+                const v = r.values[k]
+                return (
+                  <span key={k} className={`bar tone-${k}${v == null ? ' bar--off' : ''}`} title={l.dimShort[k]}>
+                    <i style={{ transform: `scaleX(${(v ?? 0) / 100})` }} />
+                  </span>
+                )
+              })}
+            </span>
+            <span className="rank__score">{r.a == null ? '—' : Math.round(r.a)}</span>
+          </button>
+          <button type="button" className={`like${liked.has(r.id) ? ' on' : ''}`} aria-pressed={liked.has(r.id)} aria-label={`${l.like}: ${r.name}`} onClick={() => onLike(r.id)}>
+            <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
+              <path d="M12 3.2 21 19.5H3Z" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinejoin="round" />
+            </svg>
+          </button>
+        </li>
+      ))}
+    </ol>
+  )
+}
+
 export function Lab() {
   const { t, lang } = useI18n()
   const l = t.lab
+  const { percentiles, count, placeholder } = useTall()
   const [known, setKnown] = useState<Known>('zh-en')
   const [goal, setGoal] = useState<Goal>('study')
-  const [w, setW] = useState<Record<W, number>>({ T: 40, G: 80, R: 50, P: 60 })
-  const [liked, setLiked] = useState<Set<string>>(() => new Set(['ja']))
-  const [open, setOpen] = useState(false)
+  const [demo, setDemo] = useState(false)
+  const [weights, setW] = useState<Record<W, number>>({ T: 40, A: A_DEFAULT_WEIGHT, G: 60, R: 40, P: 30 })
+  const [liked, setLiked] = useState<Set<string>>(() => new Set())
+  const [open, setOpen] = useState<'adjust' | 'all' | null>(null)
+  const [detail, setDetail] = useState<string | null>(null)
+  const [lastDetail, setLastDetail] = useState<string | null>(null)
 
-  const ranked = useMemo(() => {
-    const rows = DEMO_LANGS.map((d) => {
-      const v: Record<Dim, number> = { T: d.T[known], A: d.A, G: d.G[goal], R: d.R, P: liked.has(d.id) ? 0.92 : 0.28 }
-      const total = WEIGHTED.reduce((a, k) => a + w[k], 0) || 1
-      const s = WEIGHTED.reduce((a, k) => a + w[k] * v[k], 0) / total
-      return { d, v, s }
+  const hasA = count > 0
+  const dims: readonly Dim[] = demo ? DIMS : (['A', 'P'] as const)
+  const w: Record<W, number> = { ...weights, A: hasA ? weights.A : 0, ...(demo ? {} : { T: 0, G: 0, R: 0 }) }
+
+  const rows = useMemo(() => {
+    const pool = demo ? demands.filter((d) => DEMO_LANGS.some((x) => x.id === d.id)) : demands
+    const list: Row[] = pool.map((d) => {
+      const a = scoreA(d as Demand, percentiles)
+      const p = liked.size ? (liked.has(d.id) ? 100 : 0) : null
+      const ph = DEMO_LANGS.find((x) => x.id === d.id)
+      const values: Row['values'] = { A: a, P: p }
+      if (demo && ph) Object.assign(values, { T: ph.T[known] * 100, G: ph.G[goal] * 100, R: ph.R * 100 })
+      return { id: d.id, name: lang === 'zh' ? d.zh : d.en, native: ph?.native, values, a, score: weightedScore(values, w), lang: d }
     })
-    return rows.sort((a, b) => b.s - a.s)
-  }, [known, goal, w, liked])
+    return list.sort((x, y) => (y.score ?? -1) - (x.score ?? -1))
+    // `w` is rebuilt from its inputs every render.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [demo, known, goal, weights, liked, percentiles, lang, hasA])
+
+  const shown = rows.slice(0, SHOW_TOP)
 
   // FLIP: rows glide to their new rank instead of snapping.
   const rowEls = useRef(new Map<string, HTMLLIElement>())
@@ -143,7 +213,7 @@ export function Lab() {
       }
       prev.current.set(id, top)
     })
-  }, [ranked])
+  }, [rows])
 
   const toggle = (id: string) =>
     setLiked((s) => {
@@ -153,20 +223,37 @@ export function Lab() {
       return n
     })
 
+  const openDetail = (id: string) => {
+    setLastDetail(id)
+    setDetail(id)
+  }
+  const pick = rows.find((r) => r.id === lastDetail) ?? rows[0]
+  const why = explainA(pick.lang as Demand, percentiles)
+  const whyText =
+    why.kind === 'none'
+      ? l.whyNone
+      : (why.kind === 'focus'
+          ? l.whyFocus
+              .replace('{hard}', l.hard[HARD[why.ability]])
+              .replace('{share}', String(Math.round(why.share * 100)))
+              .replace('{ability}', t.test.abilities[why.ability])
+              .replace('{p}', String(why.percentile))
+          : l.whyBalanced) + (why.even ? l.whyEven : '')
+  const flags = PROVISIONAL.filter((x) => x.zh === pick.lang.zh)
+  const partial = pick.lang.la_source === 'grambank_partial'
+
   return (
     <section id="lab" className="section">
       <div className="wrap">
         <SectionHead kicker={l.kicker} title={l.title} intro={l.intro} />
         <div className="lab">
-          <Glass as="button" type="button" className="lab__ctl" radius={32} {...CLEAR} press onClick={() => setOpen(true)}>
+          <Glass as="button" type="button" className="lab__ctl" radius={32} {...CLEAR} press onClick={() => setOpen('adjust')}>
             <span className="lab__sum">
               <span className="micro">{l.summary}</span>
-              <strong>
-                {l.knownOpts.find(([id]) => id === known)?.[1]} · {l.goals.find(([id]) => id === goal)?.[1]}
-              </strong>
+              <strong>{hasA ? l.haveTall.replace('{n}', String(count)) : l.noTall}</strong>
             </span>
-            <span className="lab__meters">
-              {WEIGHTED.map((k) => (
+            <span className="lab__meters" style={{ '--n': dims.length } as React.CSSProperties}>
+              {dims.map((k) => (
                 <span key={k} className={`meter tone-${k}`}>
                   <b>{k}</b>
                   <i>
@@ -184,75 +271,114 @@ export function Lab() {
           <Glass className="lab__out" radius={32} {...CLEAR} frost={0.34} dim={0.34} delay={100}>
             <header>
               <h3>{l.results}</h3>
-              <em className="tag tag--demo">{l.demoTag}</em>
+              {demo ? <em className="tag tag--demo">{l.demoTag}</em> : <em className="tag">{l.experimental}</em>}
+              {placeholder && <em className="tag tag--demo">{l.placeholderTag}</em>}
             </header>
-            <p className="note lab__note">{l.demoNote}</p>
-            <ol className="rank">
-              {ranked.map(({ d, v }, i) => (
-                <li
-                  key={d.id}
-                  ref={(el) => {
-                    if (el) rowEls.current.set(d.id, el)
-                    else rowEls.current.delete(d.id)
-                  }}
-                >
-                  <span className="rank__n">{i + 1}</span>
-                  <div className="rank__name">
-                    <strong>{lang === 'zh' ? d.zh : d.en}</strong>
-                    <span>{d.native}</span>
-                  </div>
-                  <div className="rank__bars">
-                    {DIMS.map((k) => (
-                      <span key={k} className={`bar tone-${k}${k === 'A' ? ' bar--off' : ''}`} title={l.dimShort[k]}>
-                        <i style={{ transform: `scaleX(${v[k]})` }} />
-                      </span>
-                    ))}
-                  </div>
-                  <button className={`like${liked.has(d.id) ? ' on' : ''}`} aria-pressed={liked.has(d.id)} aria-label={`${l.like}: ${lang === 'zh' ? d.zh : d.en}`} onClick={() => toggle(d.id)}>
-                    <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
-                      <path d="M12 3.2 21 19.5H3Z" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinejoin="round" />
-                    </svg>
-                  </button>
-                </li>
-              ))}
-            </ol>
-            <p className="note note--end">{l.likeHint}</p>
+            {!hasA && (
+              <button type="button" className="lab__prompt" onClick={() => goTo('test')}>
+                {l.prompt}
+              </button>
+            )}
+            <RankList rows={shown} dims={dims} onOpen={openDetail} liked={liked} onLike={toggle} refs={rowEls.current} />
+            {rows.length > SHOW_TOP && (
+              <button type="button" className="lab__more" onClick={() => setOpen('all')}>
+                <ListOrdered size={16} strokeWidth={1.8} />
+                {l.seeAll.replace('{n}', String(rows.length))}
+              </button>
+            )}
           </Glass>
         </div>
       </div>
-      <Sheet open={open} onClose={() => setOpen(false)} kicker={l.kicker} title={l.adjust}>
+
+      <Sheet open={open === 'adjust'} onClose={() => setOpen(null)} kicker={l.kicker} title={l.adjust}>
         <div className="lab__form">
-            <fieldset>
-              <legend>{l.known}</legend>
-              <div className="chips">
-                {l.knownOpts.map(([id, label]) => (
-                  <button key={id} className="chip" aria-pressed={known === id} onClick={() => setKnown(id as Known)}>
-                    {label}
-                  </button>
+          <fieldset>
+            <legend>{l.weights}</legend>
+            <Slider dim="A" label={l.dimShort.A} value={w.A} locked={!hasA} onChange={(v) => setW((o) => ({ ...o, A: v }))} />
+            {!hasA && <p className="locked tone-A">{l.locked}</p>}
+            <Slider dim="P" label={l.dimShort.P} value={w.P} onChange={(v) => setW((o) => ({ ...o, P: v }))} />
+          </fieldset>
+          <fieldset>
+            <legend>{l.demoLabel}</legend>
+            <label className="switch">
+              <input type="checkbox" checked={demo} onChange={(e) => setDemo(e.target.checked)} />
+              <span>{l.demoSwitch}</span>
+            </label>
+            <p className="note">{l.demoNote}</p>
+          </fieldset>
+          {demo && (
+            <>
+              <fieldset>
+                <legend>{l.known}</legend>
+                <div className="chips">
+                  {l.knownOpts.map(([id, label]) => (
+                    <button key={id} type="button" className="chip" aria-pressed={known === id} onClick={() => setKnown(id as Known)}>
+                      {label}
+                    </button>
+                  ))}
+                </div>
+              </fieldset>
+              <fieldset>
+                <legend>{l.goal}</legend>
+                <div className="chips">
+                  {l.goals.map(([id, label]) => (
+                    <button key={id} type="button" className="chip" aria-pressed={goal === id} onClick={() => setGoal(id as Goal)}>
+                      {label}
+                    </button>
+                  ))}
+                </div>
+              </fieldset>
+              <fieldset>
+                {(['T', 'G', 'R'] as const).map((k) => (
+                  <Slider key={k} dim={k} label={l.dimShort[k]} value={weights[k]} onChange={(v) => setW((o) => ({ ...o, [k]: v }))} />
                 ))}
-              </div>
-            </fieldset>
-            <fieldset>
-              <legend>{l.goal}</legend>
-              <div className="chips">
-                {l.goals.map(([id, label]) => (
-                  <button key={id} className="chip" aria-pressed={goal === id} onClick={() => setGoal(id as Goal)}>
-                    {label}
-                  </button>
-                ))}
-              </div>
-            </fieldset>
-            <fieldset>
-              <legend>{l.weights}</legend>
-              {WEIGHTED.map((k) => (
-                <Slider key={k} dim={k} label={l.dimShort[k]} value={w[k]} onChange={(v) => setW((o) => ({ ...o, [k]: v }))} />
-              ))}
-              <p className="locked tone-A">
-                <b>A</b>
-                <span>{l.locked}</span>
-              </p>
-            </fieldset>
+              </fieldset>
+            </>
+          )}
         </div>
+      </Sheet>
+
+      <Sheet open={open === 'all'} onClose={() => setOpen(null)} kicker={l.kicker} title={l.results}>
+        <RankList
+          rows={rows}
+          dims={dims}
+          onOpen={(id) => {
+            setOpen(null)
+            openDetail(id)
+          }}
+          liked={liked}
+          onLike={toggle}
+        />
+      </Sheet>
+
+      <Sheet open={detail !== null} onClose={() => setDetail(null)} kicker={l.results} title={pick.name}>
+        <div className="lang-a">
+          <b>{pick.a == null ? '—' : Math.round(pick.a)}</b>
+          <span>{l.aLabel}</span>
+        </div>
+        <p className="sheet__lead">{whyText}</p>
+        <div className="bars">
+          {ABILITIES.map((k) => (
+            <div className="pbar" key={k}>
+              <span>{l.hard[HARD[k]]}</span>
+              <i>
+                <u style={{ transform: `scaleX(${pick.lang[`D_${k}`]})` }} />
+              </i>
+              <b>{pick.lang[`D_${k}`].toFixed(2)}</b>
+            </div>
+          ))}
+        </div>
+        <p className="sheet__note">
+          <Info size={15} strokeWidth={1.8} />
+          {l.aNote}
+        </p>
+        {(flags.length > 0 || partial) && (
+          <p className="note">
+            {l.provisional}
+            {flags.map((x) => `${l.hard[HARD[x.item as Ability]]}：${x.how[lang]}`).join('；')}
+            {partial ? l.partial : ''}
+          </p>
+        )}
       </Sheet>
     </section>
   )

@@ -6,6 +6,8 @@ import { Nav } from './components/Nav'
 import { Intro } from './components/Intro'
 import { usePagerGesture } from './components/usePagerGesture'
 import { Hero } from './sections/Hero'
+import { Test } from './sections/Test'
+import { References } from './sections/References'
 import { Framework } from './sections/Framework'
 import { Spectrum } from './sections/Spectrum'
 import { Aptitude } from './sections/Aptitude'
@@ -54,11 +56,13 @@ export default function App() {
         <Intro />
         <main className="page" ref={track}>
           <Hero />
+          <Test />
+          <Lab />
           <Framework />
           <Spectrum />
           <Aptitude />
-          <Lab />
           <Roadmap />
+          <References />
         </main>
         <Footer />
         <div id="sheets" />

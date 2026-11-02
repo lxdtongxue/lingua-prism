@@ -1,27 +1,40 @@
 import { useEffect, useLayoutEffect, useRef, useState, type MouseEvent, type PointerEvent } from 'react'
 import { engine, Spring } from '../gl/engine'
-import { FlaskConical, Layers, Radar, Route, Triangle, Waypoints } from 'lucide-react'
+import { BookOpen, FlaskConical, Layers, Target, Triangle } from 'lucide-react'
 import { useI18n } from './i18n'
-import { goTo, pager, setDockMin, setPage } from './pager'
+import { goTo, PAGES, pager, setDockMin, setPage } from './pager'
 import { usePagerState } from './usePagerGesture'
 
-const IDS = ['framework', 'spectrum', 'aptitude', 'lab', 'roadmap'] as const
-const ICONS = { framework: Layers, spectrum: Waypoints, aptitude: Radar, lab: FlaskConical, roadmap: Route }
+// Each tab groups one or more pages and opens on the first of them.
+const TABS = [
+  { id: 'test', icon: FlaskConical, pages: ['test', 'lab'] },
+  { id: 'about', icon: Layers, pages: ['framework', 'spectrum', 'aptitude'] },
+  { id: 'goals', icon: Target, pages: ['roadmap'] },
+  { id: 'refs', icon: BookOpen, pages: ['references'] },
+] as const
+const tabOf = PAGES.map((p) => TABS.findIndex((t) => (t.pages as readonly string[]).includes(p)))
+const IDS = PAGES.filter((p) => p !== 'hero')
 const clamp01 = (v: number) => Math.min(1, Math.max(0, v))
 const FOLD_SCROLL = 48
 const DRAG_PX = 6
+const ICON_W = 50
 
 export function Nav() {
   const { t, lang, setLang } = useI18n()
   const [scrolled, setActive] = useState(-1)
   const { enabled, page } = usePagerState()
-  const active = enabled ? page - 1 : scrolled
+  const active = enabled ? tabOf[page] : scrolled
   const dock = useRef<HTMLElement>(null)
   const drop = useRef<HTMLSpanElement>(null)
+  const home = useRef<HTMLSpanElement>(null)
   const links = useRef<(HTMLAnchorElement | null)[]>([])
   const x = useRef(new Spring(0, 240, 25))
   const w = useRef(new Spring(0, 240, 25))
   const shown = useRef(new Spring(0, 200, 26))
+  const min = useRef(new Spring(0, 150, 24))
+  const keeps = useRef(TABS.map(() => new Spring(0, 200, 26)))
+  const keepHome = useRef(new Spring(1, 200, 26))
+  const natural = useRef<number[]>([])
   const current = useRef(active)
   const drag = useRef<{ id: number; startX: number; at: number; pick: number; moved: boolean } | null>(null)
 
@@ -30,16 +43,16 @@ export function Nav() {
     const io = new IntersectionObserver(
       (es) => {
         for (const e of es) seen.set(e.target.id, e.isIntersecting ? e.intersectionRatio : 0)
-        let best = -1
+        let best = ''
         let top = 0
-        IDS.forEach((id, i) => {
+        IDS.forEach((id) => {
           const v = seen.get(id) ?? 0
           if (v > top) {
             top = v
-            best = i
+            best = id
           }
         })
-        setActive(best)
+        setActive(best ? tabOf[PAGES.indexOf(best as (typeof PAGES)[number])] : -1)
       },
       { rootMargin: '-46% 0px -46% 0px', threshold: [0, 0.01, 0.5, 1] },
     )
@@ -49,6 +62,24 @@ export function Nav() {
     })
     return () => io.disconnect()
   }, [])
+
+  // The fold animates widths, so it needs each tab's open width from a clean layout.
+  useLayoutEffect(() => {
+    const measure = () => {
+      const el = dock.current
+      if (!el) return
+      el.style.setProperty('--m', '0')
+      links.current.forEach((a) => {
+        if (a) a.style.width = ''
+      })
+      natural.current = links.current.map((a) => a?.offsetWidth ?? 0)
+      el.dataset.m = ''
+    }
+    measure()
+    document.fonts?.ready.then(measure)
+    window.addEventListener('resize', measure)
+    return () => window.removeEventListener('resize', measure)
+  }, [lang])
 
   useLayoutEffect(() => {
     current.current = active
@@ -60,16 +91,48 @@ export function Nav() {
     }
   }, [active, lang])
 
+  // Folding runs on springs in the frame loop, so it can reverse halfway without a jump.
+  const fold = (dt: number) => {
+    const el = dock.current
+    if (!el) return
+    const m = min.current
+    m.target = pager.dockMin ? 1 : 0
+    keepHome.current.target = current.current < 0 ? 1 : 0
+    keeps.current.forEach((s, i) => {
+      s.target = current.current === i ? 1 : 0
+    })
+    for (const s of [m, keepHome.current, ...keeps.current]) {
+      s.step(dt)
+      if (engine.reduced) s.x = s.target
+    }
+    const e = clamp01(m.x)
+    const stamp = [e, keepHome.current.x, ...keeps.current.map((s) => s.x)].map((v) => v.toFixed(3)).join()
+    if (el.dataset.m === stamp) return
+    el.dataset.m = stamp
+    el.style.setProperty('--m', e.toFixed(3))
+    links.current.forEach((a, i) => {
+      if (!a) return
+      const keep = clamp01(keeps.current[i].x)
+      a.style.width = `${((natural.current[i] ?? 0) * (1 - e) + ICON_W * keep * e).toFixed(2)}px`
+      a.style.opacity = (1 - e + keep * e).toFixed(3)
+    })
+    if (home.current) home.current.style.width = `${(ICON_W * e * clamp01(keepHome.current.x)).toFixed(2)}px`
+    const left = brand.current?.offsetLeft ?? 0
+    const centre = window.innerWidth / 2
+    el.style.transform = `translate3d(${(centre + (left + 30 - centre) * e).toFixed(2)}px,0,0) translateX(-50%)`
+  }
+
   // The droplet slides on a spring and stretches with its own speed. It reads the
   // active tab every frame, so it stays on it while the bar folds and unfolds.
   useEffect(
     () =>
       engine.onFrame((dt) => {
+        fold(dt)
         const d = drag.current
         const nowAt = links.current[current.current]
         if (d?.moved) {
           const first = links.current[0]
-          const last = links.current[IDS.length - 1]
+          const last = links.current[TABS.length - 1]
           const tab = links.current[d.pick]
           if (first && last && tab) {
             w.current.target = tab.offsetWidth
@@ -80,15 +143,15 @@ export function Nav() {
           }
         } else if (pager.enabled && !pager.dockMin) {
           // The droplet tracks the finger between tabs while a page is dragged.
-          const f = Math.max(0, Math.min(IDS.length - 1, pager.pos.x - 1))
-          const i = Math.min(IDS.length - 2, Math.floor(f))
-          const a = links.current[i]
-          const b = links.current[i + 1]
-          if (a && b) {
-            const m = f - i
-            x.current.target = x.current.x = a.offsetLeft + (b.offsetLeft - a.offsetLeft) * m
-            w.current.target = w.current.x = a.offsetWidth + (b.offsetWidth - a.offsetWidth) * m
-            x.current.v = pager.pos.v * (b.offsetLeft - a.offsetLeft)
+          const f = Math.max(0, Math.min(PAGES.length - 1, pager.pos.x))
+          const i = Math.min(PAGES.length - 2, Math.floor(f))
+          const from = links.current[Math.max(0, tabOf[i])]
+          const to = links.current[tabOf[i + 1]]
+          if (from && to) {
+            const m = tabOf[i] < 0 ? 1 : f - i
+            x.current.target = x.current.x = from.offsetLeft + (to.offsetLeft - from.offsetLeft) * m
+            w.current.target = w.current.x = from.offsetWidth + (to.offsetWidth - from.offsetWidth) * m
+            x.current.v = pager.pos.v * (to.offsetLeft - from.offsetLeft)
             shown.current.target = shown.current.x = clamp01(pager.pos.x)
           }
         } else if (nowAt) {
@@ -138,13 +201,13 @@ export function Nav() {
   // The title drifts to centre on the way down and the language switch dissolves.
   const brand = useRef<HTMLAnchorElement>(null)
   const lang2 = useRef<HTMLButtonElement>(null)
-  const fold = useRef(new Spring(0, 90, 19))
+  const titleFold = useRef(new Spring(0, 90, 19))
   useEffect(
     () =>
       engine.onFrame((dt) => {
-        fold.current.target = pager.enabled ? Math.max(clamp01(pager.pos.x), pager.dockMin ? 1 : 0) : clamp01(window.scrollY / 280)
-        fold.current.step(dt)
-        const c = clamp01(fold.current.x)
+        titleFold.current.target = pager.enabled ? Math.max(clamp01(pager.pos.x), pager.dockMin ? 1 : 0) : clamp01(window.scrollY / 280)
+        titleFold.current.step(dt)
+        const c = clamp01(titleFold.current.x)
         const b = brand.current
         const l = lang2.current
         if (b) {
@@ -183,7 +246,7 @@ export function Nav() {
         gap = g
         if (i !== d.pick) {
           d.pick = i
-          if (pager.enabled) setPage(i + 1)
+          if (pager.enabled) setPage(PAGES.indexOf(TABS[i].pages[0]))
         }
       }
     })
@@ -192,7 +255,7 @@ export function Nav() {
     const d = drag.current
     if (!d || d.id !== e.pointerId) return
     drag.current = null
-    if (d.moved) goTo(IDS[d.pick])
+    if (d.moved) goTo(TABS[d.pick].pages[0])
   }
 
   const go = (e: MouseEvent, id: string) => {
@@ -231,27 +294,24 @@ export function Nav() {
         onPointerCancel={onDockUp}
       >
         <span className="dock__drop" ref={drop} aria-hidden="true" />
-        <span className="dock__home" aria-hidden={active >= 0}>
+        <span className="dock__home" ref={home} aria-hidden={active >= 0}>
           <Triangle size={20} strokeWidth={1.8} />
         </span>
-        {IDS.map((id, i) => {
-          const Icon = ICONS[id]
-          return (
+        {TABS.map(({ id, icon: Icon, pages }, i) => (
           <a
             key={id}
             ref={(el) => {
               links.current[i] = el
             }}
-            href={`#${id}`}
+            href={`#${pages[0]}`}
             draggable={false}
             aria-current={active === i ? 'true' : undefined}
-            onClick={(e) => go(e, id)}
+            onClick={(e) => go(e, pages[0])}
           >
             <Icon size={20} strokeWidth={1.8} />
             <span>{t.nav[id]}</span>
           </a>
-          )
-        })}
+        ))}
       </nav>
     </>
   )

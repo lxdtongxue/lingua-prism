@@ -25,7 +25,7 @@ export function Spectrum() {
 
   const choose = (i: number) => {
     setSel(i)
-    engine.setPoolColor(2, DIM_RGB[DIMS[i]])
+    engine.setPoolColor(4, DIM_RGB[DIMS[i]])
     engine.focusRay(RAY_ORDER.indexOf(DIMS[i]))
   }
 

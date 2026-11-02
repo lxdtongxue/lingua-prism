@@ -51,13 +51,16 @@ export function Hero() {
             <span className="phone-only">{h.leadShort}</span>
           </p>
           <div className="hero__cta intro" style={at('1.7s')}>
-            <Glass as="button" type="button" className="btn btn--solid" radius={999} bevel={27} depth={0.7} frost={0.3} dim={0} tint={[0.96, 0.97, 1, 0.86]} press reveal={false} onClick={() => goTo('spectrum')}>
+            <Glass as="button" type="button" className="btn btn--solid" radius={999} bevel={27} depth={0.7} frost={0.3} dim={0} tint={[0.96, 0.97, 1, 0.86]} press reveal={false} onClick={() => goTo('test')}>
               {h.cta1}
             </Glass>
-            <Glass as="button" type="button" className="btn" radius={999} bevel={27} depth={1} frost={0.1} dim={0.1} press reveal={false} onClick={() => goTo('lab')}>
+            <Glass as="button" type="button" className="btn" radius={999} bevel={27} depth={1} frost={0.1} dim={0.1} press reveal={false} onClick={() => goTo('framework')}>
               {h.cta2}
             </Glass>
           </div>
+          <p className="hero__note intro" style={at('1.78s')}>
+            {h.ctaNote}
+          </p>
         </div>
         <div className="hero__side intro" style={at('1.85s')}>
           <dl className="stats">

@@ -1,4 +1,5 @@
 import { useI18n } from '../components/i18n'
+import { goTo } from '../components/pager'
 
 export function FooterBody() {
   const { t } = useI18n()
@@ -15,6 +16,9 @@ export function FooterBody() {
         <div>
           <h4>{f.dataTitle}</h4>
           <p>{f.data}</p>
+          <button type="button" className="foot__link" onClick={() => goTo('references')}>
+            {f.dataLink}
+          </button>
         </div>
         <div>
           <h4>{f.sampleTitle}</h4>

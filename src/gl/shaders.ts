@@ -35,8 +35,8 @@ uniform float uDocTop, uDocLeft, uT, uVH;
 uniform vec2 uE, uX, uIn;
 uniform float uFan, uSpread, uI1, uI2, uHero, uPR;
 uniform vec2 uC;
-uniform vec4 uPool[6];
-uniform vec3 uPoolC[6];
+uniform vec4 uPool[8];
+uniform vec3 uPoolC[8];
 uniform vec3 uRay[5];
 uniform float uRayG[5];
 uniform sampler2D uTxt;
@@ -63,7 +63,7 @@ void main(){
   float t = uT;
 
   vec3 pool = vec3(0.); float L = 0.;
-  for(int i = 0; i < 6; i++){
+  for(int i = 0; i < 8; i++){
     vec2 d = (P - uPool[i].xy) / uPool[i].z;
     float e = exp(-dot(d, d)) * uPool[i].w;
     pool += uPoolC[i] * e; L += e;

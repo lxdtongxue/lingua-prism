@@ -13,11 +13,13 @@ export function Stage() {
   useEffect(() => {
     engine.setPools([
       { el: $('hero'), x: 0.74, dy: 0.42, r: 0.5, a: 0.18, c: [0.3, 0.45, 0.95] },
+      { el: $('test'), x: 0.2, dy: 0.5, r: 0.68, a: 0.44, c: [0.12, 0.72, 0.8] },
+      { el: $('lab'), x: 0.78, dy: 0.48, r: 0.72, a: 0.42, c: [1, 0.46, 0.2] },
       { el: $('framework'), x: 0.12, dy: 0.55, r: 0.62, a: 0.46, c: [0.16, 0.5, 1] },
       { el: $('spectrum'), x: 0.72, dy: 0.55, r: 0.74, a: 0.42, c: [0.25, 0.72, 1] },
       { el: $('aptitude'), x: 0.2, dy: 0.3, r: 0.76, a: 0.5, c: [0.5, 0.3, 1] },
-      { el: $('lab'), x: 0.78, dy: 0.48, r: 0.72, a: 0.42, c: [1, 0.46, 0.2] },
       { el: $('roadmap'), x: 0.25, dy: 0.5, r: 0.72, a: 0.42, c: [0.1, 0.8, 0.55] },
+      { el: $('references'), x: 0.7, dy: 0.5, r: 0.7, a: 0.36, c: [0.75, 0.3, 0.6] },
     ])
     engine.mount(stage.current!, canvas.current!)
     return () => engine.unmount()
