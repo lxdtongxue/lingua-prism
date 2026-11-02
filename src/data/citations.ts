@@ -11,11 +11,11 @@ export const CITATIONS = [
 
 // Stand-in values the plan requires the page to flag (section 3.2).
 export const PROVISIONAL = [
-  { zh: '德语', en: 'German', item: 'LA', how: { zh: '三份 AI 编码按多数票合并', en: 'Majority vote of three AI codings' } },
-  { zh: '西班牙语', en: 'Spanish', item: 'LA', how: { zh: '用加利西亚语的 Grambank 值', en: 'Grambank value for Galician' } },
-  { zh: '罗马尼亚语', en: 'Romanian', item: 'LA', how: { zh: '用阿罗蒙语的 Grambank 值', en: 'Grambank value for Aromanian' } },
-  { zh: '乌尔都语', en: 'Urdu', item: 'LA', how: { zh: '用印地语的 Grambank 值', en: 'Grambank value for Hindi' } },
-  { zh: '哈萨克语', en: 'Kazakh', item: 'LA', how: { zh: '用鞑靼语的 Grambank 值', en: 'Grambank value for Tatar' } },
+  { zh: '德语', en: 'German', item: 'LA', how: { zh: '三模型 AI 编码，Claude 仲裁', en: 'Three AI codings, arbitrated by Claude' } },
+  { zh: '西班牙语', en: 'Spanish', item: 'LA', how: { zh: '三模型 AI 编码，Claude 仲裁', en: 'Three AI codings, arbitrated by Claude' } },
+  { zh: '罗马尼亚语', en: 'Romanian', item: 'LA', how: { zh: '三模型 AI 编码，Claude 仲裁', en: 'Three AI codings, arbitrated by Claude' } },
+  { zh: '哈萨克语', en: 'Kazakh', item: 'LA', how: { zh: '三模型 AI 编码，Claude 仲裁', en: 'Three AI codings, arbitrated by Claude' } },
+  { zh: '乌尔都语', en: 'Urdu', item: 'LA', how: { zh: '三模型 AI 编码，Claude 仲裁', en: 'Three AI codings, arbitrated by Claude' } },
   { zh: '白俄罗斯语', en: 'Belarusian', item: 'SD', how: { zh: '俄语与乌克兰语的平均', en: 'Mean of Russian and Ukrainian' } },
   { zh: '哈萨克语', en: 'Kazakh', item: 'SD', how: { zh: '用卡拉卡尔帕克语的 PHOIBLE 值', en: 'PHOIBLE value for Karakalpak' } },
 ]

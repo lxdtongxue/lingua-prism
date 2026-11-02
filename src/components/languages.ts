@@ -19,7 +19,8 @@ export function sortedLanguages(lang: 'zh' | 'en') {
 function load(): State {
   try {
     const s = JSON.parse(localStorage.getItem(KEY) ?? '')
-    if (Array.isArray(s?.l1) && Array.isArray(s?.l2)) return s
+    // Earlier versions allowed several per list; only the first carries over.
+    if (Array.isArray(s?.l1) && Array.isArray(s?.l2)) return { l1: s.l1.slice(0, 1), l2: s.l2.slice(0, 1) }
   } catch {
     /* nothing saved, or storage is blocked */
   }
@@ -29,12 +30,13 @@ function load(): State {
 let state = load()
 const listeners = new Set<() => void>()
 
-// A language sits in one list at a time, so picking it moves it there.
+// Each list holds one language. Picking it again clears the list, and a language
+// taken from the other list moves over.
 export function toggleLanguage(slot: Slot, id: string) {
   const other: Slot = slot === 'l1' ? 'l2' : 'l1'
   const on = state[slot].includes(id)
   state = {
-    [slot]: on ? state[slot].filter((v) => v !== id) : [...state[slot], id],
+    [slot]: on ? [] : [id],
     [other]: state[other].filter((v) => v !== id),
   } as State
   try {

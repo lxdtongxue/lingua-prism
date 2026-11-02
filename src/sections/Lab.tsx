@@ -252,7 +252,7 @@ export function Lab() {
               .replace('{p}', String(why.percentile))
           : l.whyBalanced) + (why.even ? l.whyEven : '')
   const flags = PROVISIONAL.filter((x) => x.zh === pick?.lang.zh)
-  const partial = pick?.lang.la_source === 'grambank_partial'
+  const partial = pick?.lang.la_source === 'grambank+ai_fill'
 
   return (
     <section id="lab" className="section">
