@@ -7,6 +7,7 @@ import { SectionHead } from '../components/SectionHead'
 import { Sheet } from '../components/Sheet'
 import { DEMO_LANGS, DIMS, type Dim } from '../content/content'
 import demands from '../data/language_demands.json'
+import { scoreT } from '../a/similarity'
 import { PROVISIONAL } from '../data/citations'
 import { A_DEFAULT_WEIGHT, ABILITIES, explainA, scoreA, weightedScore, type Ability, type Lang as Demand } from '../a/score'
 import { useTall } from '../components/tall'
@@ -17,11 +18,13 @@ import { engine, Spring } from '../gl/engine'
 type Goal = 'job' | 'study' | 'travel' | 'academic'
 type W = Dim
 const SHOW_TOP = 8
+const THUMB_W = 46
 
 function Slider({ dim, label, value, onChange, locked }: { dim: W; label: string; value: number; onChange: (v: number) => void; locked?: boolean }) {
   const track = useRef<HTMLDivElement>(null)
-  const thumb = useRef<HTMLSpanElement>(null)
+  const thumb = useRef<HTMLElement>(null)
   const fill = useRef<HTMLSpanElement>(null)
+  const rest = useRef<HTMLSpanElement>(null)
   const pos = useRef(new Spring(value, 420, 34))
   const held = useRef(new Spring(0, 320, 26))
   const dragged = useRef(false)
@@ -37,18 +40,21 @@ function Slider({ dim, label, value, onChange, locked }: { dim: W; label: string
         pos.current.step(dt)
         held.current.step(dt)
         const w = track.current?.clientWidth ?? 0
-        const x = (pos.current.x / 100) * w
+        const x = THUMB_W / 2 + (pos.current.x / 100) * (w - THUMB_W)
         const stretch = Math.min(Math.abs(pos.current.v) / 900, 0.3)
         const grow = 1 + held.current.x * 0.16
         if (thumb.current) thumb.current.style.transform = `translate3d(${x.toFixed(2)}px,0,0) scale(${(grow * (1 + stretch)).toFixed(3)},${(grow * (1 - stretch * 0.4)).toFixed(3)})`
-        if (fill.current) fill.current.style.transform = `scaleX(${Math.max(0, pos.current.x / 100).toFixed(4)})`
+        // The glass is drawn behind the page, so the track parts around it.
+        const gap = THUMB_W / 2 + 3
+        if (fill.current) fill.current.style.transform = `scaleX(${(Math.max(0, x - gap) / Math.max(1, w)).toFixed(4)})`
+        if (rest.current) rest.current.style.transform = `scaleX(${(Math.max(0, w - x - gap) / Math.max(1, w)).toFixed(4)})`
       }),
     [],
   )
 
   const at = (e: PointerEvent) => {
     const r = track.current!.getBoundingClientRect()
-    onChange(Math.round(Math.min(100, Math.max(0, ((e.clientX - r.left) / r.width) * 100))))
+    onChange(Math.round(Math.min(100, Math.max(0, ((e.clientX - r.left - THUMB_W / 2) / (r.width - THUMB_W)) * 100))))
   }
   const onKey = (e: KeyboardEvent) => {
     if (locked) return
@@ -105,14 +111,15 @@ function Slider({ dim, label, value, onChange, locked }: { dim: W; label: string
       >
         <div className="slider__track" ref={track}>
           <span className="slider__fill" ref={fill} />
-          <span className="slider__thumb chrome" ref={thumb} />
+          <span className="slider__rest" ref={rest} />
+          <Glass as="span" className="slider__thumb" radius={15} bevel={14} depth={1.7} frost={0} dim={0} tint={[1, 1, 1, 0.05]} shadow={0.55} reveal={false} layer={3} elRef={thumb} aria-hidden="true" />
         </div>
       </div>
     </div>
   )
 }
 
-type Row = { id: string; name: string; native?: string; values: Partial<Record<Dim, number | null>>; score: number | null; a: number | null; lang: (typeof demands)[number] }
+type Row = { id: string; name: string; native?: string; values: Partial<Record<Dim, number | null>>; score: number | null; a: number | null; t: ReturnType<typeof scoreT>; lang: (typeof demands)[number] }
 
 const HARD: Record<Ability, 'grammar' | 'sound' | 'script'> = { LA: 'grammar', SD: 'sound', VL: 'script' }
 
@@ -146,7 +153,7 @@ function RankList({ rows, dims, onOpen, liked, onLike, refs }: { rows: Row[]; di
                 )
               })}
             </span>
-            <span className="rank__score">{r.a == null ? '—' : Math.round(r.a)}</span>
+            <span className="rank__score">{r.score == null ? '—' : Math.round(r.score)}</span>
           </button>
           <button type="button" className={`like${liked.has(r.id) ? ' on' : ''}`} aria-pressed={liked.has(r.id)} aria-label={`${l.like}: ${r.name}`} onClick={() => onLike(r.id)}>
             <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
@@ -173,21 +180,21 @@ export function Lab() {
   const [lastDetail, setLastDetail] = useState<string | null>(null)
 
   const hasA = count > 0
-  const dims: readonly Dim[] = demo ? DIMS : (['A', 'P'] as const)
-  const w: Record<W, number> = { ...weights, A: hasA ? weights.A : 0, ...(demo ? {} : { T: 0, G: 0, R: 0 }) }
+  const dims: readonly Dim[] = demo ? DIMS : (['T', 'A', 'P'] as const)
+  const w: Record<W, number> = { ...weights, A: hasA ? weights.A : 0, ...(demo ? {} : { G: 0, R: 0 }) }
 
   const rows = useMemo(() => {
     // Languages you already have are never recommended.
     const have = new Set([...known.l1, ...known.l2])
     const pool = (demo ? demands.filter((d) => DEMO_LANGS.some((x) => x.id === d.id)) : demands).filter((d) => !have.has(d.id))
-    const tKey = have.has('en') ? 'zh-en' : 'zh'
     const list: Row[] = pool.map((d) => {
       const a = scoreA(d as Demand, percentiles)
       const p = liked.size ? (liked.has(d.id) ? 100 : 0) : null
       const ph = DEMO_LANGS.find((x) => x.id === d.id)
-      const values: Row['values'] = { A: a, P: p }
-      if (demo && ph) Object.assign(values, { T: ph.T[tKey] * 100, G: ph.G[goal] * 100, R: ph.R * 100 })
-      return { id: d.id, name: lang === 'zh' ? d.zh : d.en, native: ph?.native, values, a, score: weightedScore(values, w), lang: d }
+      const t = scoreT(d.id, [...have])
+      const values: Row['values'] = { T: t?.value ?? null, A: a, P: p }
+      if (demo && ph) Object.assign(values, { G: ph.G[goal] * 100, R: ph.R * 100 })
+      return { id: d.id, name: lang === 'zh' ? d.zh : d.en, native: ph?.native, values, a, t, score: weightedScore(values, w), lang: d }
     })
     return list.sort((x, y) => (y.score ?? -1) - (x.score ?? -1))
     // `w` is rebuilt from its inputs every render.
@@ -330,6 +337,7 @@ export function Lab() {
         <div className="lab__form">
           <fieldset>
             <legend>{l.weights}</legend>
+            <Slider dim="T" label={l.dimShort.T} value={w.T} onChange={(v) => setW((o) => ({ ...o, T: v }))} />
             <Slider dim="A" label={l.dimShort.A} value={w.A} locked={!hasA} onChange={(v) => setW((o) => ({ ...o, A: v }))} />
             {!hasA && <p className="locked tone-A">{l.locked}</p>}
             <Slider dim="P" label={l.dimShort.P} value={w.P} onChange={(v) => setW((o) => ({ ...o, P: v }))} />
@@ -355,7 +363,7 @@ export function Lab() {
                 </div>
               </fieldset>
               <fieldset>
-                {(['T', 'G', 'R'] as const).map((k) => (
+                {(['G', 'R'] as const).map((k) => (
                   <Slider key={k} dim={k} label={l.dimShort[k]} value={weights[k]} onChange={(v) => setW((o) => ({ ...o, [k]: v }))} />
                 ))}
               </fieldset>
@@ -380,9 +388,12 @@ export function Lab() {
       {pick && (
       <Sheet open={detail !== null} onClose={() => setDetail(null)} kicker={l.results} title={pick.name}>
         <div className="lang-a">
+          <b>{pick.t ? Math.round(pick.t.value) : '—'}</b>
+          <span>{l.tLabel}</span>
           <b>{pick.a == null ? '—' : Math.round(pick.a)}</b>
           <span>{l.aLabel}</span>
         </div>
+        <p className="sheet__lead">{pick.t ? l.whyT.replace('{name}', nameOf(pick.t.nearest)).replace('{s}', String(Math.round(pick.t.value))) : l.whyTNone}</p>
         <p className="sheet__lead">{whyText}</p>
         <div className="bars">
           {ABILITIES.map((k) => (
@@ -397,7 +408,7 @@ export function Lab() {
         </div>
         <p className="sheet__note">
           <Info size={15} strokeWidth={1.8} />
-          {l.aNote}
+          {l.tNote} {l.aNote}
         </p>
         {(flags.length > 0 || partial) && (
           <p className="note">

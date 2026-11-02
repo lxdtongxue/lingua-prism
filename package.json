@@ -1,13 +1,13 @@
 {
   "name": "lingua-prism",
   "private": true,
-  "version": "0.3.2",
+  "version": "0.3.3",
   "type": "module",
   "scripts": {
     "dev": "vite --host",
     "build": "tsc --noEmit && vite build",
     "preview": "vite preview --host",
-    "test": "node --test src/a/score.test.ts src/tall/items.test.ts"
+    "test": "node --test src/a/score.test.ts src/a/similarity.test.ts src/tall/items.test.ts"
   },
   "dependencies": {
     "lucide-react": "^1.66.0",

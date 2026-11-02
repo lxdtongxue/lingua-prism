@@ -323,14 +323,10 @@ html:lang(en) .rail__tab span { max-width: 10em; font-size: .78rem; }
 .slider__label output { margin-left: auto; color: var(--fg2); font-variant-numeric: tabular-nums; font-size: .86rem; }
 .slider__hit { padding: 15px; margin: -3px -15px 0; cursor: grab; touch-action: pan-y; user-select: none; -webkit-user-select: none; }
 .slider__hit:active { cursor: grabbing; }
-.slider__track { position: relative; height: 5px; border-radius: 99px; background: rgba(255, 255, 255, .14); }
+.slider__track { position: relative; height: 5px; border-radius: 99px; background: none; }
 .slider__fill { position: absolute; inset: 0; border-radius: 99px; background: var(--tone); transform-origin: left; will-change: transform; }
-.slider__thumb {
-  position: absolute; top: 50%; left: -15px; margin-top: -15px; width: 30px; height: 30px; border-radius: 50%; will-change: transform;
-  background: linear-gradient(180deg, rgba(255, 255, 255, .86), rgba(226, 232, 246, .62));
-  box-shadow: inset 0 .5px 0 #fff, inset 0 -1px 2px rgba(120, 130, 160, .35), 0 3px 12px rgba(0, 0, 0, .45);
-  -webkit-backdrop-filter: none; backdrop-filter: none;
-}
+.slider__thumb { position: absolute; top: 50%; left: -23px; margin-top: -15px; width: 46px; height: 30px; will-change: transform; pointer-events: none; }
+.slider__rest { position: absolute; inset: 0; border-radius: 99px; background: rgba(255, 255, 255, .14); transform-origin: right; }
 .locked { display: flex; gap: 8px; margin-top: 14px; font-size: .84rem; color: var(--fg3); line-height: 1.5; }
 .locked b { font-weight: 500; color: var(--tone); }
 
@@ -532,6 +528,7 @@ html:not(.entered) .intro, html:not(.entered) .line > span { animation-play-stat
 .sheet__note { display: flex; gap: 8px; margin-top: 16px; font-size: .86rem; line-height: 1.6; color: var(--fg2); }
 .sheet__note svg { flex: none; margin-top: 3px; }
 .lang-a { display: flex; align-items: baseline; gap: 10px; margin-bottom: 8px; }
+.lang-a b + span { margin-right: 14px; }
 .lang-a b { font-size: 2.8rem; font-weight: 300; line-height: 1; }
 .lang-a span { font-size: .84rem; color: var(--fg3); }
 .lang-a + .sheet__lead { margin-bottom: 14px; }

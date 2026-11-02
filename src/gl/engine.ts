@@ -69,6 +69,7 @@ type Pane = {
 }
 
 const POOL_GAIN = 1.12
+const STEER_REST_MS = 700
 const QUALITY = [
   { dpr: 2, scene: 0.72 },
   { dpr: 1.6, scene: 0.62 },
@@ -144,6 +145,7 @@ class Engine {
   heroEl: HTMLElement | null = null
   private steer = new Spring(0, 26, 9)
   private steerInput = 0
+  private movedAt = 0
   private introT = 0
   private introStart = -1
   private introHeld = false
@@ -617,6 +619,7 @@ class Engine {
     this.ptr.x = e.clientX
     this.ptr.y = e.clientY
     this.ptr.touch = e.pointerType !== 'mouse'
+    if (e.type === 'pointermove') this.movedAt = performance.now()
     this.ptr.inside = e.pointerType === 'mouse' || this.ptr.down
     this.idle = 0
   }
@@ -808,11 +811,16 @@ class Engine {
     } else {
       this.steer.target = this.steerInput !== 0 ? this.steerInput : sway
     }
+    // A cursor that rests or leaves lets the beam drift back slowly; moving it again takes over at once.
+    const steered = this.steerInput !== 0 || (!this.ptr.touch && this.ptr.inside && sy < this.vh && page < 0.5 && performance.now() - this.movedAt < STEER_REST_MS)
+    if (!steered) this.steer.target = sway
+    this.steer.k = steered ? 26 : 6
+    this.steer.c = steered ? 9 : 4
     this.steer.step(dt)
     const st = this.steer.x
 
-    const inA = (mix(36, 9, k) + st * 3.2) * DEG
-    const fan = (mix(62, 17, k) + st * 7.5) * DEG
+    const inA = (mix(36, 9, k) + st * 13) * DEG
+    const fan = (mix(62, 17, k) + st * 18) * DEG
     const spread = (mix(5.2, 4.6, k) + Math.abs(st) * 0.9) * DEG
     const inDir: [number, number] = [Math.cos(inA), Math.sin(inA)]
     const e: [number, number] = [cxWorld - inDir[0] * R * 0.42, cyWorld - inDir[1] * R * 0.42]
