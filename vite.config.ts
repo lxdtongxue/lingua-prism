@@ -15,5 +15,9 @@ const reloadOnEngineChange = (): Plugin => ({
 export default defineConfig({
   plugins: [react(), reloadOnEngineChange()],
   server: { host: true },
-  build: { target: 'es2022', cssMinify: true },
+  build: {
+    target: 'es2022',
+    cssMinify: true,
+    rollupOptions: { input: { main: 'index.html', test: 'test/index.html' } },
+  },
 })

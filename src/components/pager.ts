@@ -48,7 +48,7 @@ export function setDockMin(on: boolean) {
 const CLEAR_TOP = 72
 const CLEAR_BOTTOM = 96
 
-export function goTo(id: string) {
+export function goTo(id: string, instant = false) {
   // A jump is not the visitor scrolling, so it must not fold the tab bar.
   pager.navUntil = performance.now() + 1400
   const i = PAGES.indexOf(id as (typeof PAGES)[number])
@@ -63,7 +63,19 @@ export function goTo(id: string) {
   const box = (el.querySelector('.wrap') ?? el).getBoundingClientRect()
   const free = window.innerHeight - CLEAR_TOP - CLEAR_BOTTOM
   const top = id === 'hero' ? 0 : box.top + window.scrollY - CLEAR_TOP - Math.max(0, (free - box.height) / 2)
-  window.scrollTo({ top, behavior: engine.reduced ? 'auto' : 'smooth' })
+  window.scrollTo({ top, behavior: instant || engine.reduced ? 'auto' : 'smooth' })
+}
+
+// Coming back from the test page lands on a section, not at the top. Late fonts can
+// reflow the page, so the jump repeats once unless the visitor has already moved.
+export function restoreHash() {
+  const id = location.hash.slice(1)
+  if (pager.enabled || !PAGES.includes(id as (typeof PAGES)[number])) return
+  goTo(id, true)
+  const landed = window.scrollY
+  document.fonts?.ready.then(() => {
+    if (window.scrollY === landed) goTo(id, true)
+  })
 }
 
 // Runs before the first render so nothing flashes in the desktop layout.

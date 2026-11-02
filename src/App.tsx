@@ -1,9 +1,10 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { I18n } from './components/i18n'
+import { I18n, initialLang } from './components/i18n'
 import { content, type Lang } from './content/content'
 import { Stage } from './components/Stage'
 import { Nav } from './components/Nav'
 import { Intro } from './components/Intro'
+import { restoreHash } from './components/pager'
 import { usePagerGesture } from './components/usePagerGesture'
 import { Hero } from './sections/Hero'
 import { Test } from './sections/Test'
@@ -14,16 +15,6 @@ import { Aptitude } from './sections/Aptitude'
 import { Lab } from './sections/Lab'
 import { Roadmap } from './sections/Roadmap'
 import { Footer } from './sections/Footer'
-
-function initialLang(): Lang {
-  try {
-    const saved = localStorage.getItem('lang')
-    if (saved === 'zh' || saved === 'en') return saved
-  } catch {
-    /* storage can be blocked; the default is fine */
-  }
-  return navigator.language.toLowerCase().startsWith('zh') ? 'zh' : 'en'
-}
 
 export default function App() {
   const [lang, setLang] = useState<Lang>(initialLang)
@@ -40,6 +31,11 @@ export default function App() {
       /* ignore */
     }
   }, [lang, t.htmlLang])
+
+  useEffect(() => {
+    const id = requestAnimationFrame(restoreHash)
+    return () => cancelAnimationFrame(id)
+  }, [])
 
   const value = useMemo(() => ({ t, lang, setLang }), [t, lang])
 

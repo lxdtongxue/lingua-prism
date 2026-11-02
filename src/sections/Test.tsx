@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { BookOpenCheck, Headphones, Lock, Monitor, Puzzle, Sparkles, type LucideIcon } from 'lucide-react'
+import { ArrowRight, BookOpenCheck, Headphones, Lock, Monitor, Puzzle, Sparkles, type LucideIcon } from 'lucide-react'
 import { useI18n } from '../components/i18n'
 import { Card, CLEAR } from '../components/Card'
 import { Glass } from '../components/Glass'
@@ -8,10 +8,10 @@ import { Sheet } from '../components/Sheet'
 import { goTo } from '../components/pager'
 import { clearResults, useTall } from '../components/tall'
 import { ABILITIES, maxScore } from '../a/score'
-import { Exam, ORDER } from '../tall/Exam'
+import { ORDER, type Sub } from '../tall/items'
 import { isComputer } from '../tall/load'
 
-const ICONS: Record<(typeof ORDER)[number], LucideIcon> = { VL: BookOpenCheck, SD: Headphones, LA: Puzzle }
+const ICONS: Record<Sub, LucideIcon> = { VL: BookOpenCheck, SD: Headphones, LA: Puzzle }
 
 export function Profile() {
   const { t } = useI18n()
@@ -37,9 +37,13 @@ export function Test() {
   const { t } = useI18n()
   const c = t.test
   const { results, count, placeholder } = useTall()
-  const [running, setRunning] = useState<(typeof ORDER)[number] | null>(null)
   const [blocked, setBlocked] = useState(false)
-  const open = (sub: (typeof ORDER)[number]) => (isComputer() ? setRunning(sub) : setBlocked(true))
+  // Questions live on their own page; this one only shows where you are.
+  const open = (sub: Sub) => {
+    if (isComputer()) location.assign(`${import.meta.env.BASE_URL}test/?sub=${sub}`)
+    else setBlocked(true)
+  }
+  const next = ORDER.find((s) => !results[s])
   return (
     <section id="test" className="section">
       <div className="wrap">
@@ -72,7 +76,13 @@ export function Test() {
           </h3>
           <Profile />
           <div className="profile__row">
-            <button type="button" className="sheet__cta" onClick={() => goTo('lab')}>
+            {next && (
+              <button type="button" className="sheet__cta" onClick={() => open(next)}>
+                {count ? c.resume.replace('{name}', c.subs[next].name) : c.start}
+                <ArrowRight size={16} strokeWidth={1.8} />
+              </button>
+            )}
+            <button type="button" className={next ? 'sheet__cta sheet__cta--quiet' : 'sheet__cta'} onClick={() => goTo('lab')}>
               <Sparkles size={16} strokeWidth={1.8} />
               {c.toLab}
             </button>
@@ -85,19 +95,6 @@ export function Test() {
           <p className="note">{c.privacy}</p>
         </Glass>
       </div>
-
-      {running && (
-        <Exam
-          key={running}
-          sub={running}
-          onNext={setRunning}
-          onClose={() => setRunning(null)}
-          onFinish={() => {
-            setRunning(null)
-            goTo('lab')
-          }}
-        />
-      )}
 
       <Sheet open={blocked} onClose={() => setBlocked(false)} kicker={c.kicker} title={c.desktopOnly}>
         <p className="sheet__lead">

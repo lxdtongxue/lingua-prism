@@ -1,15 +1,11 @@
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState, type ReactNode } from 'react'
-import { createPortal } from 'react-dom'
 import { TriangleAlert } from 'lucide-react'
-import { engine } from '../gl/engine'
-import { CHANCE_FLOOR, maxScore, type Ability } from '../a/score'
+import { CHANCE_FLOOR, maxScore } from '../a/score'
 import { useI18n } from '../components/i18n'
 import { saveResult } from '../components/tall'
 import { SoundBank } from './audio'
-import { audioPaths, LA_COUNT, orderByBlock, scoreTrials, SD_COUNT, shuffle, VL_COUNT, type La, type Sd, type TallItems, type Trial, type Vl } from './items'
+import { audioPaths, LA_COUNT, ORDER, orderByBlock, scoreTrials, SD_COUNT, shuffle, VL_COUNT, type La, type Sd, type Sub, type TallItems, type Trial, type Vl } from './items'
 import { asset, loadItems, preloadImages } from './load'
-
-export const ORDER = ['VL', 'SD', 'LA'] as const satisfies readonly Ability[]
 
 type Auto = 'off' | 'correct' | 'random' | 'wrong'
 type Stage = 'intro' | 'check' | 'study' | 'ready' | 'test' | 'result'
@@ -364,12 +360,13 @@ function SdCheck({ d, bank, placeholder, auto, onReady }: { d: Sd; bank: { curre
   )
 }
 
-function Shell({ title, placeholder, onExit, tools, children }: { title: string; placeholder: boolean; onExit?: () => void; tools?: ReactNode; children: ReactNode }) {
+function Shell({ title, step, placeholder, onExit, tools, children }: { title: string; step: string; placeholder: boolean; onExit?: () => void; tools?: ReactNode; children: ReactNode }) {
   const { t } = useI18n()
   const e = t.test.exam
   return (
     <div className="exam" role="dialog" aria-modal="true" aria-label={title}>
       <header className="exam__head">
+        <span className="exam__step">{step}</span>
         <strong>{title}</strong>
         {placeholder && <em className="tag tag--demo">{e.placeholder}</em>}
         {tools}
@@ -385,7 +382,7 @@ function Shell({ title, placeholder, onExit, tools, children }: { title: string;
   )
 }
 
-type Props = { sub: (typeof ORDER)[number]; onNext: (sub: (typeof ORDER)[number]) => void; onClose: () => void; onFinish: () => void }
+type Props = { sub: Sub; onNext: (sub: Sub) => void; onClose: () => void; onFinish: () => void }
 
 export function Exam({ sub, onNext, onClose, onFinish }: Props) {
   const { t } = useI18n()
@@ -417,16 +414,6 @@ export function Exam({ sub, onNext, onClose, onFinish }: Props) {
       live = false
     }
   }, [sub])
-
-  // The exam covers the canvas, so the engine stops competing with its timing.
-  useEffect(() => {
-    document.documentElement.classList.add('exam-on')
-    engine.suspend(true)
-    return () => {
-      document.documentElement.classList.remove('exam-on')
-      engine.suspend(false)
-    }
-  }, [])
 
   useEffect(
     () => () => {
@@ -543,9 +530,9 @@ export function Exam({ sub, onNext, onClose, onFinish }: Props) {
     </label>
   ) : null
 
-  return createPortal(
+  return (
     <>
-      <Shell title={`${s.name} ${s.en}`} placeholder={data?.placeholder ?? false} tools={tools} onExit={stage === 'result' || stage === 'intro' || !data ? onClose : () => setLeaving(true)}>
+      <Shell title={`${s.name} ${s.en}`} step={`${ORDER.indexOf(sub) + 1} / ${ORDER.length}`} placeholder={data?.placeholder ?? false} tools={tools} onExit={stage === 'result' || stage === 'intro' || !data ? onClose : () => setLeaving(true)}>
         {body}
       </Shell>
       {leaving && (
@@ -564,7 +551,6 @@ export function Exam({ sub, onNext, onClose, onFinish }: Props) {
           </div>
         </div>
       )}
-    </>,
-    document.body,
+    </>
   )
 }

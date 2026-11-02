@@ -360,21 +360,11 @@ class Engine {
 
   // ---- Lifecycle ------------------------------------------------------
 
-  private suspended = false
-
   private onVis = () => {
     if (document.hidden) {
       cancelAnimationFrame(this.raf)
       this.running = false
-    } else if (!this.suspended) this.start()
-  }
-
-  suspend(on: boolean) {
-    this.suspended = on
-    if (on) {
-      cancelAnimationFrame(this.raf)
-      this.running = false
-    } else if (!document.hidden) this.start()
+    } else this.start()
   }
 
   private onLost = (e: Event) => {

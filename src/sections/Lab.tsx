@@ -1,5 +1,5 @@
 import { useEffect, useLayoutEffect, useMemo, useRef, useState, type KeyboardEvent, type PointerEvent } from 'react'
-import { Info, ListOrdered, SlidersHorizontal } from 'lucide-react'
+import { ChevronRight, Info, ListOrdered, SlidersHorizontal } from 'lucide-react'
 import { useI18n } from '../components/i18n'
 import { CLEAR } from '../components/Card'
 import { Glass } from '../components/Glass'
@@ -10,10 +10,10 @@ import demands from '../data/language_demands.json'
 import { PROVISIONAL } from '../data/citations'
 import { A_DEFAULT_WEIGHT, ABILITIES, explainA, scoreA, weightedScore, type Ability, type Lang as Demand } from '../a/score'
 import { useTall } from '../components/tall'
+import { LANGUAGES, sortedLanguages, toggleLanguage, useKnownLanguages, type Slot } from '../components/languages'
 import { goTo } from '../components/pager'
 import { engine, Spring } from '../gl/engine'
 
-type Known = 'zh' | 'zh-en'
 type Goal = 'job' | 'study' | 'travel' | 'academic'
 type W = Dim
 const SHOW_TOP = 8
@@ -163,12 +163,12 @@ export function Lab() {
   const { t, lang } = useI18n()
   const l = t.lab
   const { percentiles, count, placeholder } = useTall()
-  const [known, setKnown] = useState<Known>('zh-en')
+  const known = useKnownLanguages()
   const [goal, setGoal] = useState<Goal>('study')
   const [demo, setDemo] = useState(false)
   const [weights, setW] = useState<Record<W, number>>({ T: 40, A: A_DEFAULT_WEIGHT, G: 60, R: 40, P: 30 })
   const [liked, setLiked] = useState<Set<string>>(() => new Set())
-  const [open, setOpen] = useState<'adjust' | 'all' | null>(null)
+  const [open, setOpen] = useState<'adjust' | 'all' | 'langs' | null>(null)
   const [detail, setDetail] = useState<string | null>(null)
   const [lastDetail, setLastDetail] = useState<string | null>(null)
 
@@ -177,13 +177,16 @@ export function Lab() {
   const w: Record<W, number> = { ...weights, A: hasA ? weights.A : 0, ...(demo ? {} : { T: 0, G: 0, R: 0 }) }
 
   const rows = useMemo(() => {
-    const pool = demo ? demands.filter((d) => DEMO_LANGS.some((x) => x.id === d.id)) : demands
+    // Languages you already have are never recommended.
+    const have = new Set([...known.l1, ...known.l2])
+    const pool = (demo ? demands.filter((d) => DEMO_LANGS.some((x) => x.id === d.id)) : demands).filter((d) => !have.has(d.id))
+    const tKey = have.has('en') ? 'zh-en' : 'zh'
     const list: Row[] = pool.map((d) => {
       const a = scoreA(d as Demand, percentiles)
       const p = liked.size ? (liked.has(d.id) ? 100 : 0) : null
       const ph = DEMO_LANGS.find((x) => x.id === d.id)
       const values: Row['values'] = { A: a, P: p }
-      if (demo && ph) Object.assign(values, { T: ph.T[known] * 100, G: ph.G[goal] * 100, R: ph.R * 100 })
+      if (demo && ph) Object.assign(values, { T: ph.T[tKey] * 100, G: ph.G[goal] * 100, R: ph.R * 100 })
       return { id: d.id, name: lang === 'zh' ? d.zh : d.en, native: ph?.native, values, a, score: weightedScore(values, w), lang: d }
     })
     return list.sort((x, y) => (y.score ?? -1) - (x.score ?? -1))
@@ -228,7 +231,9 @@ export function Lab() {
     setDetail(id)
   }
   const pick = rows.find((r) => r.id === lastDetail) ?? rows[0]
-  const why = explainA(pick.lang as Demand, percentiles)
+  const nameOf = (id: string) => LANGUAGES.find((x) => x.id === id)?.[lang] ?? id
+  const listOf = (slot: Slot) => known[slot].map(nameOf).join(lang === 'zh' ? '、' : ', ') || l.langsNone
+  const why = pick ? explainA(pick.lang as Demand, percentiles) : ({ kind: 'none' } as const)
   const whyText =
     why.kind === 'none'
       ? l.whyNone
@@ -239,14 +244,24 @@ export function Lab() {
               .replace('{ability}', t.test.abilities[why.ability])
               .replace('{p}', String(why.percentile))
           : l.whyBalanced) + (why.even ? l.whyEven : '')
-  const flags = PROVISIONAL.filter((x) => x.zh === pick.lang.zh)
-  const partial = pick.lang.la_source === 'grambank_partial'
+  const flags = PROVISIONAL.filter((x) => x.zh === pick?.lang.zh)
+  const partial = pick?.lang.la_source === 'grambank_partial'
 
   return (
     <section id="lab" className="section">
       <div className="wrap">
         <SectionHead kicker={l.kicker} title={l.title} intro={l.intro} />
         <div className="lab">
+          <div className="lab__side">
+          <Glass as="button" type="button" className="lab__langs" radius={26} {...CLEAR} press onClick={() => setOpen('langs')}>
+            <span>
+              <b>L1</b> {listOf('l1')}
+            </span>
+            <span>
+              <b>L2</b> {listOf('l2')}
+            </span>
+            <ChevronRight size={18} strokeWidth={1.8} />
+          </Glass>
           <Glass as="button" type="button" className="lab__ctl" radius={32} {...CLEAR} press onClick={() => setOpen('adjust')}>
             <span className="lab__sum">
               <span className="micro">{l.summary}</span>
@@ -267,6 +282,7 @@ export function Lab() {
               {l.adjust}
             </span>
           </Glass>
+          </div>
 
           <Glass className="lab__out" radius={32} {...CLEAR} frost={0.34} dim={0.34} delay={100}>
             <header>
@@ -279,6 +295,7 @@ export function Lab() {
                 {l.prompt}
               </button>
             )}
+            {rows.length === 0 && <p className="note">{l.emptyPool}</p>}
             <RankList rows={shown} dims={dims} onOpen={openDetail} liked={liked} onLike={toggle} refs={rowEls.current} />
             {rows.length > SHOW_TOP && (
               <button type="button" className="lab__more" onClick={() => setOpen('all')}>
@@ -289,6 +306,25 @@ export function Lab() {
           </Glass>
         </div>
       </div>
+
+      <Sheet open={open === 'langs'} onClose={() => setOpen(null)} kicker={l.kicker} title={l.langsTitle}>
+        <p className="sheet__lead">{l.langsHint}</p>
+        <div className="lab__form">
+          {(['l1', 'l2'] as const).map((slot) => (
+            <fieldset key={slot}>
+              <legend>{l[slot]}</legend>
+              <div className="chips chips--lang">
+                {sortedLanguages(lang).map((x) => (
+                  <button key={x.id} type="button" className="chip" aria-pressed={known[slot].includes(x.id)} onClick={() => toggleLanguage(slot, x.id)}>
+                    {x[lang]}
+                  </button>
+                ))}
+              </div>
+            </fieldset>
+          ))}
+        </div>
+        {!known.l1.includes('zh') && <p className="note note--end">{l.langsNorm}</p>}
+      </Sheet>
 
       <Sheet open={open === 'adjust'} onClose={() => setOpen(null)} kicker={l.kicker} title={l.adjust}>
         <div className="lab__form">
@@ -308,16 +344,6 @@ export function Lab() {
           </fieldset>
           {demo && (
             <>
-              <fieldset>
-                <legend>{l.known}</legend>
-                <div className="chips">
-                  {l.knownOpts.map(([id, label]) => (
-                    <button key={id} type="button" className="chip" aria-pressed={known === id} onClick={() => setKnown(id as Known)}>
-                      {label}
-                    </button>
-                  ))}
-                </div>
-              </fieldset>
               <fieldset>
                 <legend>{l.goal}</legend>
                 <div className="chips">
@@ -351,6 +377,7 @@ export function Lab() {
         />
       </Sheet>
 
+      {pick && (
       <Sheet open={detail !== null} onClose={() => setDetail(null)} kicker={l.results} title={pick.name}>
         <div className="lang-a">
           <b>{pick.a == null ? '—' : Math.round(pick.a)}</b>
@@ -380,6 +407,7 @@ export function Lab() {
           </p>
         )}
       </Sheet>
+      )}
     </section>
   )
 }

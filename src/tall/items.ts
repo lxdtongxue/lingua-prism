@@ -26,6 +26,9 @@ export type TallItems = { version: 1; placeholder: boolean; vl: Vl; sd: Sd; la: 
 
 export type Trial = { id: string; choice: string | null; correct: boolean; rtMs: number; timedOut?: boolean }
 
+export const ORDER = ['VL', 'SD', 'LA'] as const
+export type Sub = (typeof ORDER)[number]
+
 export const VL_COUNT = 20
 export const SD_SOUNDS = 3
 export const SD_SETS = 4

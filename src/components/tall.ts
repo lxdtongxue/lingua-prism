@@ -20,6 +20,19 @@ function load(): State {
 let state = load()
 const listeners = new Set<() => void>()
 
+// The test runs on its own page, so results can change while this one sleeps in
+// the back-forward cache or sits in another tab.
+function reload() {
+  state = load()
+  listeners.forEach((fn) => fn())
+}
+window.addEventListener('pageshow', (e) => {
+  if (e.persisted) reload()
+})
+window.addEventListener('storage', (e) => {
+  if (e.key === KEY) reload()
+})
+
 function commit(next: State) {
   state = next
   try {
