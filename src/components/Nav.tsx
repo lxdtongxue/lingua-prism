@@ -287,7 +287,6 @@ export function Nav() {
   const go = (e: MouseEvent, id: string) => {
     e.preventDefault()
     goTo(id)
-    if (!pager.enabled) history.replaceState(null, '', `#${id}`)
   }
 
   // The page dips to black and the language swaps while nothing is visible.
@@ -310,7 +309,7 @@ export function Nav() {
   return (
     <>
       <header className="topbar">
-        <a className="brand chrome" ref={brand} href="#hero" onClick={(e) => go(e, 'hero')} aria-label={t.brand}>
+        <a className="brand chrome" ref={brand} href={siteUrl('home')} onClick={(e) => go(e, 'hero')} aria-label={t.brand}>
           <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true">
             <path d="M12 3.5 21 20H3Z" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinejoin="round" />
           </svg>

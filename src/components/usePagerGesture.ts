@@ -1,6 +1,6 @@
 import { useEffect, useLayoutEffect, useRef, useSyncExternalStore, type RefObject } from 'react'
 import { engine, Spring } from '../gl/engine'
-import { GROUPS, pager, setDockMin, setPage } from './pager'
+import { GROUPS, pager, setDockMin, setPage, setSectionUrl } from './pager'
 
 const LOCK_PX = 8
 const FOLD_PX = 56
@@ -170,12 +170,13 @@ export function usePagerGesture(track: RefObject<HTMLElement | null>) {
       pager.pos.v = (-d.v * 1000) / window.innerWidth
       setPage(from + turn)
       const id = GROUPS[pager.page][0]
-      history.replaceState(null, '', pager.page ? `#${id}` : location.pathname + location.search)
+      setSectionUrl(id)
     }
     const key = (e: KeyboardEvent) => {
       if (!pager.enabled || (e.key !== 'ArrowLeft' && e.key !== 'ArrowRight')) return
       if ((e.target as Element).closest('[role=tablist],[role=slider]')) return
       setPage(pager.page + (e.key === 'ArrowRight' ? 1 : -1))
+      setSectionUrl(GROUPS[pager.page][0])
     }
     // Only a real vertical swipe folds the tab bar; a tap with a slight wobble must not.
     let startX = 0

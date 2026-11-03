@@ -49,7 +49,7 @@ PATH=/opt/homebrew/bin:$PATH node scripts/make-codes.mjs 50 >> ../登录代码.t
 | --- | --- |
 | `index.html`、`center/` | 网站的两个页面：首页（首页、项目简介、预期目标、参考文献）和测试中心（TALL 测验进度、语言推荐）。两页共用同一套组件，由 `<html data-site>` 区分 |
 | `test/`、`survey/` | 测验作答页和问卷页，不加载 WebGL 引擎 |
-| `404.html` | 地址错误时的提示页，构建时写入对应部署的首页地址 |
+| `404.html`、`src/not-found.ts` | 错误页面及已编码旧链接的恢复，构建时写入对应部署路径 |
 | `src/content/content.ts` | 中英文文案和文献列表 |
 | `src/content/details.ts`、`src/sections/Framework.tsx` | 项目缘起、三层框架及详细阅读页 |
 | `src/browserChrome.ts` | iOS Safari 浏览器栏的主题色处理 |
@@ -60,6 +60,7 @@ PATH=/opt/homebrew/bin:$PATH node scripts/make-codes.mjs 50 >> ../登录代码.t
 | `src/tall/LanguageBackdrop.tsx` | 测验页的低速语言瀑布，与首页共用字带纹理 |
 | `src/data/` | 常模、语言需求、决策数据和 ASJP 距离矩阵，来源见 `src/data/LICENSE.md` |
 | `src/components/Account.tsx`、`session.ts`、`Avatar.tsx` | 代码登录、昵称和预设头像 |
+| `src/paths.ts` | 统一页面地址与章节参数，兼容旧锚点和编码后的旧路径 |
 | `src/components/pager.ts` | 页面布局与跳转：`LAYOUTS` 定义两页各有哪些分页和章节，须与 `App.tsx` 的 `.tabpage` 保持一致；跨页跳转走 `navigate` |
 | `src/gl/` | WebGL 渲染引擎和着色器 |
 | `src/tall/tall_items.json` | 测验题库配置，构建为带内容哈希的资源，避免更新后读取旧缓存 |
@@ -91,6 +92,23 @@ PATH=/opt/homebrew/bin:$PATH node scripts/make-codes.mjs 50 >> ../登录代码.t
 ## 更新日志
 
 时间为上传至 GitHub 的时间（UTC+8），以 GitHub Actions 部署记录为准。
+
+### v6.5.3
+
+根据服务器错误日志调整页面定位方式，修复测试中心的返回与标签导航，并兼容变形的旧链接。
+
+修复：
+
+- 跨页面定位由 `#章节` 改为 `?section=章节`，覆盖底栏标签、测试中心、测验退出和问卷返回。针对日志中实际出现的 `%23test`、`%23framework` 等路径，避免定位符被编码后成为服务器上的文件名。
+- 底栏点击不再先改写当前页面的章节地址，再延时切换到另一页面；同页定位和跨页跳转统一交由路由处理。
+- 测试中心内从语言推荐返回测试区时同步更新定位参数，桌面、手机点击和手机分页手势使用相同的地址规则。
+- 为已被编码的旧链接增加恢复逻辑，仅识别本站已知页面和章节，转换为对应的新地址；普通错误地址仍显示 404。
+
+维护：
+
+- 保留正常旧锚点链接的兼容处理，带章节参数进入首页内容时不重复播放入场动画。
+- 增加查询参数、旧锚点、编码路径和异常路径测试；分别验证根目录、GitHub Pages 子目录及手机底栏操作。
+- 同步更新 README、CHANGELOG 和本地版本归档。
 
 ### v6.5.2（2026-11-04 00:17:48）
 

@@ -1,9 +1,9 @@
 import { engine, Spring } from '../gl/engine'
-import { centerPath } from '../paths'
+import { pagePath, readSection, siteForSection, type Site } from '../paths'
 
 // The site is two pages. The home page holds the hero, the project introduction, the
 // goals and the references; the test center holds the TALL test and the recommendation.
-export type Site = 'home' | 'center'
+export type { Site } from '../paths'
 const LAYOUTS: Record<Site, string[][]> = {
   home: [['hero'], ['framework', 'spectrum', 'aptitude'], ['roadmap'], ['references']],
   center: [['test', 'lab']],
@@ -15,11 +15,16 @@ export const SITE: Site = document.documentElement.dataset.site === 'center' ? '
 export const GROUPS = LAYOUTS[SITE]
 export const SECTIONS = GROUPS.flat()
 export const groupOf = (id: string) => GROUPS.findIndex((g) => g.includes(id))
-const siteOf = (id: string) => (Object.keys(LAYOUTS) as Site[]).find((s) => LAYOUTS[s].flat().includes(id))
-// A page's first section is its top, so it needs no hash.
-export const siteUrl = (site: Site, id?: string) => site === 'center'
-  ? centerPath(import.meta.env.BASE_URL, id === 'lab' ? 'lab' : 'test')
-  : `${import.meta.env.BASE_URL}${id && id !== 'hero' ? `#${id}` : ''}`
+const siteOf = siteForSection
+export const siteUrl = (site: Site, id?: string) => pagePath(import.meta.env.BASE_URL, site, id)
+
+export function setSectionUrl(id: string) {
+  const url = new URL(location.href)
+  url.hash = ''
+  if (id === 'hero') url.searchParams.delete('section')
+  else url.searchParams.set('section', id)
+  history.replaceState(null, '', url.pathname + url.search)
+}
 const query = matchMedia('(max-width: 900px)')
 
 type Listener = () => void
@@ -136,7 +141,9 @@ try {
 
 export function goTo(id: string, instant = false) {
   const site = siteOf(id)
+  if (!site) return
   if (site && site !== SITE) return navigate(siteUrl(site, id))
+  setSectionUrl(id)
   // A jump is not the visitor scrolling, so it must not fold the tab bar.
   pager.navUntil = performance.now() + 1400
   const i = groupOf(id)
@@ -144,7 +151,6 @@ export function goTo(id: string, instant = false) {
   if (pager.enabled && i >= 0) {
     const same = i === pager.page
     setPage(i)
-    history.replaceState(null, '', i ? `#${id}` : location.pathname + location.search)
     const page = el?.closest<HTMLElement>('.tabpage')
     if (page && el) {
       const top = id === GROUPS[i][0] ? 0 : (el.querySelector('.wrap') ?? el).getBoundingClientRect().top - page.getBoundingClientRect().top + page.scrollTop - CLEAR_TOP
@@ -165,7 +171,8 @@ export function goTo(id: string, instant = false) {
 // Coming back from the test page lands on a section, not at the top. Late fonts can
 // reflow the page, so the jump repeats once unless the visitor has already moved.
 export function restoreHash() {
-  const id = location.hash.slice(1)
+  const id = readSection(location.search, location.hash)
+  if (!id) return
   // An old link like /#lab now belongs to the other page.
   const site = siteOf(id)
   if (site && site !== SITE) return location.replace(siteUrl(site, id))
@@ -180,7 +187,7 @@ export function restoreHash() {
 
 // Runs before the first render so nothing flashes in the desktop layout.
 applyMode()
-const fromHash = groupOf(location.hash.slice(1))
+const fromHash = groupOf(readSection(location.search, location.hash) ?? '')
 if (pager.enabled && fromHash > 0) setPage(fromHash, true)
 
 query.addEventListener('change', () => {

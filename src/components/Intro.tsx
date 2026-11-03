@@ -1,6 +1,7 @@
 import { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { useI18n } from './i18n'
 import { engine } from '../gl/engine'
+import { readSection } from '../paths'
 
 const WORD = 'Lingua Prism'
 const SEEN = 'intro-seen'
@@ -16,7 +17,7 @@ const easeInOut = (t: number) => (t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t 
 function shouldPlay() {
   const forced = new URLSearchParams(location.search).has('intro')
   if (forced) return true
-  if (engine.reduced || location.hash || window.scrollY > 0) return false
+  if (engine.reduced || readSection(location.search, location.hash) || window.scrollY > 0) return false
   try {
     return !sessionStorage.getItem(SEEN)
   } catch {
@@ -30,7 +31,7 @@ const enter = () => document.documentElement.classList.add('entered')
 // and if the visitor does nothing it finishes on its own.
 export function Intro({ blocked = false, skip = false }: { blocked?: boolean; skip?: boolean }) {
   const { t } = useI18n()
-  const [play, setPlay] = useState(() => !skip && ((blocked && !engine.reduced && !location.hash) || shouldPlay()))
+  const [play, setPlay] = useState(() => !skip && ((blocked && !engine.reduced && !readSection(location.search, location.hash)) || shouldPlay()))
   const root = useRef<HTMLDivElement>(null)
   const word = useRef<HTMLDivElement>(null)
   const caret = useRef<HTMLElement>(null)
