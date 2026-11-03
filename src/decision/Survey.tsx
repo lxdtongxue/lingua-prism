@@ -8,7 +8,7 @@ import { ACAD_SUBS, bestGoal, checks, COUNTRIES, GOALS, interestOf, JOB_SUBS, LA
 
 type Page = 'start' | 'orient' | 'g1' | 'g2' | 'g3' | 'g4' | 'g5' | 'g6' | 'r1' | 'p1' | 'p2' | 'accept' | 'dilemma' | 'confirm'
 
-const home = `${import.meta.env.BASE_URL}#lab`
+const home = `${import.meta.env.BASE_URL}center/#lab`
 
 function pagesFor(a: Answers, tier: Tier): Page[] {
   if (tier === 'basic') return ['start', 'g1', 'g2', 'r1', 'p1', 'accept']

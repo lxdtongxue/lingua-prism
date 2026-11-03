@@ -28,9 +28,9 @@ const enter = () => document.documentElement.classList.add('entered')
 
 // First visit in a session: the name types itself. Scrolling or swiping drives it,
 // and if the visitor does nothing it finishes on its own.
-export function Intro({ blocked = false }: { blocked?: boolean }) {
+export function Intro({ blocked = false, skip = false }: { blocked?: boolean; skip?: boolean }) {
   const { t } = useI18n()
-  const [play, setPlay] = useState(() => (blocked && !engine.reduced && !location.hash) || shouldPlay())
+  const [play, setPlay] = useState(() => !skip && ((blocked && !engine.reduced && !location.hash) || shouldPlay()))
   const root = useRef<HTMLDivElement>(null)
   const word = useRef<HTMLDivElement>(null)
   const caret = useRef<HTMLElement>(null)

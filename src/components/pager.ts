@@ -1,9 +1,22 @@
 import { engine, Spring } from '../gl/engine'
 
+// The site is two pages. The home page holds the hero, the project introduction, the
+// goals and the references; the test center holds the TALL test and the recommendation.
+export type Site = 'home' | 'center'
+const LAYOUTS: Record<Site, string[][]> = {
+  home: [['hero'], ['framework', 'spectrum', 'aptitude'], ['roadmap'], ['references']],
+  center: [['test', 'lab']],
+}
+// Each html file says which page it is, before any script runs.
+export const SITE: Site = document.documentElement.dataset.site === 'center' ? 'center' : 'home'
+
 // Each sideways page is one tab. Its sections stack and scroll up and down inside it.
-export const GROUPS = [['hero'], ['test', 'lab'], ['framework', 'spectrum', 'aptitude'], ['roadmap'], ['references']]
+export const GROUPS = LAYOUTS[SITE]
 export const SECTIONS = GROUPS.flat()
 export const groupOf = (id: string) => GROUPS.findIndex((g) => g.includes(id))
+const siteOf = (id: string) => (Object.keys(LAYOUTS) as Site[]).find((s) => LAYOUTS[s].flat().includes(id))
+// A page's first section is its top, so it needs no hash.
+export const siteUrl = (site: Site, id?: string) => `${import.meta.env.BASE_URL}${site === 'center' ? 'center/' : ''}${id && id !== LAYOUTS[site][0][0] ? `#${id}` : ''}`
 const query = matchMedia('(max-width: 900px)')
 
 type Listener = () => void
@@ -90,7 +103,37 @@ function glideTo(top: number) {
   }
 }
 
+const ARRIVE = 'arrive'
+
+// Moving between the two pages dips to black and comes back up on the other side.
+export function navigate(url: string) {
+  if (engine.reduced) return location.assign(url)
+  if (document.querySelector('.page-dip')) return
+  try {
+    sessionStorage.setItem(ARRIVE, '1')
+  } catch {
+    /* the next page just arrives without the fade */
+  }
+  const dip = document.createElement('div')
+  dip.className = 'page-dip'
+  document.body.append(dip)
+  window.setTimeout(() => location.assign(url), 280)
+}
+
+// Coming back with the Back button restores this page as it was, overlay and all.
+window.addEventListener('pageshow', () => document.querySelectorAll('.page-dip').forEach((el) => el.remove()))
+try {
+  if (sessionStorage.getItem(ARRIVE)) {
+    sessionStorage.removeItem(ARRIVE)
+    document.documentElement.classList.add('arrive')
+  }
+} catch {
+  /* no fade without storage */
+}
+
 export function goTo(id: string, instant = false) {
+  const site = siteOf(id)
+  if (site && site !== SITE) return navigate(siteUrl(site, id))
   // A jump is not the visitor scrolling, so it must not fold the tab bar.
   pager.navUntil = performance.now() + 1400
   const i = groupOf(id)
@@ -110,7 +153,7 @@ export function goTo(id: string, instant = false) {
   // Centre the whole module when it fits; otherwise start at its heading.
   const box = (el.querySelector('.wrap') ?? el).getBoundingClientRect()
   const free = window.innerHeight - CLEAR_TOP - CLEAR_BOTTOM
-  const top = id === 'hero' ? 0 : box.top + window.scrollY - CLEAR_TOP - Math.max(0, (free - box.height) / 2)
+  const top = id === SECTIONS[0] ? 0 : box.top + window.scrollY - CLEAR_TOP - Math.max(0, (free - box.height) / 2)
   stopGlide()
   if (instant || engine.reduced) window.scrollTo({ top, behavior: 'instant' })
   else glideTo(top)
@@ -120,6 +163,9 @@ export function goTo(id: string, instant = false) {
 // reflow the page, so the jump repeats once unless the visitor has already moved.
 export function restoreHash() {
   const id = location.hash.slice(1)
+  // An old link like /#lab now belongs to the other page.
+  const site = siteOf(id)
+  if (site && site !== SITE) return location.replace(siteUrl(site, id))
   if (!SECTIONS.includes(id)) return
   goTo(id, true)
   const scroller = () => (pager.enabled ? (document.getElementById(id)?.closest('.tabpage')?.scrollTop ?? 0) : window.scrollY)

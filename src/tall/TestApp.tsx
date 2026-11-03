@@ -6,7 +6,7 @@ import { Exam } from './Exam'
 import { ORDER, type Sub } from './items'
 import { LanguageBackdrop } from './LanguageBackdrop'
 
-const home = (hash: string) => `${import.meta.env.BASE_URL}#${hash}`
+const home = (hash: string) => `${import.meta.env.BASE_URL}center/#${hash}`
 
 // The second-level page. Going back to the overview is a real navigation, so a
 // subtest in progress leaves nothing behind and the browser's Back button works.

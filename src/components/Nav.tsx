@@ -5,18 +5,20 @@ import { useI18n } from './i18n'
 import { Account } from './Account'
 import { Avatar } from './Avatar'
 import { useAccount } from './session'
-import { goTo, groupOf, pager, SECTIONS, setDockMin, setPage } from './pager'
+import { goTo, GROUPS, groupOf, pager, SECTIONS, setDockMin, setPage, siteUrl, type Site } from './pager'
 import { usePagerState } from './usePagerGesture'
 
 // Each tab groups one or more pages and opens on the first of them.
-const TABS = [
-  { id: 'test', icon: FlaskConical, pages: ['test', 'lab'] },
-  { id: 'about', icon: Layers, pages: ['framework', 'spectrum', 'aptitude'] },
-  { id: 'goals', icon: Target, pages: ['roadmap'] },
-  { id: 'refs', icon: BookOpen, pages: ['references'] },
-] as const
+const TABS: { id: 'test' | 'about' | 'goals' | 'refs'; icon: typeof FlaskConical; site: Site; pages: string[] }[] = [
+  { id: 'test', icon: FlaskConical, site: 'center', pages: ['test', 'lab'] },
+  { id: 'about', icon: Layers, site: 'home', pages: ['framework', 'spectrum', 'aptitude'] },
+  { id: 'goals', icon: Target, site: 'home', pages: ['roadmap'] },
+  { id: 'refs', icon: BookOpen, site: 'home', pages: ['references'] },
+]
 const IDS = SECTIONS.filter((id) => id !== 'hero')
-const tabOf = (id: string) => TABS.findIndex((t) => (t.pages as readonly string[]).includes(id))
+const tabOf = (id: string) => TABS.findIndex((t) => t.pages.includes(id))
+// The tab each sideways page belongs to; the hero belongs to none.
+const groupTab = GROUPS.map((g) => tabOf(g[0]))
 const clamp01 = (v: number) => Math.min(1, Math.max(0, v))
 const FOLD_SCROLL = 48
 const DRAG_PX = 6
@@ -27,7 +29,7 @@ export function Nav() {
   const { t, lang, setLang } = useI18n()
   const [scrolled, setActive] = useState(-1)
   const { enabled, page } = usePagerState()
-  const active = enabled ? page - 1 : scrolled
+  const active = enabled ? tabOf(SECTIONS.find((id) => groupOf(id) === page) ?? '') : scrolled
   const dock = useRef<HTMLElement>(null)
   const drop = useRef<HTMLSpanElement>(null)
   const bar = useRef<HTMLDivElement>(null)
@@ -154,17 +156,21 @@ export function Nav() {
             shown.current.target = 1
           }
         } else if (pager.enabled && !pager.dockMin) {
-          // The droplet tracks the finger between tabs while a page is dragged.
-          const f = Math.max(0, Math.min(TABS.length - 1, pager.pos.x - 1))
-          const i = Math.min(TABS.length - 2, Math.floor(f))
-          const from = links.current[i]
-          const to = links.current[i + 1]
+          // The droplet tracks the finger between tabs while a page is dragged. The hero
+          // has no tab, so the droplet fades in on the neighbouring tab instead.
+          const last = GROUPS.length - 1
+          const px = Math.max(0, Math.min(last, pager.pos.x))
+          const i = Math.min(Math.max(last - 1, 0), Math.floor(px))
+          const a = groupTab[i]
+          const b = groupTab[Math.min(i + 1, last)]
+          const from = links.current[a >= 0 ? a : b]
+          const to = links.current[b >= 0 ? b : a]
           if (from && to) {
-            const m = f - i
+            const m = px - i
             x.current.target = x.current.x = from.offsetLeft + (to.offsetLeft - from.offsetLeft) * m
             w.current.target = w.current.x = from.offsetWidth + (to.offsetWidth - from.offsetWidth) * m
             x.current.v = pager.pos.v * (to.offsetLeft - from.offsetLeft)
-            shown.current.target = shown.current.x = clamp01(pager.pos.x)
+            shown.current.target = shown.current.x = a < 0 ? m : b < 0 && i + 1 <= last ? 1 - m : 1
           }
         } else if (nowAt) {
           x.current.target = nowAt.offsetLeft
@@ -266,7 +272,7 @@ export function Nav() {
         gap = g
         if (i !== d.pick) {
           d.pick = i
-          if (pager.enabled) setPage(groupOf(TABS[i].pages[0]))
+          if (pager.enabled && groupOf(TABS[i].pages[0]) >= 0) setPage(groupOf(TABS[i].pages[0]))
         }
       }
     })
@@ -322,7 +328,7 @@ export function Nav() {
       </header>
       <div className="dockbar" ref={bar}>
       {/* Home stands apart while expanded, and folds away with the tabs. */}
-      <a ref={home} className="dock-home chrome" href="#hero" aria-label={t.nav.home} aria-current={active < 0 ? 'true' : undefined} onClick={(e) => go(e, 'hero')}>
+      <a ref={home} className="dock-home chrome" href={siteUrl('home')} aria-label={t.nav.home} aria-current={active < 0 ? 'true' : undefined} onClick={(e) => go(e, 'hero')}>
         <Triangle size={20} strokeWidth={1.8} />
       </a>
       <nav
@@ -341,13 +347,13 @@ export function Nav() {
         onPointerCancel={onDockUp}
       >
         <span className="dock__drop" ref={drop} aria-hidden="true" />
-        {TABS.map(({ id, icon: Icon, pages }, i) => (
+        {TABS.map(({ id, icon: Icon, site, pages }, i) => (
           <a
             key={id}
             ref={(el) => {
               links.current[i] = el
             }}
-            href={`#${pages[0]}`}
+            href={siteUrl(site, pages[0])}
             draggable={false}
             aria-current={active === i ? 'true' : undefined}
             onClick={(e) => go(e, pages[0])}

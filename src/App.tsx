@@ -6,7 +6,7 @@ import { Details } from './components/Details'
 import { Nav } from './components/Nav'
 import { Intro } from './components/Intro'
 import { Updates, hasUnseenRelease } from './components/Updates'
-import { restoreHash } from './components/pager'
+import { restoreHash, SITE } from './components/pager'
 import { usePagerGesture } from './components/usePagerGesture'
 import { Hero } from './sections/Hero'
 import { Test } from './sections/Test'
@@ -27,7 +27,8 @@ export default function App() {
 
   useEffect(() => {
     document.documentElement.lang = t.htmlLang
-    document.title = lang === 'zh' ? '语棱 Lingua Prism' : 'Lingua Prism 语棱'
+    const name = lang === 'zh' ? '语棱 Lingua Prism' : 'Lingua Prism 语棱'
+    document.title = SITE === 'center' ? `${t.nav.test} · ${name}` : name
     try {
       localStorage.setItem('lang', lang)
     } catch {
@@ -52,27 +53,33 @@ export default function App() {
           <i />
         </div>
         <Nav />
-        <Intro blocked={startupUpdates} />
+        <Intro blocked={startupUpdates} skip={SITE === 'center'} />
         <main className="page" ref={track}>
-          <div className="tabpage">
-            <Hero />
-          </div>
-          <div className="tabpage">
-            <Test />
-            <Lab />
-          </div>
-          <div className="tabpage">
-            <Framework />
-            <Spectrum />
-            <Aptitude />
-          </div>
-          <div className="tabpage">
-            <Roadmap />
-          </div>
-          <div className="tabpage">
-            <References />
-            <Footer />
-          </div>
+          {SITE === 'center' ? (
+            <div className="tabpage">
+              <Test />
+              <Lab />
+              <Footer />
+            </div>
+          ) : (
+            <>
+              <div className="tabpage">
+                <Hero />
+              </div>
+              <div className="tabpage">
+                <Framework />
+                <Spectrum />
+                <Aptitude />
+              </div>
+              <div className="tabpage">
+                <Roadmap />
+              </div>
+              <div className="tabpage">
+                <References />
+                <Footer />
+              </div>
+            </>
+          )}
         </main>
         <div id="sheets" />
         <Details />

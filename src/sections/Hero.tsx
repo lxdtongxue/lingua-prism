@@ -2,7 +2,9 @@ import { useEffect, useRef, useState, type CSSProperties, type PointerEvent } fr
 import { useI18n } from '../components/i18n'
 import { Glass } from '../components/Glass'
 import { engine } from '../gl/engine'
-import { goTo, pager } from '../components/pager'
+import { goTo, navigate, pager } from '../components/pager'
+import { useTall } from '../components/tall'
+import { ORDER } from '../tall/items'
 
 const at = (d: string) => ({ '--d': d }) as CSSProperties
 
@@ -10,6 +12,10 @@ export function Hero() {
   const { t } = useI18n()
   const h = t.hero
   const prism = useRef<HTMLDivElement>(null)
+  const { results, count } = useTall()
+  // The primary button is the way into TALL: the next unfinished subtest, or the recommendation once all three are done.
+  const next = ORDER.find((s) => !results[s])
+  const begin = () => (next ? navigate(`${import.meta.env.BASE_URL}test/?sub=${next}`) : goTo('lab'))
   const drag = useRef<number | null>(null)
 
   // The cue only helps at the top; it steps aside as soon as the page moves.
@@ -59,8 +65,8 @@ export function Hero() {
             {h.lead}
           </p>
           <div className="hero__cta intro" style={at('1.7s')}>
-            <Glass as="button" type="button" className="btn btn--solid" radius={999} bevel={27} depth={0.7} frost={0.3} dim={0} tint={[0.96, 0.97, 1, 0.86]} press reveal={false} onClick={() => goTo('test')}>
-              {h.cta1}
+            <Glass as="button" type="button" className="btn btn--solid" radius={999} bevel={27} depth={0.7} frost={0.3} dim={0} tint={[0.96, 0.97, 1, 0.86]} press reveal={false} onClick={begin}>
+              {next ? (count ? h.cta1Resume : h.cta1) : h.cta1Done}
             </Glass>
             <Glass as="button" type="button" className="btn" radius={999} bevel={27} depth={1} frost={0.1} dim={0.1} press reveal={false} onClick={() => goTo('framework')}>
               {h.cta2}
@@ -77,7 +83,7 @@ export function Hero() {
           </p>
         </div>
       </div>
-      <button type="button" className="hero__cue intro" style={at('2.1s')} data-away={away} aria-label={h.cue} tabIndex={away ? -1 : 0} onClick={() => goTo('test')}>
+      <button type="button" className="hero__cue intro" style={at('2.1s')} data-away={away} aria-label={h.cue} tabIndex={away ? -1 : 0} onClick={() => goTo('framework')}>
         <span>{h.cue}</span>
         <i aria-hidden="true" />
       </button>

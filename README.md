@@ -39,7 +39,9 @@ PATH=/opt/homebrew/bin:$PATH node scripts/make-codes.mjs 50 >> ../登录代码.t
 
 | 位置 | 内容 |
 | --- | --- |
-| `index.html`、`test/`、`survey/` | 首页、测验页和问卷页三个入口。后两者不加载 WebGL 引擎 |
+| `index.html`、`center/` | 网站的两个页面：首页（首页、项目简介、预期目标、参考文献）和测试中心（TALL 测验进度、语言推荐）。两页共用同一套组件，由 `<html data-site>` 区分 |
+| `test/`、`survey/` | 测验作答页和问卷页，不加载 WebGL 引擎 |
+| `public/404.html` | 地址错误时的提示页 |
 | `src/content/content.ts` | 中英文文案和文献列表 |
 | `src/content/details.ts`、`src/sections/Framework.tsx` | 项目缘起、三层框架及详细阅读页 |
 | `src/browserChrome.ts` | iOS Safari 浏览器栏的主题色处理 |
@@ -50,7 +52,7 @@ PATH=/opt/homebrew/bin:$PATH node scripts/make-codes.mjs 50 >> ../登录代码.t
 | `src/tall/LanguageBackdrop.tsx` | 测验页的低速语言瀑布，与首页共用字带纹理 |
 | `src/data/` | 常模、语言需求、决策数据和 ASJP 距离矩阵，来源见 `src/data/LICENSE.md` |
 | `src/components/Account.tsx`、`session.ts`、`Avatar.tsx` | 代码登录、昵称和预设头像 |
-| `src/components/pager.ts` | 移动端分页，`GROUPS` 须与 `App.tsx` 的 `.tabpage` 保持一致 |
+| `src/components/pager.ts` | 页面布局与跳转：`LAYOUTS` 定义两页各有哪些分页和章节，须与 `App.tsx` 的 `.tabpage` 保持一致；跨页跳转走 `navigate` |
 | `src/gl/` | WebGL 渲染引擎和着色器 |
 | `public/tall/`、`public/fonts/` | 测验材料和字体 |
 
@@ -80,6 +82,25 @@ PATH=/opt/homebrew/bin:$PATH node scripts/make-codes.mjs 50 >> ../登录代码.t
 ## 更新日志
 
 时间为上传至 GitHub 的时间（UTC+8），以 GitHub Actions 部署记录为准。
+
+### v6.5
+
+测试中心独立成第二个页面，首页只保留项目简介、预期目标和参考文献。
+
+新增：
+
+- 新增测试中心页面（`/center/`）：TALL 三项测验的进度和语言推荐搬到这里。页面顶栏与底栏沿用首页，底栏「测试中心」高亮；点「项目简介」「预期目标」「参考文献」回到首页对应位置，点首页按钮回到首页顶部。
+- 两个页面之间的跳转带一次短暂的变暗与淡入，浏览器后退时恢复原样。
+- 首页的主按钮保留 TALL 入口：没做过时是「开始 TALL 测试」，做了一部分是「继续 TALL 测试」，直接进入下一项测验；三项都做完是「查看语言推荐」，进入测试中心的推荐。
+- 新增 404 页面，地址错误时提示并提供回首页的按钮。
+
+维护：
+
+- 首页底栏改为首页、测试中心、项目简介、预期目标、参考文献五个入口，首页按钮仍与标签栏分开。手机上首页从四页横滑缩减为首页、项目简介、预期目标、参考文献四页，测试中心只有一页，竖向滚动。
+- 测试中心不显示首页的语言背景，也不再出现棱镜与光束随鼠标摆动，避免干扰推荐表和问卷入口。
+- 测验作答页和问卷页结束后回到测试中心。旧链接 `/#test`、`/#lab` 会自动转到测试中心的对应位置。
+- 首页的向下滚动提示改为滚动到项目简介。
+- 测试中心页面单独设置标题和描述。
 
 ### v6.4（2026-11-03 21:55:17）
 

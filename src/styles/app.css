@@ -864,3 +864,10 @@ html:has(.exam--survey) { --bar: #0b0e16; --bar-bottom: #0b0e16; }
   .about-project__journey { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0 22px; }
   .about-project__journey li { grid-template-columns: 20px minmax(0, 1fr); gap: 8px; padding-block: 14px; font-size: .88rem; }
 }
+
+/* Moving between the home page and the test center */
+.page-dip { position: fixed; z-index: 96; inset: 0; pointer-events: none; background: linear-gradient(180deg, #000, #05060a); opacity: 0; animation: dip-in .28s ease-in forwards; }
+@keyframes dip-in { to { opacity: 1; } }
+html.arrive .app { animation: arrive .55s ease-out both; }
+@keyframes arrive { from { opacity: 0; } }
+@media (prefers-reduced-motion: reduce) { html.arrive .app { animation: none; } }

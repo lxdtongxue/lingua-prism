@@ -148,7 +148,7 @@ export function usePagerGesture(track: RefObject<HTMLElement | null>) {
       d.v = d.v * 0.6 + ((e.clientX - d.lastX) / gap) * 0.4
       d.lastX = e.clientX
       d.lastT = e.timeStamp
-      if (Math.round(d.start) === 0) engine.setSteer(dx / (window.innerWidth * 0.42))
+      if (Math.round(d.start) === 0 && document.getElementById('hero')) engine.setSteer(dx / (window.innerWidth * 0.42))
     }
     const up = (e: PointerEvent) => {
       const d = drag.current

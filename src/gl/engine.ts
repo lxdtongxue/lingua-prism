@@ -874,17 +874,18 @@ class Engine {
 
     this.pageAlpha.step(dt)
     const pageA = clamp(this.pageAlpha.x, 0, 1)
-    const heroFade = (this.pager ? clamp(1 - Math.abs(page) * 1.5, 0, 1) : clamp(1 - sy / (this.vh * 1.5), 0, 1)) * pageA
+    // The test center has no hero: there the prism and its mirror never appear.
+    const heroFade = hero ? (this.pager ? clamp(1 - Math.abs(page) * 1.5, 0, 1) : clamp(1 - sy / (this.vh * 1.5), 0, 1)) * pageA : 0
     const sway = this.reduced ? 0 : Math.sin(t * 0.21) * 0.3 + Math.sin(t * 0.13 + 1.3) * 0.2
 
     // Mouse steers from anywhere over the hero; touch steers via setSteer().
-    if (!this.ptr.touch && this.ptr.inside && sy < this.vh && page < 0.5) {
+    if (hero && !this.ptr.touch && this.ptr.inside && sy < this.vh && page < 0.5) {
       this.steer.target = clamp((this.ptr.x / this.cssW - 0.5) * 2, -1, 1)
     } else {
       this.steer.target = this.steerInput !== 0 ? this.steerInput : sway
     }
     // A cursor that rests or leaves lets the beam drift back slowly; moving it again takes over at once.
-    const steered = this.steerInput !== 0 || (!this.ptr.touch && this.ptr.inside && sy < this.vh && page < 0.5 && performance.now() - this.movedAt < STEER_REST_MS)
+    const steered = this.steerInput !== 0 || (!!hero && !this.ptr.touch && this.ptr.inside && sy < this.vh && page < 0.5 && performance.now() - this.movedAt < STEER_REST_MS)
     if (!steered) this.steer.target = sway
     this.steer.k = steered ? 26 : 6
     this.steer.c = steered ? 9 : 4
@@ -968,7 +969,7 @@ class Engine {
     // Narrow screens stack body copy over the rays, so the words stay quieter there.
     // Only the home page carries words. Horizontal paging fades them away;
     // desktop scrolling uses a per-pixel fade before the hero's bottom edge.
-    const homeWords = this.pager ? 1 - ease(clamp(Math.abs(page), 0, 1)) : 1
+    const homeWords = !hero ? 0 : this.pager ? 1 - ease(clamp(Math.abs(page), 0, 1)) : 1
     gl.uniform1f(s.u.uTxtA, this.textA.x * pageA * homeWords * mix(0.65, 0.78, clamp((this.cssW - 420) / 480, 0, 1)))
     gl.uniform1f(s.u.uWordsEnd, this.pager ? 0 : (hero?.closest('section')?.getBoundingClientRect().bottom ?? this.vh) + sy)
     const atlasRow = this.textRowHeight
