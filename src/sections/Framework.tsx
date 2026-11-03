@@ -14,6 +14,18 @@ export function Framework() {
     <section id="framework" className="section">
       <div className="wrap">
         <SectionHead kicker={f.kicker} title={f.title} intro={f.intro} />
+        <div className="about-project">
+          <div className="about-project__story">
+            <p>{f.project.background}</p>
+            <p>{f.project.approach}</p>
+            <p className="note">{f.project.audience}</p>
+            <button type="button" className="sheet__cta sheet__cta--quiet" onClick={() => openDetail('project')}>{f.project.readMore}</button>
+          </div>
+          <ol className="about-project__journey" aria-label={f.project.journeyLabel}>
+            {f.project.journey.map((step, i) => <li key={step}><span>{String(i + 1).padStart(2, '0')}</span><p>{step}</p></li>)}
+          </ol>
+        </div>
+        <div className="about-project__framework"><h3>{f.project.frameworkTitle}</h3><p className="note">{f.project.frameworkIntro}</p></div>
         <div className="levels">
           {f.items.map((x, i) => (
             <Card

@@ -1,5 +1,5 @@
 import { useEffect, useState, type FormEvent } from 'react'
-import { ChevronLeft, KeyRound, Smartphone } from 'lucide-react'
+import { ChevronLeft } from 'lucide-react'
 import { checkCode, signIn, signOut, updateProfile, useAccount, type CheckError } from './session'
 import { Avatar, AVATARS } from './Avatar'
 import { useI18n } from './i18n'
@@ -31,14 +31,12 @@ export function Account({ open, onClose }: { open: boolean; onClose: () => void 
   const [avatar, setAvatar] = useState(0)
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  const [hint, setHint] = useState(false)
 
   useEffect(() => {
     if (open) return
     const id = window.setTimeout(() => {
       setView('home')
       setError(null)
-      setHint(false)
     }, 400)
     return () => window.clearTimeout(id)
   }, [open])
@@ -158,30 +156,7 @@ export function Account({ open, onClose }: { open: boolean; onClose: () => void 
     body = (
       <div className="acct">
         <p className="sheet__lead">{a.lead}</p>
-        <div className="acct__ways">
-          {/* Code sign-in works but stays closed until the team settles on it. */}
-          <button type="button" className="acct__way" aria-disabled="true" onClick={() => setHint(true)}>
-            <KeyRound size={20} strokeWidth={1.8} />
-            <span>
-              <strong>{a.codeLogin}</strong>
-              <small>{a.codeLoginSub}</small>
-            </span>
-            <em className="tag">{a.beta}</em>
-          </button>
-          <button type="button" className="acct__way" aria-disabled="true" onClick={() => setHint(true)}>
-            <Smartphone size={20} strokeWidth={1.8} />
-            <span>
-              <strong>{a.otherLogin}</strong>
-              <small>{a.otherLoginSub}</small>
-            </span>
-            <em className="tag">{a.beta}</em>
-          </button>
-        </div>
-        {hint && (
-          <p className="note" role="status">
-            {a.betaNote}
-          </p>
-        )}
+        <p className="note">{a.storageNote}</p>
       </div>
     )
   }

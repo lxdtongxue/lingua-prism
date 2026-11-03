@@ -1,6 +1,6 @@
 import type { Lang } from './content'
 
-export type PageId = 'lang' | 'learner' | 'decision' | 'profile' | 'tools' | 'path' | 'refine' | 'evaluate' | 'review' | 'assess'
+export type PageId = 'project' | 'lang' | 'learner' | 'decision' | 'profile' | 'tools' | 'path' | 'refine' | 'evaluate' | 'review' | 'assess'
 
 export type Block =
   | { h: string }
@@ -16,9 +16,38 @@ export type Block =
 export type Page = { kicker: string; title: string; lead: string; blocks: Block[]; more: PageId[] }
 
 const zh: Record<PageId, Page> = {
+  project: {
+    kicker: '项目简介 · 缘起',
+    title: '在下一门语言之前，先遇见自己的理由',
+    lead: '一门语言，可能通向一本等待被读懂的书，也可能通向一段求学经历、一份工作，或一个向往已久的地方。语棱（Lingua Prism）从第二、第三外语的选择出发，希望在这些可能之间，陪学习者找到自己的方向。',
+    blocks: [
+      { h: '建议很多，自己的答案却未必清楚' },
+      { p: '在法语与西班牙语之间，准备读专业文献的人、计划海外求学的人，与被电影和音乐吸引的人，未必会作出同样的选择。已有的语言基础、能找到的课程与教材，也会改变各自的判断。语种热度与他人经验值得参考，但还需要放回自己的目标和条件中衡量。' },
+      { p: '团队在若干网络公开帖文与评论中看到，部分求助者并非缺少建议，而是难以判断建议是否适合自己。学分、升学、就业和兴趣交织在一起，同一门语言便有了不同的评价。这些观察促使我们思考：能否让比较的标准更清楚，也让个人的处境得到更多关注？' },
+      { h: '从一门二外课的选择开始' },
+      { p: '语棱优先关注高校二外选课，也面向已有外语基础、正为学术研读、海外学习、职业发展或文化兴趣寻找下一门语言的学习者。我们把服务起点放在正式开始学习之前：先比较，理解取舍，再决定往哪里走。' },
+      { h: '把散落的理由，放在同一张桌上' },
+      { steps: [
+        ['了解个人情况', '填写已掌握的语言，通过测验了解任务表现，写下学习目标、资源条件与偏好。'],
+        ['比较候选语言', '查看不同语言在五个维度的表现，观察哪些条件与自己的情况接近。'],
+        ['阅读推荐依据', '展开分项解释，了解某门语言为何排在这里，以及数据和分数的适用范围。'],
+        ['调整选择侧重', '基础版可自行调整 G、R、P 权重；进阶版用详细问卷整理侧重，并提供确认与回改答案的步骤。'],
+      ] },
+      { h: '三层视角，五项参照' },
+      { p: '语言层面以 ASJP 基础词汇和 Grambank 语法特征比较候选语言与已掌握语言的相似性；学习者层面通过 TALL 的语言分析、声音辨别和词汇学习任务建立能力画像；决策层面考察目标匹配、资源可获得性与个人偏好。五项信息共同参与比较，用户可以逐项查看。' },
+      { p: '跨语言相似性描述的是语言之间的关系，不直接等于个人学习难度。能力与语言需求的匹配也不是学习成功的保证。推荐整理依据、呈现差异，最后的选择仍由学习者作出。' },
+      { h: '让语言研究走近真实的选择' },
+      { p: '《关于全面加强新时代语言文字工作的意见》关注高校多语种外语教育与复合型语言人才培养，《教育强国建设规划纲要（2024—2035年）》提出探索数字赋能大规模因材施教的有效途径。语棱以网页交互承接语言研究资料和学习者的实际诉求，让不同处境下的语言选择可以被细看、被比较。' },
+      { p: '网站已接入三项 TALL 任务、基础与进阶问卷、候选语言排序和分项解释。后续将围绕高校选课场景继续核验数据、评估测量质量与推荐价值，逐步扩展语言背景和应用场景。相关实证工作属于后续安排，不能据此把当前分数解释为已经验证的学习效果预测。' },
+      { h: '两种方式，认识自己的侧重' },
+      { p: '基础版由用户调整 G、R、P 权重；进阶版通过更细的问卷梳理目标、条件与偏好，目前开放试用。两者使用相同的 T、A 计算，测验材料依照其许可用于非商业研究与教学。' },
+      { key: '愿你看过别人的经验，也能认出自己的方向。' },
+    ],
+    more: ['lang', 'learner', 'decision'],
+  },
   lang: {
     kicker: '项目简介 · 框架 · 语言层面',
-    title: '从已经掌握的语言出发，理解一门新语言',
+    title: '从熟悉的回声，走近陌生的语言',
     lead: '学习一门新语言，并不总是从零开始。我们可能在陌生词汇中发现熟悉的形式，在新的句子结构中找到已有知识的参照，也可能在看似相近的表达之间遇到意想不到的差异。项目通过跨语言相似性指标 T，考察候选语言与学习者已掌握语言之间的关系，为语言选择提供可解释的语言学参照。',
     blocks: [
       { h: '一门语言，可以从不同角度比较' },
@@ -41,8 +70,8 @@ const zh: Record<PageId, Page> = {
   },
   learner: {
     kicker: '项目简介 · 框架 · 学习者层面',
-    title: '理解学习差异，从具体能力与学习经历开始',
-    lead: '面对相同的语言材料，有人善于从例句中发现规律，有人更容易辨别陌生声音，也有人能较快记住新词与意义的联系。这些差异值得被看见，却很难被一个笼统的“语言天赋值”充分表达。项目中的 A 指标关注语言学习能力与目标语言适应性，希望提供更具体的自我认识，并研究这些信息如何为语言选择提供参考。',
+    title: '在声音与词句间，认识自己的长处',
+    lead: '有人先听出声音的分别，有人先认出句子里的规律，也有人很快记住新词的模样。面对同样陌生的材料，我们各有走近它的方式。语棱借助三项任务留下这份记录，让你有机会细看自己的长处，再思考它们与下一门语言的关系。',
     blocks: [
       { h: '已经会多少，与如何学习新材料，需要分别了解' },
       { p: '语言熟练程度描述学习者目前能理解和使用一门语言的水平，反映学习经历与已有成果。语言学能则关注一组与新语言学习有关的认知能力，例如分析规律、处理陌生语音和建立词义联系。二者相互关联，却不能相互替代。' },
@@ -62,7 +91,7 @@ const zh: Record<PageId, Page> = {
       { p: '画像首先帮助我们描述差异。例如，一位学习者可能在规则归纳任务中表现较突出，在陌生语音任务中需要更多熟悉时间。这可以成为探索学习支持方式的起点。' },
       { p: '画像中的差异不等于能力的永久边界。测试状态、任务形式、已有经验和测量误差都可能影响结果。某一项分数较低，也不足以成为排除一门感兴趣语言的理由。' },
       { h: '网站上的 A 分是什么？' },
-      { p: '网站会根据三项百分位与语言难点计算一个实验性的 A 分，用来展示能力强项和语言需求的匹配关系。它不是语言天赋总分，这种匹配假设也尚未完成验证，所以页面始终标注为实验性指标。' },
+      { p: 'A 分将三项任务百分位与语言需求指标结合，用于比较能力画像与语言任务要求的关系。它不代表语言天赋总量，也不代表学习成功概率；其预测作用需要实际学习数据验证。' },
       { key: '能力画像的价值，在于帮助学习者理解差异，并为后续研究提供依据。' },
     ],
     more: ['profile', 'tools', 'path'],
@@ -92,15 +121,15 @@ const zh: Record<PageId, Page> = {
       { p: '偏好信息以学习者的主动输入为依据，由问卷中的回答产生，不根据语气或行为替学习者作判断。' },
       { h: '当不同维度指向不同选择时' },
       { p: '你可能很喜欢一门语言，但暂时缺少合适课程；也可能有明确的工作需要，却对内容尚不熟悉。这些差异提示我们进一步比较：目标是否有时间要求？资源障碍能否解决？是否需要先体验一段入门学习？' },
-      { p: '网站目前把 T、A、G、R、P 放在同一框架中，呈现候选语言的理由与限制：T、A 权重固定，G、R、P 由用户设定或由问卷生成。这套整合和权重方案是当前的研究版本，推荐效果还需要在西外试用中检验。' },
+      { p: '语棱把 T、A、G、R、P 放在同一框架中，呈现不同语言的比较依据：T、A 的基准权重固定，G、R、P 由用户设定或由问卷生成。排序取决于当前输入、数据与规则，实际参考价值需要结合高校选课与学习场景继续评估。' },
       { key: '有价值的选择，应当同时回应“为什么学”“能否学下去”和“是否愿意学”。' },
     ],
     more: ['lang', 'learner'],
   },
   profile: {
     kicker: '项目简介 · 能力 · 能力画像',
-    title: '看见你处理新语言材料的不同方式',
-    lead: '语言学习涉及听辨声音、记忆词汇、发现规律和理解表达等多种过程。能力画像希望把这些过程中的个体差异呈现得更具体。项目以 A1 表示通用语言学习能力画像，它是内部模块名称，与欧洲语言共同参考框架的 A1 等级含义不同。',
+    title: '每个人，都有走近语言的方式',
+    lead: '记住一个新词，听出一处差别，忽然读懂句子里的规律——认识自己的学习方式，往往始于这些细小的时刻。能力画像记录三项任务中的表现。这里的 A1 是画像模块的名称，与 CEFR 的 A1 语言等级无关。',
     blocks: [
       { h: '正在使用的三个维度' },
       {
@@ -120,7 +149,7 @@ const zh: Record<PageId, Page> = {
   },
   tools: {
     kicker: '项目简介 · 能力 · 工具比较',
-    title: '先了解测量工具，再解释能力分数',
+    title: '分数从哪里来，便从哪里读起',
     lead: '要建立可信的能力画像，首先要回答：这些任务实际测量了什么？结果是否稳定？能够支持怎样的解释？项目已确定使用 TALL 的 LA、SD、VL 三项任务。下面说明采用和取舍的理由。',
     blocks: [
       { h: '当前使用的任务' },
@@ -168,8 +197,8 @@ const zh: Record<PageId, Page> = {
   },
   path: {
     kicker: '项目简介 · 能力 · 从能力到语言',
-    title: '把能力画像与语言选择连接起来，需要具体的学习证据',
-    lead: '了解自己的能力特点之后，一个自然的问题是：“这些特点对我选择哪门语言有什么帮助？”回答这个问题，需要把能力分数放回实际学习过程。项目通过 A2 研究目标语言适应性，在能力画像与语言选择之间引入语言特征和具体学习任务，逐步检验两者的联系。',
+    title: '从你的长处，走向语言深处',
+    lead: '听辨声音的敏锐、记忆新词的耐心、发现规律的灵巧，会怎样伴随你学习下一门语言？A2 将目光放在具体的语言特征与学习任务上，考察能力表现与学习结果之间的联系。',
     blocks: [
       { h: '从一项语言特征开始，而不是直接给语言贴标签' },
       { p: '一门语言同时包含音系、词汇、语法等特征，学习它们也涉及不同任务。“某种能力较强，所以适合某门语言”需要拆成可以检验的问题：学习者面对哪一项特征？完成什么任务？表现如何衡量？某项能力与这种表现是否有关？' },
@@ -197,7 +226,7 @@ const zh: Record<PageId, Page> = {
       { h: '为什么同一种能力，可能带来不同的学习结果？' },
       { p: '教师讲解规则与自行发现规律，可能对能力提出不同要求；材料是否熟悉、练习次数多少、是否考察延迟保持，也会改变观察到的关系。研究发现某项能力与某个任务成绩相关，并不意味着它决定了结果；在一种语言或教学条件下得到的结论，也不能未经检验就推广到全部候选语言。' },
       { h: '当前进展与应用边界' },
-      { p: '项目已形成 A2 的研究框架，并梳理了音系、词汇和语法方向的实证文献。网站根据语言需求数据计算实验性的 A 分，它假设“能力强项对上语言难点”会学得更好，这一假设还在用西外数据验证。部分语言的语法数据由 AI 编码，尚未经人工核实。' },
+      { p: 'A2 以音系、词汇和语法方向的研究为参照，结合任务百分位与语言需求计算 A 分。能力与需求匹配能否预测实际学习表现，需要专门的学习数据检验。部分语言的语法数据由 AI 编码，人工核验尚未完成。' },
       { p: '在验证完成之前，A 分只作参考，不是确定的适应结论。即使未来获得可靠的适应性信息，语言选择仍需要结合目标、资源与个人偏好。' },
       { key: '从能力到语言的每一步，都需要明确任务、观察表现，并检验结论的适用范围。' },
     ],
@@ -206,10 +235,10 @@ const zh: Record<PageId, Page> = {
   refine: {
     kicker: '预期目标 · 01',
     title: '完善推荐机制',
-    lead: '五项指标已经参与推荐计算。接下来，我们将进一步统一方法说明与系统实现，让每一个结果都能追溯到相应的数据、用户输入和计算规则。',
+    lead: '一项推荐，应当留下一条可以回看的路。我们会继续校准五项指标与结果解释，让分数可以追溯到数据、你的回答和具体的计算规则。',
     blocks: [
       { h: '已有基础：五项信息共同支持选择' },
-      { p: 'T 描述候选语言与已有语言之间的关系；A 根据 TALL 任务表现与语言需求指标，提供实验性的适应性信息；G、R、P 分别反映目标、资源条件和个人偏好。这些信息已在研究版本中汇合，用户可以查看分项并调整决策条件。' },
+      { p: 'T 描述候选语言与已有语言之间的关系；A 结合 TALL 任务表现与语言需求，提供适应性比较参考；G、R、P 分别反映目标、资源条件和个人偏好。用户可以查看分项、回改输入，并观察选择条件带来的变化。' },
       { p: '各项回答的问题不同。我们希望结果页能够说明：某门语言为什么排在前面，哪些条件支持这一结果，还有哪些限制需要学习者自己权衡。' },
       { h: '已同步：语言参照与计算规则' },
       { p: 'T 的词汇与语法各占一半；用户掌握多门语言时，系统先计算各语言对的综合相似度，再取其中最高的一门作为参照。语言详情会呈现参照语言及其词汇、语法分项，所以综合分数与解释始终对应同一对语言。' },
@@ -224,16 +253,16 @@ const zh: Record<PageId, Page> = {
   evaluate: {
     kicker: '预期目标 · 02',
     title: '验证测评与问卷',
-    lead: '项目已使用 TALL 的 LA、SD、VL 三项任务，并已建立 G、R、P 问卷。下一步，我们计划通过西外试用，检查任务与题目在目标用户中的表现，以及这些信息能否支持预期解释。',
+    lead: '每一道题，都应让人明白为何而答。我们将结合高校选课场景，继续检查 TALL 三项任务与 G、R、P 问卷的作答体验、测量质量和分数解释，让用户花下的时间得到认真对待。',
     blocks: [
       { h: '已有基础：三项任务与明确的用户表达' },
-      { p: 'LA、SD、VL 分别提供语言分析、语音处理和联想记忆相关的任务信息。当前系统将成绩换算为参照样本中的百分位，用于建立能力画像，并进一步计算实验性的 A 指标。' },
+      { p: 'LA、SD、VL 分别提供语言分析、语音处理和联想记忆相关的任务信息。当前系统将成绩换算为参照样本中的百分位，用于建立能力画像，并进一步计算 A 指标。' },
       { p: '问卷收集就业、留学、旅行、学术等目标，以及学习方式、地区或语言兴趣和对新文字、陌生发音、语法变化的接受意愿。进阶问卷还通过一般取向与具体取舍，生成 G、R、P 的相对权重，并让用户确认或修改系统对其选择的理解。' },
       { h: '下一步：检查测量质量与作答体验' },
-      { p: '试用将关注题意是否清楚、流程是否顺畅、作答负担是否适当，以及任务得分在目标样本中的分布与可解释性。问卷已有的注意力与前后一致性提示，可以帮助定位需要进一步检查的题目和作答情况。' },
+      { p: '后续评估将关注题意是否清楚、流程是否顺畅、作答负担是否适当，以及任务得分在目标样本中的分布与可解释性。问卷已有的注意力与前后一致性提示，可以帮助定位需要进一步检查的题目和作答情况。' },
       { p: '对 A 的研究还需进一步连接实际学习表现：哪些能力与哪些具体任务有关，当前语言需求指标能否代表相应任务要求，以及“能力与需求匹配”的计算是否提供了有意义的信息。用户认为画像符合自己，可以作为体验反馈；预测学习表现的作用需要另外的数据检验。' },
       { h: '预期成果：有依据的分数解释' },
-      { p: '根据试用数据与反馈完善任务说明、问卷措辞、作答流程和结果解释，明确测量适用范围，并形成 A 指标后续验证的依据。' },
+      { p: '根据用户评估数据与反馈完善任务说明、问卷措辞、作答流程和结果解释，明确测量适用范围，并形成 A 指标后续验证的依据。' },
       { key: '当前百分位以特定参照样本为基础，A 的能力与需求匹配仍是待检验假设。测验结果不应被解释为固定的天赋判决。' },
     ],
     more: ['refine', 'review'],
@@ -241,7 +270,7 @@ const zh: Record<PageId, Page> = {
   review: {
     kicker: '预期目标 · 03',
     title: '核验数据与计算',
-    lead: '推荐分数依赖数据，也依赖数据被选择、编码和转换的方式。我们将继续核查来源与处理过程，让分数的依据和不确定性都能够被识别。',
+    lead: '顺着一个分数往回走，会遇见原始记录、编码与尺度转换。我们将继续核查这些来处，让每一次比较都能说明依据，也能如实呈现数据的局限。',
     blocks: [
       { h: '已有基础：多类数据已进入系统' },
       { p: '当前版本综合使用 ASJP 词汇距离、Grambank 语法编码、TALL 参照分数、语音与文字相关指标，以及目标用途和资源条件档位。部分数据来自公开数据库，部分由项目组整理；部分语法编码由 AI 补充或生成，部分用途与资源档位属于经验设定。' },
@@ -259,17 +288,17 @@ const zh: Record<PageId, Page> = {
   assess: {
     kicker: '预期目标 · 04',
     title: '评估权重与结果',
-    lead: '当前系统已有权重方案。下一步，我们将比较参数变化对排序的影响，检验问卷生成的权重是否反映用户取向，并评估结果对实际选择的帮助。',
+    lead: '选择的次序，会随着你在意的事情而变化。我们将继续比较不同权重下的结果，检查问卷是否准确传达了用户的侧重，也了解这份推荐能为真实的选择带来多少帮助。',
     blocks: [
       { h: '已有基础：区分分项权重与总分权重' },
       { p: 'T 内部的词汇和语法各占一半；在最终推荐中，T 与 A 的基准权重各为 20，A 在没有测评成绩时不参与计算。基础版允许用户调整 G、R、P；进阶版在问卷完成并确认后，以问卷结果分配三项合计 60 的权重。' },
-      { p: '总分按实际有效的指标及其权重归一化。因此，权重值与最终占比需要结合参与计算的项目理解。上述参数属于当前研究版本的设置，其效果仍需要检验。' },
+      { p: '总分按实际有效的指标及其权重归一化。因此，权重值与最终占比需要结合参与计算的项目理解。当前权重是一组比较规则，其合理性与实际作用需要持续评估。' },
       { h: '下一步：比较方案，定位敏感结果' },
       { p: '我们将对 T 的 0.5／0.5、0.6／0.4 和 0.7／0.3 进行统一条件下的比较，观察排名相关、候选集合重合与名次变化。这些比较用于方法评估，官网采用当前主方案，保留清楚的分项解释。' },
       { p: '对于 G、R、P，研究将关注一般取向与情境取舍是否形成可理解的权重，权重与分数缺失时的处理是否合理，以及用户确认或修改后结果如何变化。' },
       { p: '推荐效果的评估还需分别考察解释清晰度、用户反馈和实际学习表现。排序稳定说明结果对某些参数变化较稳健；是否具有学习预测价值，需要通过相应学习数据判断。' },
       { h: '预期成果：清楚说明结果能支持什么' },
-      { p: '形成权重依据、敏感性分析和试用评估报告，说明哪些结论较稳定、哪些依赖参数，以及系统在哪些情境下能够提供有用参考。' },
+      { p: '形成权重依据、敏感性分析和用户评估报告，说明哪些结论较稳定、哪些依赖参数，以及系统在哪些情境下能够提供有用参考。' },
       { key: '推荐排序帮助整理选择依据，最终决定仍由学习者结合目标、条件和意愿作出。' },
     ],
     more: ['refine', 'review'],
@@ -277,6 +306,35 @@ const zh: Record<PageId, Page> = {
 }
 
 const en: Record<PageId, Page> = {
+  project: {
+    kicker: 'About · Beginnings',
+    title: 'Before the next language, find your own reasons',
+    lead: 'A language may lead to a book waiting to be read, a place to study, a career, or somewhere you have long wanted to go. Lingua Prism begins with the choice of a second or third foreign language, helping learners find their direction among these possibilities.',
+    blocks: [
+      { h: 'Plenty of advice, but not always an answer of your own' },
+      { p: 'Someone choosing between French and Spanish for academic reading may reach a different answer from someone planning to study abroad, or someone drawn to film and music. The languages they know and the courses and materials within reach also matter. Popularity and other people’s experience become more useful when considered alongside your own goals and circumstances.' },
+      { p: 'In selected public posts and comments, the team saw people struggling to judge which advice applied to them. Credits, further study, careers, and interests often appeared in the same discussion. These observations led us to ask whether a comparison could make its criteria clearer and give personal circumstances more room.' },
+      { h: 'Beginning with a university language course' },
+      { p: 'Lingua Prism focuses first on university students choosing another language course. It also welcomes learners with a foreign-language background who are choosing for research, study abroad, work, or cultural interests. Its place is before learning begins: compare the possibilities, understand the trade-offs, then choose a direction.' },
+      { h: 'Bring the reasons to the same table' },
+      { steps: [
+        ['Describe your starting point', 'Enter known languages, explore task performance through TALL, and share your goals, resources, and preferences.'],
+        ['Compare candidate languages', 'Look across five dimensions to see how each language relates to your circumstances.'],
+        ['Read the reasons', 'Open the explanations to understand the ranking, its data, and the scope of its scores.'],
+        ['Adjust your priorities', 'Set G, R, and P weights in Basic, or use the detailed Advanced questionnaire, with steps to confirm the interpretation and revise your answers.'],
+      ] },
+      { h: 'Three levels, five points of reference' },
+      { p: 'At the language level, ASJP vocabulary and Grambank grammatical features compare candidate languages with those already known. At the learner level, three TALL tasks describe language analysis, sound discrimination, and associative memory. At the decision level, goals, resource availability, and preferences inform the comparison. Each dimension can be inspected separately.' },
+      { p: 'Similarity between languages is not a direct measure of personal learning difficulty. A match between abilities and language demands does not guarantee learning success. The recommendation organises evidence and differences; the learner makes the decision.' },
+      { h: 'Bringing language research closer to a real choice' },
+      { p: 'China’s policy on strengthening language work addresses multilingual university education and interdisciplinary language talent. Its Education Powerhouse Plan (2024–2035) also calls for exploring digitally supported personalised education. Lingua Prism brings language-research resources and learners’ questions into an interactive comparison.' },
+      { p: 'The site includes three TALL tasks, Basic and Advanced questionnaires, language rankings, and explanations. Further work will review data, measurement quality, and usefulness in university course-choice settings, and gradually broaden language backgrounds and uses. That work is planned; current scores should not be read as validated predictions of learning outcomes.' },
+      { h: 'Two ways to explore your priorities' },
+      { p: 'Basic lets you set G, R, and P weights. Advanced explores goals, conditions, and preferences in more detail and is currently available as an open trial. Both use the same T and A calculations. Assessment materials are used for non-commercial research and teaching under their licences.' },
+      { key: 'May other people’s experience help you recognise a direction of your own.' },
+    ],
+    more: ['lang', 'learner', 'decision'],
+  },
   lang: {
     kicker: 'About · Framework · Languages',
     title: 'Start from the languages you know',
@@ -302,8 +360,8 @@ const en: Record<PageId, Page> = {
   },
   learner: {
     kicker: 'About · Framework · Learners',
-    title: 'Understand differences through specific abilities and experience',
-    lead: 'Given the same material, some people spot patterns quickly, some hear unfamiliar sounds more easily, and some remember new word meanings faster. These differences matter, and a vague “language talent” score can’t capture them. The measure A looks at learning abilities and target-language fit, offering more specific self-knowledge while the project studies how far it can inform language choice.',
+    title: 'Discover your strengths among sounds and sentences',
+    lead: 'Some people first hear a difference in sound. Others find a pattern in a sentence, or remember a word after a brief encounter. We each have ways into unfamiliar material. Three tasks leave a record you can look at more closely before considering what it might mean for your next language.',
     blocks: [
       { h: 'What you know and how you learn are different questions' },
       { p: 'Proficiency describes how well someone can understand and use a language now, reflecting past learning. Aptitude concerns the cognitive abilities involved in learning a new language, such as analysing patterns, handling unfamiliar sounds and linking words to meanings. The two are related, and neither replaces the other.' },
@@ -323,7 +381,7 @@ const en: Record<PageId, Page> = {
       { p: 'A profile first describes differences. Someone may do well at inducing rules but need more time with unfamiliar sounds. That can be a starting point for finding the right kind of support.' },
       { p: 'Differences in a profile are not permanent limits. Test conditions, task format, experience and measurement error can all affect results, and one low score is no reason to rule out a language you care about.' },
       { h: 'What is the A score on this site?' },
-      { p: 'The site combines the three percentiles with each language’s demands into an experimental A score, showing how your strengths line up with what a language asks for. It is not a total talent score, the idea behind it has not been validated, and the page always labels it as experimental.' },
+      { p: 'A combines the three task percentiles with language-demand indicators to compare a profile with task requirements. It is neither a total talent score nor a probability of learning success. Predictive value requires evidence from actual learning outcomes.' },
       { key: 'A profile is valuable because it helps learners understand differences and gives later research a basis.' },
     ],
     more: ['profile', 'tools', 'path'],
@@ -352,16 +410,16 @@ const en: Record<PageId, Page> = {
       { p: 'Some people come to a language through books, film or music. Others like its sounds or script, or hope to connect with people in a region. P covers regional and cultural interest, feelings about language features, and willingness to take on difficulty. Interests can grow, so today’s preference is simply a place to start.' },
       { p: 'Preference comes only from what learners enter in the questionnaire. It is never inferred from tone or behaviour.' },
       { h: 'When the dimensions point different ways' },
-      { p: 'You may love a language but have no suitable course, or need one for work and know little about it. These gaps invite better questions: is there a deadline, can the resource problem be solved, would a short trial help?' },
-      { p: 'The site now places T, A, G, R and P in one framework to show the reasons and limits for each language. T and A have fixed weights, while G, R and P are set by the user or generated from the questionnaire. This is a research version, and its usefulness still has to be tested in the XISU trial.' },
+      { p: 'You may love a language but have no suitable course, or need one for work and know little about it. These gaps invite better questions: is there a deadline, can the resource problem be solved, would a few introductory lessons help?' },
+      { p: 'Lingua Prism brings T, A, G, R, and P into one comparison. T and A have fixed base weights; G, R, and P are set by the user or generated from the questionnaire. Rankings reflect current inputs, data, and rules. Their practical value needs further evaluation in university course-choice and learning settings.' },
       { key: 'A good choice answers why you’d learn, whether you can keep going, and whether you want to.' },
     ],
     more: ['lang', 'learner'],
   },
   profile: {
     kicker: 'About · Aptitude · Ability profile',
-    title: 'See how you handle new language material',
-    lead: 'Language learning involves hearing sounds, remembering words, finding patterns and understanding expression. An ability profile makes individual differences in these processes more concrete. A1 is the project’s internal name for this profile and differs from the CEFR A1 level.',
+    title: 'Your own way into a new language',
+    lead: 'Remembering a word, hearing a difference, suddenly finding a pattern: small moments can tell us something about how we learn. This profile records performance in three tasks. A1 names the profile module here; it is unrelated to the CEFR A1 language level.',
     blocks: [
       { h: 'The three dimensions in use' },
       {
@@ -381,7 +439,7 @@ const en: Record<PageId, Page> = {
   },
   tools: {
     kicker: 'About · Aptitude · Comparing tools',
-    title: 'Understand the tools before reading the scores',
+    title: 'Read a score from where it begins',
     lead: 'A credible profile starts with three questions: what do these tasks measure, are the results stable, and what interpretations can they support? The project has settled on three TALL tasks: LA, SD and VL. Here is why, and what was left out.',
     blocks: [
       { h: 'Tasks in use' },
@@ -429,8 +487,8 @@ const en: Record<PageId, Page> = {
   },
   path: {
     kicker: 'About · Aptitude · Ability to language',
-    title: 'Linking abilities to language choice takes learning evidence',
-    lead: 'Once you know your abilities, the natural question is how they help you choose a language. Answering it means putting scores back into real learning. Through A2, the project studies target-language fit by placing language features and learning tasks between the profile and the choice, and testing the link step by step.',
+    title: 'From your strengths into the life of a language',
+    lead: 'An ear for a new sound, a memory for a word, a knack for finding a pattern: how might these accompany you into another language? A2 looks at specific language features and learning tasks to examine the links between ability and learning outcomes.',
     blocks: [
       { h: 'Start from a feature, not a label' },
       { p: 'A language has phonological, lexical and grammatical features, and learning them involves different tasks. “Strong at this, so suited to that language” has to become testable questions: which feature, what task, how is performance measured, and is an ability related to it?' },
@@ -458,7 +516,7 @@ const en: Record<PageId, Page> = {
       { h: 'Why can one ability lead to different results?' },
       { p: 'Being taught a rule and finding it yourself may call on different abilities. Familiar materials, amount of practice and delayed testing can also change what is observed. A correlation doesn’t mean an ability decides the outcome, and a finding from one language or setting can’t be extended to all candidates without testing.' },
       { h: 'Progress and limits' },
-      { p: 'The project has an A2 research framework and has reviewed empirical work on phonology, vocabulary and grammar. The site calculates an experimental A score from language demand data. It assumes that strengths matching a language’s hard parts help learning, which is still being tested with XISU data. Some grammar data was coded by AI and has not been checked by hand.' },
+      { p: 'A2 draws on phonology, vocabulary, and grammar research and combines task percentiles with language-demand data in A. Whether this matching predicts actual learning performance requires dedicated learning-outcome evidence. Some grammar data was coded by AI and has not yet been reviewed by a person.' },
       { p: 'Until validation is done, A is only a reference, not a firm verdict on fit. Even reliable fit information would still need weighing with goals, resources and preference.' },
       { key: 'Each step from ability to language needs a clear task, observed performance and a tested scope.' },
     ],
@@ -467,10 +525,10 @@ const en: Record<PageId, Page> = {
   refine: {
     kicker: 'Goals · 01',
     title: 'Refine the recommendation process',
-    lead: 'All five dimensions already contribute to the research version. Our next step is to align the documented methods with the implementation, so that each result can be traced to its data, user inputs, and calculation rules.',
+    lead: 'A recommendation should leave a trail you can follow. We will continue aligning the five dimensions with their explanations, so that each result leads back to its data, your inputs, and the rules used.',
     blocks: [
       { h: 'What is in place: five sources of information' },
-      { p: 'T describes relationships between a candidate language and languages the learner already knows. A combines TALL task results with language-demand indicators to provide an experimental measure of adaptability. G, R, and P describe goals, resource conditions, and personal preferences. Users can inspect the dimensions and adjust their decision settings.' },
+      { p: 'T describes relationships between a candidate language and languages the learner already knows. A combines TALL task results with language-demand indicators to provide a reference for comparing adaptability. G, R, and P describe goals, resource conditions, and personal preferences. Users can inspect the dimensions and adjust their decision settings.' },
       { p: 'These dimensions answer different questions. We want the results to explain why a language ranks highly, which conditions support that result, and what the learner still needs to weigh up.' },
       { h: 'Now aligned: language references and calculation rules' },
       { p: 'T gives equal weight to vocabulary and grammar. When a learner knows several languages, it calculates a complete T score for each language pair and uses the highest-scoring pair as the reference. Language details show the reference language and both components, so the score and its explanation always describe the same pair.' },
@@ -485,16 +543,16 @@ const en: Record<PageId, Page> = {
   evaluate: {
     kicker: 'Goals · 02',
     title: 'Evaluate assessments and the questionnaire',
-    lead: 'The project uses the LA, SD, and VL tasks from TALL and has established a questionnaire for G, R, and P. The planned XISU trial will examine how the tasks and questions work for the intended users and which interpretations their results can support.',
+    lead: 'Every question should make the time spent answering it worthwhile. Further evaluation in university course-choice settings will examine the three TALL tasks and the G, R, P questionnaire, from the experience of answering to the quality and interpretation of scores.',
     blocks: [
       { h: 'What is in place: task performance and explicit user input' },
-      { p: 'LA, SD, and VL provide task information related to language analysis, speech processing, and associative memory. Scores are converted into percentiles against a reference sample, used in an aptitude profile, and incorporated into the experimental A measure.' },
+      { p: 'LA, SD, and VL provide task information related to language analysis, speech processing, and associative memory. Scores are converted into percentiles against a reference sample, used in an aptitude profile, and incorporated into A.' },
       { p: 'The questionnaire covers employment, study abroad, travel, and academic goals; learning mode; regional or language interests; and willingness to learn unfamiliar writing systems, sounds, and grammatical patterns. The advanced questionnaire combines general priorities with concrete trade-offs to generate relative G, R, and P weights. Users can confirm or revise the resulting interpretation.' },
       { h: 'Next: examine measurement quality and the response experience' },
-      { p: 'The trial will examine wording, navigation, response burden, score distributions, and the interpretation of results in the intended sample. Existing attention and consistency prompts can help identify questions and response patterns that need review.' },
+      { p: 'Further evaluation will examine wording, navigation, response burden, score distributions, and the interpretation of results in the intended sample. Existing attention and consistency prompts can help identify questions and response patterns that need review.' },
       { p: 'Research on A also needs to connect the profile with observed learning: which abilities relate to which tasks, whether the language-demand indicators represent those tasks, and whether the matching calculation adds useful information. Users’ impressions of their profiles provide experience feedback; predictive value requires separate learning-outcome evidence.' },
       { h: 'Expected outcome: supported score interpretations' },
-      { p: 'Trial data and feedback will guide revisions to instructions, wording, flow, and reporting, clarify the scope of interpretation, and inform further validation of A.' },
+      { p: 'User-evaluation data and feedback will guide revisions to instructions, wording, flow, and reporting, clarify the scope of interpretation, and inform further validation of A.' },
       { key: 'Percentiles depend on a particular reference sample. The ability–demand matching behind A remains a hypothesis to be tested. Scores should not be treated as a fixed judgement of talent.' },
     ],
     more: ['refine', 'review'],
@@ -502,7 +560,7 @@ const en: Record<PageId, Page> = {
   review: {
     kicker: 'Goals · 03',
     title: 'Review data and scoring',
-    lead: 'Recommendations depend on the data and on how those data are selected, coded, and transformed. We will continue reviewing these processes so that the evidence and uncertainty behind the scores are visible.',
+    lead: 'Follow a score back and you will find records, coding decisions, and changes of scale. We will keep checking these sources and steps, so a comparison can account for both its evidence and its limits.',
     blocks: [
       { h: 'What is in place: several types of data' },
       { p: 'The current version uses ASJP vocabulary distances, Grambank grammatical coding, TALL reference scores, sound- and script-related indicators, and ratings of practical uses and learning resources. Some data come from public databases; some were compiled by the project. Some grammatical values were supplemented or generated with AI, and some use and resource ratings are based on project judgements.' },
@@ -520,17 +578,17 @@ const en: Record<PageId, Page> = {
   assess: {
     kicker: 'Goals · 04',
     title: 'Assess weights and results',
-    lead: 'The system already has a weighting scheme. We will compare how parameter changes affect rankings, examine whether questionnaire-generated weights reflect user priorities, and assess how useful the results are for real decisions.',
+    lead: 'The order of your choices can change with what matters to you. We will keep comparing weighting schemes, checking whether the questionnaire reflects those priorities, and asking how much the results help in a real decision.',
     blocks: [
       { h: 'What is in place: component and overall weights' },
       { p: 'Within T, vocabulary and grammar receive equal weight. In the overall recommendation, T and A each have a base weight of 20; A is excluded when no assessment scores are available. Basic mode lets users adjust G, R, and P. After the advanced questionnaire is completed and confirmed, its results allocate a total weight of 60 across those three dimensions.' },
-      { p: 'The total score is normalised over the dimensions that actually participate. A weight value and its final percentage share therefore depend on the available dimensions. These are research-version settings whose effects still need evaluation.' },
+      { p: 'The total score is normalised over the dimensions that actually participate. A weight value and its final percentage share therefore depend on the available dimensions. These weights define the current comparison rules; their rationale and practical effects require ongoing evaluation.' },
       { h: 'Next: compare settings and identify sensitive results' },
       { p: 'We will compare T weights of 0.5/0.5, 0.6/0.4, and 0.7/0.3 under the same conditions, examining rank correlations, overlap among leading candidates, and rank changes. These comparisons are part of the methodological evaluation. The website uses the primary scheme with clear component explanations.' },
       { p: 'For G, R, and P, we will examine how general priorities and situational trade-offs produce weights, whether missing scores and weights are handled appropriately, and how results change after users confirm or revise their answers.' },
       { p: 'Evaluation will distinguish clarity of explanation, user feedback, and observed learning outcomes. Ranking stability indicates robustness to particular parameter changes; predictive value requires relevant learning data.' },
       { h: 'Expected outcome: a clear account of what the results support' },
-      { p: 'Weighting documentation, sensitivity analyses, and trial evaluation will explain which conclusions are stable, which depend on parameters, and where the system can offer useful guidance.' },
+      { p: 'Weighting documentation, sensitivity analyses, and user evaluation will explain which conclusions are stable, which depend on parameters, and where the system can offer useful guidance.' },
       { key: 'Rankings organise the reasons for a choice. The learner makes the final decision in light of their goals, conditions, and preferences.' },
     ],
     more: ['refine', 'review'],

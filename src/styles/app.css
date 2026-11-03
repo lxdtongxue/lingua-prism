@@ -850,3 +850,17 @@ button.pic:hover, button.pic:focus-visible, .pic:focus-visible { outline: 2px so
 html:has(.exam-backdrop) { --bar: #14202c; --bar-bottom: #201d31; }
 html:has(.exam-backdrop) body { background-color: var(--bar-bottom); }
 html:has(.exam--survey) { --bar: #0b0e16; --bar-bottom: #0b0e16; }
+
+/* Project introduction: a quiet reading column beside four short steps. */
+.about-project { display: grid; grid-template-columns: minmax(0, 1.4fr) minmax(230px, .7fr); gap: clamp(24px, 5vw, 80px); margin-block: 26px 48px; }
+.about-project__story { display: grid; justify-items: start; gap: 18px; color: var(--fg2); line-height: 1.9; max-width: 48em; }
+.about-project__story .sheet__cta { margin-top: 4px; }
+.about-project__journey { display: grid; align-content: center; }
+.about-project__journey li { display: grid; grid-template-columns: 24px minmax(0, 1fr); align-items: baseline; gap: 14px; padding-block: 18px; border-bottom: 1px solid var(--hair); color: var(--fg2); }
+.about-project__journey span { color: var(--t); font-size: .76rem; font-variant-numeric: tabular-nums; }
+.about-project__framework { display: grid; gap: 12px; margin-bottom: 26px; }
+@media (max-width: 900px) {
+  .about-project { grid-template-columns: minmax(0, 1fr); gap: 24px; margin-block: 22px 34px; }
+  .about-project__journey { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0 22px; }
+  .about-project__journey li { grid-template-columns: 20px minmax(0, 1fr); gap: 8px; padding-block: 14px; font-size: .88rem; }
+}
