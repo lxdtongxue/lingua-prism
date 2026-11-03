@@ -81,6 +81,7 @@ const QUALITY = [
 
 const OVERSCAN = 280
 const SAMPLE_MS = 800
+const ATLAS_DIP_MS = 450
 // Content pages on phones dim the rays so body copy stays readable.
 const SCRIM = 0.46
 const SCRIM_RGB = [6, 8, 14]
@@ -124,6 +125,7 @@ class Engine {
   private ups: Target[] = []
   private textRowHeight = 1024 / 6
   private textTex: WebGLTexture | null = null
+  private atlasTex: WebGLTexture | null = null
   private textA = new Spring(0, 40, 14)
   private rayGain = RAY_COLORS.map(() => new Spring(1, 40, 13))
 
@@ -488,18 +490,31 @@ class Engine {
     gl.bindTexture(gl.TEXTURE_2D, blank)
     gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, 1, 1, 0, gl.RGBA, gl.UNSIGNED_BYTE, new Uint8Array([0, 0, 0, 255]))
     this.textTex = blank
+    this.atlasTex = null
   }
 
+  // The CJK typeface is about 11 MB, so the words appear at once in system fonts and
+  // swap to HarmonyOS Sans once it arrives, dipping out so the change doesn't pop.
   private async loadAtlas() {
-    try {
-      await Promise.allSettled([
-        document.fonts.load('500 60px "HarmonyOS Sans"', 'Hello'),
-        document.fonts.load('400 60px "HarmonyOS Sans Naskh Arabic"', 'مرحبا'),
-        document.fonts.load('500 60px "HarmonyOS Sans SC"', '你好こん'),
-      ])
-    } catch {
-      /* fall through with whatever fonts exist */
+    const faces: [string, string][] = [
+      ['500 60px "HarmonyOS Sans"', 'Hello'],
+      ['400 60px "HarmonyOS Sans Naskh Arabic"', 'مرحبا'],
+      ['500 60px "HarmonyOS Sans SC"', '你好こん'],
+    ]
+    const ready = () => faces.every(([f, s]) => document.fonts.check(f, s))
+    if (!ready()) {
+      this.uploadAtlas()
+      this.textA.target = 1
+      await Promise.allSettled(faces.map(([f, s]) => document.fonts.load(f, s)))
+      if (!this.gl) return
+      this.textA.target = 0
+      await new Promise((r) => window.setTimeout(r, ATLAS_DIP_MS))
     }
+    this.uploadAtlas()
+    this.textA.target = 1
+  }
+
+  private uploadAtlas() {
     const gl = this.gl
     if (!gl) return
     const big = matchMedia('(min-width: 900px)').matches
@@ -513,8 +528,9 @@ class Engine {
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR)
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.REPEAT)
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE)
+    if (this.atlasTex) gl.deleteTexture(this.atlasTex)
+    this.atlasTex = t
     this.textTex = t
-    this.textA.target = 1
   }
 
   private target(w: number, h: number, old?: Target): Target {
