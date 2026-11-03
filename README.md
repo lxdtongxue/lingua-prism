@@ -77,7 +77,7 @@ PATH=/opt/homebrew/bin:$PATH node scripts/make-codes.mjs 50 >> ../登录代码.t
 
 时间为上传至 GitHub 的时间（UTC+8），以 GitHub Actions 部署记录为准。
 
-### v6.2.2
+### v6.2.2（2026-11-03 17:44:18）
 
 新增站内更新概要与历史记录，调整首页文案、语言背景范围和测验顶部布局。
 
