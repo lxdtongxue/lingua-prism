@@ -71,7 +71,7 @@ PATH=/opt/homebrew/bin:$PATH node scripts/make-codes.mjs 50 >> ../登录代码.t
 
 时间为上传至 GitHub 的时间（UTC+8），以 GitHub Actions 部署记录为准。
 
-### v6
+### v6（2026-11-03 13:30:46）
 
 新增账号登录入口和预设头像，代码登录已实现，暂以内测状态关闭。
 
