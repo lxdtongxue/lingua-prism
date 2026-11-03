@@ -160,6 +160,11 @@ void main(){
   o = vec4(c, 1.);
 }`
 
+export const SCRIM_FS = HEADER + /* glsl */ `
+out vec4 o;
+uniform vec4 uC;
+void main(){ o = uC; }`
+
 export const DOWN_FS = HEADER + /* glsl */ `
 in vec2 vUv; out vec4 o;
 uniform sampler2D uTex; uniform vec2 uTexel;

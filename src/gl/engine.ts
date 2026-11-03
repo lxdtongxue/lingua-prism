@@ -7,6 +7,7 @@ import {
   PANE_VS,
   QUAD_VS,
   SCENE_FS,
+  SCRIM_FS,
   UP_FS,
 } from './shaders'
 
@@ -80,8 +81,10 @@ const QUALITY = [
 
 const OVERSCAN = 280
 const SAMPLE_MS = 800
+// Content pages on phones dim the rays so body copy stays readable.
 const SCRIM = 0.46
 const SCRIM_RGB = [6, 8, 14]
+const PAGE_DIM = 0.42
 const DEG = Math.PI / 180
 const clamp = (v: number, a: number, b: number) => Math.min(b, Math.max(a, v))
 const mix = (a: number, b: number, t: number) => a + (b - a) * t
@@ -114,7 +117,7 @@ class Engine {
   private pageAlpha = new Spring(1, 110, 21)
 
   // Pipeline state.
-  private prog!: Record<'scene' | 'down' | 'up' | 'bg' | 'rect' | 'tri', Program>
+  private prog!: Record<'scene' | 'down' | 'up' | 'bg' | 'scrim' | 'rect' | 'tri', Program>
   private vao: WebGLVertexArrayObject | null = null
   private scene: Target | null = null
   private downs: Target[] = []
@@ -464,6 +467,7 @@ class Engine {
         down: this.compile(QUAD_VS, DOWN_FS, ['uTex', 'uTexel']),
         up: this.compile(QUAD_VS, UP_FS, ['uTex', 'uTexel']),
         bg: this.compile(QUAD_VS, BG_FS, ['uScene', 'uBlur', 'uCss', 'uDocTop', 'uFloor', 'uFloorFade', 'uT', 'uHero', 'uDocLeft', 'uVH', 'uE', 'uX', 'uIn', 'uFan', 'uSpread', 'uI1', 'uI2', 'uPR', 'uRay']),
+        scrim: this.compile(QUAD_VS, SCRIM_FS, ['uC']),
         rect: this.compile(PANE_VS, GLASS_RECT_FS, glassU),
         tri: this.compile(PANE_VS, GLASS_TRI_FS, glassU),
       }
@@ -710,12 +714,10 @@ class Engine {
     const w = this.canvas!.width
     const px = new Uint8Array(w * 4)
     gl.readPixels(0, this.canvas!.height - 1, w, 1, gl.RGBA, gl.UNSIGNED_BYTE, px)
-    // Content pages sit under a scrim the canvas can't see, so the bar mixes it in too.
-    const scrim = Math.round(this.pagePos) > 0 ? SCRIM : 0
     const c = [0, 1, 2].map((k) => {
       let sum = 0
       for (let i = 0; i < w; i++) sum += px[i * 4 + k]
-      return Math.round(mix(sum / w, SCRIM_RGB[k], scrim))
+      return Math.round(sum / w)
     })
     const hex = `#${c.map((v) => v.toString(16).padStart(2, '0')).join('')}`
     if (hex === this.barColor) return
@@ -996,6 +998,12 @@ class Engine {
 
     // Glass ---------------------------------------------------------------
     gl.enable(gl.BLEND)
+    const scrim = this.pager ? SCRIM * clamp(page, 0, 1) : 0
+    if (scrim > 0) {
+      gl.useProgram(this.prog.scrim.p)
+      gl.uniform4f(this.prog.scrim.u.uC, (SCRIM_RGB[0] / 255) * scrim, (SCRIM_RGB[1] / 255) * scrim, (SCRIM_RGB[2] / 255) * scrim, scrim)
+      gl.drawArrays(gl.TRIANGLES, 0, 3)
+    }
     const dpr = this.pxScale
     const lightPx: [number, number] = [this.lightX.x * dpr, (this.lightY.x + sy - docTop) * dpr]
     const ptrPx = (px: number, py: number): [number, number] => [px * dpr, (py + sy - docTop) * dpr]
@@ -1049,9 +1057,6 @@ class Engine {
       }
       // Nested glass can't appear before the pane that holds it.
       if (p.inPage === undefined) p.inPage = !!p.el.closest('.page')
-      // Page glass on phones is CSS: native scrolling runs off the main thread, so
-      // anything drawn here would trail the finger by a frame or two.
-      if (this.pager && p.inPage) continue
       const alpha = clamp(p.rev.x, 0, 1) * (p.parent ? clamp(p.parent.rev.x, 0, 1) : 1) * (p.inPage ? pageA : 1)
       if (alpha < 0.004) continue
       const py = p.y - docTop
@@ -1063,7 +1068,7 @@ class Engine {
       gl.uniform1f(g.u.uBevel, p.o.bevel * dpr)
       gl.uniform1f(g.u.uDepth, p.o.depth)
       gl.uniform1f(g.u.uFrost, p.o.frost)
-      gl.uniform1f(g.u.uDim, p.o.dim)
+      gl.uniform1f(g.u.uDim, this.pager && p.inPage ? Math.max(p.o.dim, PAGE_DIM * clamp(page, 0, 1)) : p.o.dim)
       gl.uniform4f(g.u.uTint, p.o.tint[0], p.o.tint[1], p.o.tint[2], p.o.tint[3])
       gl.uniform1f(g.u.uAlpha, alpha)
       gl.uniform1f(g.u.uHover, clamp(p.hover.x, 0, 1))
