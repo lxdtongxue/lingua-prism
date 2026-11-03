@@ -6,6 +6,8 @@
 
 线上地址：https://lxdtongxue.github.io/lingua-prism/
 
+腾讯云地址：http://43.142.32.193/
+
 ## 本地运行
 
 ```bash
@@ -19,17 +21,15 @@ PATH=/opt/homebrew/bin:$PATH npm run dev
 | `npm test` | 运行单元测试 |
 | `npm run build` | 类型检查并构建到 `dist/` |
 
-推送到 `main` 后，GitHub Actions 自动发布到 GitHub Pages。
+推送到 `main` 后，GitHub Actions 分别发布到 GitHub Pages 和腾讯云。两项部署的运行结果可在仓库 Actions 中查看。
 
 ### 部署到自有服务器
 
-`deploy/nginx.conf` 是 Nginx 的站点配置，放到服务器的 `/etc/nginx/conf.d/lingua-prism.conf`。`deploy/deploy.sh` 在本机构建并上传：
+腾讯云使用 `.github/workflows/tencent.yml` 自动构建，以根路径（`--base=/`）发布，预先压缩字体，使用独立部署账号上传。文件完整上传后切换到新版本，健康检查失败则回退；旧版本和首次接入前的网站备份保留在服务器。服务器无需安装 Node.js。
 
-```bash
-PATH=/opt/homebrew/bin:$PATH deploy/deploy.sh root@<服务器 IP> [私钥路径]
-```
+部署目录、Secrets 与备份说明见 [deploy/README.md](deploy/README.md)。`deploy/nginx.conf` 为站点配置参考；当前宝塔配置沿用已有站点，不重复安装 Nginx。`deploy/deploy.sh` 为旧版手动部署脚本，不再用于此自动部署站点。
 
-脚本用根路径（`--base /`）构建，预先压缩两个中文字体，经 `rsync` 上传到临时目录后整体替换 `/var/www/lingua-prism`，访客不会看到只传了一半的页面。当前服务器带宽较低，所以测验页先加载题库、后加载中文字体，见 `src/tall/fonts.ts`。
+当前服务器带宽较低，所以测验页先加载题库、后加载中文字体，见 `src/tall/fonts.ts`。
 
 ### 登录代码
 

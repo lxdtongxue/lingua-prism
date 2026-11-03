@@ -8,6 +8,8 @@ TARGET="${1:?usage: deploy/deploy.sh <user>@<host> [ssh-key]}"
 KEY="${2:-$HOME/.ssh/lingua_prism}"
 SSH=(ssh -i "$KEY" -o IdentitiesOnly=yes)
 
+"${SSH[@]}" "$TARGET" 'if [ -L /var/www/lingua-prism ] && [ -d /var/www/lingua-prism-auto ]; then echo "This site uses GitHub Actions. Do not overwrite its release link with the legacy deploy script." >&2; exit 1; fi'
+
 cd "$(dirname "$0")/.."
 npm run build -- --base /
 
