@@ -79,6 +79,9 @@ const QUALITY = [
 ]
 
 const OVERSCAN = 280
+const SAMPLE_MS = 800
+const SCRIM = 0.46
+const SCRIM_RGB = [6, 8, 14]
 const DEG = Math.PI / 180
 const clamp = (v: number, a: number, b: number) => Math.min(b, Math.max(a, v))
 const mix = (a: number, b: number, t: number) => a + (b - a) * t
@@ -134,6 +137,9 @@ class Engine {
   private upgrades = 0
   private floorTier = 0
   private calibrated = false
+  private scrolledAt = 0
+  private sampledAt = 0
+  private barColor = ''
 
   // Interaction state.
   private ptr = { x: -1e4, y: -1e4, inside: false, touch: false, down: false }
@@ -176,6 +182,7 @@ class Engine {
     window.addEventListener('pointercancel', this.onUp, { passive: true })
     document.addEventListener('pointerleave', this.onLeave)
     window.addEventListener('resize', this.onResize, { passive: true })
+    document.addEventListener('scroll', this.onScroll, { passive: true, capture: true })
     document.addEventListener('visibilitychange', this.onVis)
     canvas.addEventListener('webglcontextlost', this.onLost)
     canvas.addEventListener('webglcontextrestored', this.onRestored)
@@ -193,6 +200,7 @@ class Engine {
     window.removeEventListener('pointercancel', this.onUp)
     document.removeEventListener('pointerleave', this.onLeave)
     window.removeEventListener('resize', this.onResize)
+    document.removeEventListener('scroll', this.onScroll, { capture: true })
     document.removeEventListener('visibilitychange', this.onVis)
     this.canvas?.removeEventListener('webglcontextlost', this.onLost)
     this.canvas?.removeEventListener('webglcontextrestored', this.onRestored)
@@ -591,7 +599,8 @@ class Engine {
   private monitor(dt: number) {
     // Gaps this long mean a throttled or hidden tab, not a slow GPU. The first
     // seconds are also ignored: font parsing can stall the main thread.
-    if (dt > 0.25 || this.time < 2.5) return
+    // Rebuilding the render targets mid-scroll would hitch, so a tier change waits too.
+    if (dt > 0.25 || this.time < 2.5 || performance.now() - this.scrolledAt < 400) return
     if (dt < this.bestDt) this.bestDt = Math.max(dt, 1 / 144)
     this.frames++
     if (dt > this.bestDt * 1.38) this.slowSum++
@@ -641,6 +650,9 @@ class Engine {
   private onLeave = () => {
     this.ptr.inside = false
   }
+  private onScroll = () => {
+    this.scrolledAt = performance.now()
+  }
   private onPanePress = (e: PointerEvent) => {
     const p = this.byEl.get(e.currentTarget as HTMLElement)
     if (p) p.press.target = 1
@@ -685,6 +697,33 @@ class Engine {
     }
     this.monitor(raw)
     this.draw(dt)
+    if (this.pager) this.sampleBar(now)
+  }
+
+  // Browsers paint the status bar from the page colour, not the canvas, so it is
+  // kept matched to the scene's top edge. Reading pixels stalls the GPU, so this
+  // stays rare and never runs while anything is moving.
+  private sampleBar(now: number) {
+    const gl = this.gl!
+    if (now - this.sampledAt < SAMPLE_MS || now - this.scrolledAt < 400 || Math.abs(this.pagePos - Math.round(this.pagePos)) > 0.002) return
+    this.sampledAt = now
+    const w = this.canvas!.width
+    const px = new Uint8Array(w * 4)
+    gl.readPixels(0, this.canvas!.height - 1, w, 1, gl.RGBA, gl.UNSIGNED_BYTE, px)
+    // Content pages sit under a scrim the canvas can't see, so the bar mixes it in too.
+    const scrim = Math.round(this.pagePos) > 0 ? SCRIM : 0
+    const c = [0, 1, 2].map((k) => {
+      let sum = 0
+      for (let i = 0; i < w; i++) sum += px[i * 4 + k]
+      return Math.round(mix(sum / w, SCRIM_RGB[k], scrim))
+    })
+    const hex = `#${c.map((v) => v.toString(16).padStart(2, '0')).join('')}`
+    if (hex === this.barColor) return
+    this.barColor = hex
+    document.documentElement.style.backgroundColor = hex
+    document.documentElement.style.setProperty('--bar', hex)
+    document.body.style.backgroundColor = hex
+    document.querySelector('meta[name="theme-color"]')?.setAttribute('content', hex)
   }
 
   private stepPanes(dt: number, now: number) {
@@ -1010,6 +1049,9 @@ class Engine {
       }
       // Nested glass can't appear before the pane that holds it.
       if (p.inPage === undefined) p.inPage = !!p.el.closest('.page')
+      // Page glass on phones is CSS: native scrolling runs off the main thread, so
+      // anything drawn here would trail the finger by a frame or two.
+      if (this.pager && p.inPage) continue
       const alpha = clamp(p.rev.x, 0, 1) * (p.parent ? clamp(p.parent.rev.x, 0, 1) : 1) * (p.inPage ? pageA : 1)
       if (alpha < 0.004) continue
       const py = p.y - docTop

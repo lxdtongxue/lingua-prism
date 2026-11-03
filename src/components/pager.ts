@@ -44,7 +44,6 @@ export function setPage(i: number, snap = false) {
 
 export function setDockMin(on: boolean) {
   pager.dockMin = on
-  document.documentElement.classList.toggle('dock-min', on)
 }
 
 // Chrome clearance around a section after a jump: top bar above, tab bar below.

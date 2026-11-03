@@ -158,6 +158,12 @@ export function Nav() {
         } else if (nowAt) {
           x.current.target = nowAt.offsetLeft
           w.current.target = nowAt.offsetWidth
+          // The tabs are moving under it while the bar folds, so a spring would trail.
+          if (pager.enabled) {
+            x.current.x = x.current.target
+            w.current.x = w.current.target
+            x.current.v = 0
+          }
         }
         if (!d?.moved) x.current.step(dt)
         w.current.step(dt)
