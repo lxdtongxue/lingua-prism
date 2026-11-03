@@ -6,8 +6,6 @@
 
 线上地址：https://lxdtongxue.github.io/lingua-prism/
 
-腾讯云地址：http://43.142.32.193/
-
 ## 本地运行
 
 ```bash
