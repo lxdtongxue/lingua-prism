@@ -25,7 +25,7 @@ PATH=/opt/homebrew/bin:$PATH npm run dev
 
 腾讯云使用 `.github/workflows/tencent.yml` 自动构建，以根路径（`--base=/`）发布，预先压缩字体，使用独立部署账号上传。文件完整上传后切换到新版本，健康检查失败则回退；旧版本和首次接入前的网站备份保留在服务器。服务器无需安装 Node.js。
 
-部署目录、Secrets 与备份说明见 [deploy/README.md](deploy/README.md)。`deploy/nginx.conf` 为站点配置参考；当前宝塔配置沿用已有站点，不重复安装 Nginx。`deploy/deploy.sh` 为旧版手动部署脚本，不再用于此自动部署站点。
+部署目录、Secrets 与备份说明见 [deploy/README.md](deploy/README.md)。`deploy/nginx.conf` 为站点配置参考；当前站点由系统 Nginx 提供服务，生效配置为 `/etc/nginx/conf.d/lingua-prism.conf`。`deploy/deploy.sh` 为旧版手动部署脚本，不再用于此自动部署站点。
 
 当前服务器带宽较低，所以测验页先加载题库、后加载中文字体，见 `src/tall/fonts.ts`。
 

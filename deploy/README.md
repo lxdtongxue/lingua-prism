@@ -19,3 +19,5 @@
 ## V6.6 接口首次安装
 
 发布 V6.6 前需按 [server/README.md](../server/README.md) 安装账号服务，并接入现有 Nginx 的同源 `/api/` 代理。工作流先更新并检查接口，再切换静态站点；未安装接口时会停止发布，保留原静态站点。SQLite 和密钥不随静态版本切换，也不上传 GitHub。
+
+当前生产站点使用 `/usr/sbin/nginx` 和 `/etc/nginx/conf.d/lingua-prism.conf`，通过 `systemctl reload nginx` 重载。宝塔目录下的同名配置不是当前运行实例的配置；修改前应先核对 `systemctl show nginx -p ExecStart`。V6.6 同源接口已安装并接入系统 Nginx。
