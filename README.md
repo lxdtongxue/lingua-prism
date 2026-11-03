@@ -72,7 +72,7 @@ PATH=/opt/homebrew/bin:$PATH node scripts/make-codes.mjs 50 >> ../登录代码.t
 
 时间为上传至 GitHub 的时间（UTC+8），以 GitHub Actions 部署记录为准。
 
-### v6.2.1
+### v6.2.1（2026-11-03 17:27:24）
 
 首页语言流瀑不再等字体加载。
 
