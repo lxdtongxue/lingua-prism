@@ -6,7 +6,12 @@ import { saveResult } from '../components/tall'
 import { useDecision } from '../components/decision'
 import { SoundBank } from './audio'
 import { audioPaths, LA_COUNT, ORDER, orderByBlock, scoreTrials, SD_COUNT, shuffle, VL_COUNT, type La, type Sd, type Sub, type TallItems, type Trial, type Vl } from './items'
-import { asset, loadItems, preloadImages } from './load'
+import { asset, loadItems, preloadImages, prime } from './load'
+import { releaseChineseFont } from './fonts'
+
+// Every picture and recording a subtest needs.
+const imagesOf = (d: TallItems, sub: Sub) => (sub === 'VL' ? d.vl.items.map((v) => v.image) : sub === 'SD' ? d.sd.sounds.map((v) => v.image) : [...d.la.study, ...d.la.items].map((v) => v.image))
+const audioOf = (d: TallItems, sub: Sub) => (sub === 'SD' ? audioPaths(d.sd) : [])
 
 type Auto = 'off' | 'correct' | 'random' | 'wrong'
 type Stage = 'intro' | 'check' | 'study' | 'ready' | 'test' | 'result'
@@ -410,13 +415,16 @@ export function Exam({ sub, onNext, onClose, onFinish }: Props) {
     let live = true
     loadItems()
       .then(async (d) => {
-        const images = sub === 'VL' ? d.vl.items.map((v) => v.image) : sub === 'SD' ? d.sd.sounds.map((v) => v.image) : [...d.la.study, ...d.la.items].map((v) => v.image)
-        await preloadImages(images)
+        await preloadImages(imagesOf(d, sub))
         if (live) setData(d)
+        // The recordings download while the visitor reads the instructions; the Chinese
+        // typeface waits for them, so the materials get the whole link first.
+        await prime(audioOf(d, sub))
       })
       .catch((err: Error) => {
         if (live) setFailure(err.message)
       })
+      .finally(releaseChineseFont)
     return () => {
       live = false
     }
@@ -448,6 +456,14 @@ export function Exam({ sub, onNext, onClose, onFinish }: Props) {
   )
 
   const next = ORDER[ORDER.indexOf(sub) + 1]
+
+  // While the result is on screen nothing is timed, so the next subtest's materials can arrive.
+  useEffect(() => {
+    if (stage !== 'result' || !next) return
+    loadItems()
+      .then((d) => prime([...imagesOf(d, next), ...audioOf(d, next)], true))
+      .catch(() => {})
+  }, [stage, next])
   const { answers } = useDecision()
   const askSurvey = !next && !answers.done
   const start = () => setStage(sub === 'SD' ? 'check' : 'study')

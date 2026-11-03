@@ -22,6 +22,16 @@ export function loadItems() {
   return cached
 }
 
+// Fetching a file in full puts it in the browser's cache, so the real request later is instant.
+export function prime(paths: string[], low = false) {
+  return Promise.allSettled(
+    paths.map(async (p) => {
+      const r = await fetch(asset(p), low ? ({ priority: 'low' } as RequestInit) : undefined)
+      if (r.ok) await r.arrayBuffer()
+    }),
+  )
+}
+
 export function preloadImages(paths: string[]) {
   return Promise.all(
     paths.map(

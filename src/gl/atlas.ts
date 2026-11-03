@@ -9,10 +9,12 @@ const ROWS: string[][] = [
   ['语言', 'Language', 'Langue', '言語', 'Lengua', 'Язык', 'لغة', 'Sprache'],
 ]
 
-const STACK =
-  '"HarmonyOS Sans","HarmonyOS Sans SC","HarmonyOS Sans Naskh Arabic","Apple SD Gothic Neo","Noto Sans CJK KR",sans-serif'
+const stack = (chinese: boolean) =>
+  `"HarmonyOS Sans",${chinese ? '"HarmonyOS Sans SC",' : ''}"HarmonyOS Sans Naskh Arabic","Apple SD Gothic Neo","Noto Sans CJK KR",sans-serif`
 
-export function drawAtlas(size = 2048): HTMLCanvasElement {
+// With chinese = false the SC face is not named, so drawing never starts its download.
+export function drawAtlas(size = 2048, chinese = true): HTMLCanvasElement {
+  const STACK = stack(chinese)
   const c = document.createElement('canvas')
   c.width = size
   c.height = size / 2

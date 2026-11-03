@@ -1,5 +1,6 @@
 import { useEffect, useRef } from 'react'
 import { drawAtlas } from '../gl/atlas'
+import { chineseFontHeld } from './fonts'
 
 // The same six multilingual ribbons as the hero, at half its speed.
 // A single canvas avoids running the prism, refraction and blur passes during a test.
@@ -9,7 +10,8 @@ export function LanguageBackdrop() {
     const canvas = ref.current!
     const g = canvas.getContext('2d')
     if (!g) return
-    let atlas = drawAtlas(2048)
+    // Until the Chinese face is released the words are drawn in system fonts.
+    let atlas = drawAtlas(2048, !chineseFontHeld())
     let alive = true
     let frame = 0
     let previous = 0
@@ -61,19 +63,24 @@ export function LanguageBackdrop() {
     ro.observe(canvas)
     resize()
     resume()
-    Promise.allSettled([
-      document.fonts.load('500 60px "HarmonyOS Sans"', 'Hello'),
-      document.fonts.load('500 60px "HarmonyOS Sans SC"', '你好'),
-      document.fonts.load('400 60px "HarmonyOS Sans Naskh Arabic"', 'مرحبا'),
-    ]).then(() => {
-      if (!alive) return
-      atlas = drawAtlas(2048)
-      paint()
-    })
+    const upgrade = () => {
+      Promise.allSettled([
+        document.fonts.load('500 60px "HarmonyOS Sans"', 'Hello'),
+        document.fonts.load('500 60px "HarmonyOS Sans SC"', '你好'),
+        document.fonts.load('400 60px "HarmonyOS Sans Naskh Arabic"', 'مرحبا'),
+      ]).then(() => {
+        if (!alive) return
+        atlas = drawAtlas(2048)
+        paint()
+      })
+    }
+    if (chineseFontHeld()) window.addEventListener('lp-fonts', upgrade, { once: true })
+    else upgrade()
     document.addEventListener('visibilitychange', resume)
     motion.addEventListener('change', resume)
     return () => {
       alive = false
+      window.removeEventListener('lp-fonts', upgrade)
       cancelAnimationFrame(frame)
       ro.disconnect()
       document.removeEventListener('visibilitychange', resume)

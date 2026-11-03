@@ -93,6 +93,10 @@ em { font-style: normal; }
 }
 .no-gl .btn--solid { background: #f4f6fb; }
 
+/* The test page holds the Chinese typeface back until its materials are in (see tall/fonts.ts). */
+html.fonts-late { --font: "HS Latin", "HarmonyOS Sans Naskh Arabic", -apple-system, "PingFang SC", "Microsoft YaHei", "Apple SD Gothic Neo", "Noto Sans CJK KR", sans-serif; }
+html.fonts-late:lang(en) { --font: "HarmonyOS Sans", "HarmonyOS Sans Naskh Arabic", -apple-system, "PingFang SC", "Apple SD Gothic Neo", "Noto Sans CJK KR", sans-serif; }
+
 /* ---------- Type ---------- */
 h1 { font-size: var(--fs-display); font-weight: 500; line-height: 1.14; letter-spacing: -.028em; }
 html:lang(en) h1 { letter-spacing: -.04em; line-height: 1.04; }

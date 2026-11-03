@@ -31,7 +31,7 @@ const zh = {
     latest: '当前版本',
     note: '从最初的棱镜，到今天的语棱。每一次修改，都留在这里。',
     languageNote: '',
-    summary: ['测试中心成为独立的第二个页面，TALL 测验和语言推荐都搬到了这里。', '首页只保留项目简介、预期目标和参考文献，仍可从首页的按钮直接开始 TALL 测试。', '页面之间的跳转更顺滑，旧链接会自动转到新位置。'],
+    summary: ['测验在慢速网络下更快打开：先下载题库，再下载中文字体。', '做完一项后，后台会提前下载下一项的材料。', '其余内容与上一版相同。'],
   },
   account: {
     open: '个人记录',
@@ -395,7 +395,7 @@ const en: typeof zh = {
     latest: 'Current version',
     note: 'From the first prism to Lingua Prism today. Every change has a place here.',
     languageNote: 'Release notes are currently available in Chinese.',
-    summary: ['The Test Center is now a page of its own, holding the TALL test and your recommendations.', 'The home page keeps the project introduction, goals and references, and its button still starts the TALL test.', 'Moving between pages is smoother, and old links lead to the new places.'],
+    summary: ['Tests open faster on slow connections: the materials load first, the Chinese typeface after.', 'While you see a result, the next test’s materials download in the background.', 'Everything else stays as it was.'],
   },
   account: {
     open: 'Your records',
