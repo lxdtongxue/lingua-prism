@@ -78,7 +78,7 @@ PATH=/opt/homebrew/bin:$PATH node scripts/make-codes.mjs 50 >> ../登录代码.t
 
 时间为上传至 GitHub 的时间（UTC+8），以 GitHub Actions 部署记录为准。
 
-### v6.3
+### v6.3（2026-11-03 19:56:44）
 
 底栏标签的跳转改为站内弹簧动画，首页新增向下滚动提示。
 
