@@ -1,11 +1,12 @@
 import { useSyncExternalStore } from 'react'
 import { emptyAnswers, SLIDER_DEFAULT, type Answers, type Scored, type Tier } from '../decision/score'
+import { dataChanged } from './sync-data'
 
 const KEY = 'decision-state'
 
-type State = { tier: Tier; answers: Answers; sliders: Record<Scored, number> }
+type State = { tier: Tier; answers: Answers; sliders: Record<Scored, number>; anchors: { T: number; A: number }; surveyPage: number }
 
-const fresh = (): State => ({ tier: 'basic', answers: emptyAnswers(), sliders: { G: SLIDER_DEFAULT, R: SLIDER_DEFAULT, P: SLIDER_DEFAULT } })
+const fresh = (): State => ({ tier: 'basic', answers: emptyAnswers(), sliders: { G: SLIDER_DEFAULT, R: SLIDER_DEFAULT, P: SLIDER_DEFAULT }, anchors: { T: 20, A: 20 }, surveyPage: 0 })
 
 function load(): State {
   try {
@@ -28,6 +29,7 @@ function commit(next: State) {
     /* answers just won't survive a reload */
   }
   listeners.forEach((fn) => fn())
+  dataChanged('decision-state')
 }
 
 function reload() {
@@ -40,10 +42,25 @@ window.addEventListener('pageshow', (e) => {
 window.addEventListener('storage', (e) => {
   if (e.key === KEY) reload()
 })
+window.addEventListener('lp-state-imported', reload)
 
 export const setTier = (tier: Tier) => commit({ ...state, tier })
 export const patchAnswers = (patch: Partial<Answers>) => commit({ ...state, answers: { ...state.answers, ...patch } })
 export const setSlider = (d: Scored, v: number) => commit({ ...state, sliders: { ...state.sliders, [d]: v } })
+export const setAnchor = (d: 'T' | 'A', v: number) => {
+  const other = d === 'T' ? 'A' : 'T'
+  commit({ ...state, anchors: { ...state.anchors, [d]: Math.max(0, Math.min(100 - state.anchors[other], v)) } })
+}
+export const setManualWeight = (d: Scored, value: number, budget: number, available: Scored[] = ['G', 'R', 'P']) => {
+  const next = Math.max(0, Math.min(budget, value))
+  const others = available.filter(k => k !== d)
+  const total = others.reduce((sum, k) => sum + state.sliders[k], 0)
+  const sliders = { ...state.sliders, [d]: next }
+  if (!others.length) sliders[d] = budget
+  for (const k of others) sliders[k] = total ? state.sliders[k] / total * (budget - next) : (budget - next) / others.length
+  commit({ ...state, sliders })
+}
+export const setSurveyPage = (surveyPage: number) => commit({ ...state, surveyPage })
 
 const subscribe = (fn: () => void) => {
   listeners.add(fn)

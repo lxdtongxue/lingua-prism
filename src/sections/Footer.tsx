@@ -33,9 +33,13 @@ export function Footer() {
   const { t } = useI18n()
   return (
     <footer className="foot">
-      <div className="wrap foot__grid">
+      <div className="wrap foot__grid foot__desktop">
         <FooterBody />
       </div>
+      <details className="wrap foot__mobile">
+        <summary>{t.footer.mobileLabel}</summary>
+        <div className="foot-body"><FooterBody /></div>
+      </details>
       <div className="wrap foot__updates"><span>语棱 Lingua Prism · {RELEASE_VERSION}</span><button type="button" className="foot__link" onClick={openUpdates}>{t.updates.entry}</button></div>
     </footer>
   )

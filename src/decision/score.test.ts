@@ -3,7 +3,7 @@ import { test } from 'node:test'
 import cases from './cases.json' with { type: 'json' }
 import demands from '../data/language_demands.json' with { type: 'json' }
 import { scoreA } from '../a/score.ts'
-import { autoWeights, checks, COUNTRIES, countryMatch, emptyAnswers, fixedWeights, LANGS, pct, questionnaireWeights, REGIONS, report, scaleGroup, score, scoreG, scoreGDetail, scoreP, scoreR, scoreRDetail, scoresFor, shifted, subgoalsOf, topRegion, type Answers, type UserDecision, type UserDetail } from './score.ts'
+import { autoWeights, configuredWeights, checks, COUNTRIES, countryMatch, emptyAnswers, LANGS, pct, questionnaireWeights, REGIONS, report, scaleGroup, score, scoreG, scoreGDetail, scoreP, scoreR, scoreRDetail, scoresFor, shifted, subgoalsOf, topRegion, type Answers, type UserDecision, type UserDetail } from './score.ts'
 
 const byId = new Map(LANGS.map((l) => [l.id, l]))
 const close = (a: number | null, want: number, at: string) => assert.ok(a !== null && Math.abs(a - want) <= 0.0501, `${at}: got ${a}, want ${want}`)
@@ -96,8 +96,6 @@ test('auto weights total 60, and a missing score gives its share back', () => {
 })
 
 test('A is the same in both tiers', () => {
-  assert.deepEqual(fixedWeights(true), { T: 20, A: 20 })
-  assert.deepEqual(fixedWeights(false), { T: 20, A: 0 })
   const p = { LA: 80, SD: 40, VL: 60 }
   const a = { ...emptyAnswers(), goals: { job: 3, study: 0, travel: 0, academic: 0 } }
   const before = demands.map((d) => scoreA(d, p))
@@ -173,4 +171,15 @@ test('section 6: report and sensitivity', () => {
   assert.equal(r[0].top[0], 'G')
   assert.equal(r[0].weak, 'P')
   assert.deepEqual(r[0].flips, [{ dim: 'P', id: 'b' }])
+})
+
+test('adjusting T/A preserves the confirmed G:R:P ratio', () => {
+  assert.deepEqual(configuredWeights({ T: 20, A: 20 }, { G: 5, R: 3, P: 2 }, []), { T: 20, A: 20, G: 30, R: 18, P: 12 })
+  assert.deepEqual(configuredWeights({ T: 10, A: 10 }, { G: 5, R: 3, P: 2 }, []), { T: 10, A: 10, G: 40, R: 24, P: 16 })
+  assert.deepEqual(configuredWeights({ T: 80, A: 50 }, { G: 5, R: 3, P: 2 }, []), { T: 80, A: 20, G: 0, R: 0, P: 0 })
+  assert.deepEqual(configuredWeights({ T: 20, A: 20 }, { G: 5, R: 3, P: 2 }, ['A', 'R']), { T: 20, A: 0, G: 400 / 7, R: 0, P: 160 / 7 })
+  assert.deepEqual(configuredWeights({ T: 20, A: 20 }, { G: 0, R: 0, P: 0 }, []), { T: 20, A: 20, G: 20, R: 20, P: 20 })
+  const w = { T: 10, A: 10, G: 40, R: 24, P: 16 }
+  const s = shifted(w, 'G')
+  assert.ok(Math.abs(s.G + s.R + s.P - 80) < 1e-9)
 })

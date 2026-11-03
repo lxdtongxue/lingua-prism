@@ -5,3 +5,6 @@ dist
 .env*
 # Only the fonts in public/fonts ship with the site; the license bars stand-alone redistribution.
 HarmonyOS Sans/
+
+__pycache__/
+*.sqlite3*

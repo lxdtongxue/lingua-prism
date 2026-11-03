@@ -1,6 +1,7 @@
 import { useSyncExternalStore } from 'react'
 import { ABILITIES, percentile, type Ability, type Percentiles } from '../a/score'
 import type { Trial } from '../tall/items'
+import { dataChanged } from './sync-data'
 
 const KEY = 'tall-results'
 
@@ -32,6 +33,7 @@ window.addEventListener('pageshow', (e) => {
 window.addEventListener('storage', (e) => {
   if (e.key === KEY) reload()
 })
+window.addEventListener('lp-state-imported', reload)
 
 function commit(next: State) {
   state = next
@@ -41,6 +43,7 @@ function commit(next: State) {
     /* results just won't survive a reload */
   }
   listeners.forEach((fn) => fn())
+  dataChanged('tall-results')
 }
 
 // Only a finished subtest is ever saved, so one left halfway counts for nothing.
@@ -54,7 +57,7 @@ const subscribe = (fn: () => void) => {
   }
 }
 
-// Answers stay in this browser; nothing is sent anywhere.
+// Guest records stay local; session.ts syncs records for token accounts.
 export function useTall() {
   const results = useSyncExternalStore(subscribe, () => state)
   const p: Percentiles = {}

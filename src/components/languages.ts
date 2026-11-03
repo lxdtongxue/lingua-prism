@@ -1,5 +1,6 @@
 import { useSyncExternalStore } from 'react'
 import demands from '../data/language_demands.json'
+import { dataChanged } from './sync-data'
 
 const KEY = 'known-languages'
 
@@ -45,7 +46,12 @@ export function toggleLanguage(slot: Slot, id: string) {
     /* the choice just won't survive a reload */
   }
   listeners.forEach((fn) => fn())
+  dataChanged('known-languages')
 }
+
+function reload() { state = load(); listeners.forEach(fn => fn()) }
+window.addEventListener('lp-state-imported', reload)
+window.addEventListener('storage', event => { if (event.key === KEY) reload() })
 
 const subscribe = (fn: () => void) => {
   listeners.add(fn)

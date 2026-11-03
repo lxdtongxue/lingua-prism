@@ -14,7 +14,7 @@ const reloadOnEngineChange = (): Plugin => ({
 
 export default defineConfig({
   plugins: [react(), reloadOnEngineChange()],
-  server: { host: true },
+  server: { host: true, proxy: { '/api': { target: 'http://127.0.0.1:8787', changeOrigin: false } } },
   build: {
     target: 'es2022',
     cssMinify: true,

@@ -13,9 +13,9 @@ import { ABILITIES, explainA, scoreA, weightedScore, type Ability, type Lang as 
 import { useTall } from '../components/tall'
 import { LANGUAGES, sortedLanguages, toggleLanguage, useKnownLanguages, type Slot } from '../components/languages'
 import { goTo } from '../components/pager'
-import { setSlider, setTier, useDecision } from '../components/decision'
+import { setAnchor, setManualWeight, setTier, useDecision } from '../components/decision'
 import { questions, REGION_EN } from '../decision/questions'
-import { autoWeights, bestGoal, fixedWeights, interestOf, LANGS, modeTier, questionnaireWeights, report, scoresFor, SLIDER_MAX, weightInput, type Accept, type Scored, type Weights } from '../decision/score'
+import { configuredWeights, bestGoal, interestOf, LANGS, modeTier, questionnaireWeights, report, scoresFor, weightInput, type Accept, type Scored } from '../decision/score'
 import { engine, Spring } from '../gl/engine'
 
 type W = Dim
@@ -41,7 +41,7 @@ function Slider({ dim, label, value, max = 100, onChange, locked }: { dim: W; la
         pos.current.step(dt)
         held.current.step(dt)
         const w = track.current?.clientWidth ?? 0
-        const x = THUMB_W / 2 + (pos.current.x / max) * (w - THUMB_W)
+        const x = THUMB_W / 2 + (max > 0 ? pos.current.x / max : 0) * (w - THUMB_W)
         const stretch = Math.min(Math.abs(pos.current.v) / 900, 0.3)
         const grow = 1 + held.current.x * 0.16
         if (thumb.current) thumb.current.style.transform = `translate3d(${x.toFixed(2)}px,0,0) scale(${(grow * (1 + stretch)).toFixed(3)},${(grow * (1 - stretch * 0.4)).toFixed(3)})`
@@ -67,7 +67,7 @@ function Slider({ dim, label, value, max = 100, onChange, locked }: { dim: W; la
       <div className="slider__label">
         <b>{dim}</b>
         <span>{label}</span>
-        <output>{value}</output>
+        <output>{Math.round(value * 10) / 10}%</output>
       </div>
       <div
         className="slider__hit"
@@ -178,7 +178,7 @@ export function Lab() {
   const l = t.lab
   const { percentiles, count, placeholder } = useTall()
   const known = useKnownLanguages()
-  const { answers, tier, sliders } = useDecision()
+  const { answers, tier, sliders, anchors } = useDecision()
   const c = questions[lang]
   const [open, setOpen] = useState<'adjust' | 'all' | 'langs' | 'report' | null>(null)
   const [detail, setDetail] = useState<string | null>(null)
@@ -194,8 +194,8 @@ export function Lab() {
     const pool = demands.filter((d) => !have.has(d.id))
     const scored = pool.map((d) => ({ d, s: scoresFor(LANGS.find((x) => x.id === d.id)!, answers, tier) }))
     const missing = (['G', 'R', 'P'] as const).filter((k) => scored.length > 0 && scored.every((x) => x.s[k] === null))
-    const chosen = auto ? autoWeights({ G: auto.G, R: auto.R, P: auto.P }, missing) : sliders
-    const w: Weights = { ...fixedWeights(hasA), ...chosen }
+    const hasT = have.size > 0
+    const w = configuredWeights(anchors, auto ?? sliders, [...missing, ...(!hasA ? ['A' as const] : []), ...(!hasT ? ['T' as const] : [])])
     const list: Row[] = scored.map(({ d, s }) => {
       const a = scoreA(d as Demand, percentiles)
       const t = scoreT(d.id, [...have])
@@ -203,7 +203,7 @@ export function Lab() {
       return { id: d.id, name: lang === 'zh' ? d.zh : d.en, native: NATIVE_NAMES[d.id], values, a, t, score: weightedScore(values, w), lang: d }
     })
     return { rows: list.sort((x, y) => (y.score ?? -1) - (x.score ?? -1)), w }
-  }, [known, answers, tier, sliders, percentiles, lang, hasA, auto])
+  }, [known, answers, tier, sliders, anchors, percentiles, lang, hasA, auto])
 
   const off = (d: Scored) => rows.length > 0 && rows.every((r) => r.values[d] == null)
   const surveyHref = `${import.meta.env.BASE_URL}survey/`
@@ -294,7 +294,7 @@ export function Lab() {
                 <span key={k} className={`meter tone-${k}`}>
                   <b>{k}</b>
                   <i>
-                    <u style={{ transform: `scaleX(${w[k] / SLIDER_MAX})` }} />
+                    <u style={{ transform: `scaleX(${w[k] / 100})` }} />
                   </i>
                 </span>
               ))}
@@ -364,6 +364,10 @@ export function Lab() {
           <fieldset>
             <legend>{l.weights}</legend>
             <p className="note">{l.fixedNote}</p>
+            {(['T', 'A'] as const).map(k => (
+              <Slider key={k} dim={k} label={l.dimShort[k]} value={anchors[k]} max={100 - anchors[k === 'T' ? 'A' : 'T']} onChange={v => setAnchor(k, v)} />
+            ))}
+            <p className="note">{l.budgetNote.replace('{n}', String(Math.round((100 - w.T - w.A) * 10) / 10))}</p>
             {!hasA && <p className="locked tone-A">{l.locked}</p>}
             {auto ? (
               <>
@@ -372,7 +376,7 @@ export function Lab() {
                   <div className={`slider__label tone-${k}`} key={k}>
                     <b>{k}</b>
                     <span>{l.dimShort[k]}</span>
-                    <output>{Math.round(w[k])}</output>
+                    <output>{Math.round(w[k] * 10) / 10}%</output>
                   </div>
                 ))}
                 <a className="lab__survey" href={surveyHref}>
@@ -382,7 +386,7 @@ export function Lab() {
             ) : (
               (['G', 'R', 'P'] as const).map((k) => (
                 <div key={k}>
-                  <Slider dim={k} label={l.dimShort[k]} value={sliders[k]} max={SLIDER_MAX} locked={off(k)} onChange={(v) => setSlider(k, v)} />
+                  <Slider dim={k} label={l.dimShort[k]} value={w[k]} max={100 - w.T - w.A} locked={off(k) || 100 - w.T - w.A === 0} onChange={(v) => setManualWeight(k, v, 100 - w.T - w.A, (['G', 'R', 'P'] as const).filter(d => !off(d)))} />
                   {off(k) && <p className="locked">{l.fillFirst}</p>}
                 </div>
               ))
@@ -397,6 +401,7 @@ export function Lab() {
                 </button>
               ))}
             </div>
+            <p className="note">{tier === 'basic' ? l.basicGuide : l.advancedGuide}</p>
             <p className="note">{l.tierNote}</p>
           </fieldset>
         </div>

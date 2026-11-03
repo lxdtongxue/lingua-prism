@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState, type ReactNode } from 'react'
 import { I18n, initialLang } from '../components/i18n'
-import { patchAnswers, setTier, useDecision } from '../components/decision'
+import { patchAnswers, setTier, setSurveyPage, useDecision } from '../components/decision'
 import { content } from '../content/content'
 import demands from '../data/language_demands.json'
 import { COUNTRY_EN, ORIENT_ORDER, questions, REGION_EN, REVERSED, SITUATIONS } from './questions'
@@ -46,8 +46,10 @@ export function Survey() {
   const [lang] = useState(initialLang)
   const c = questions[lang]
   const t = content[lang]
-  const { answers: a, tier } = useDecision()
-  const [at, setAt] = useState(0)
+  const { answers: a, tier, surveyPage } = useDecision()
+  const [at, setAtState] = useState(surveyPage)
+  const setAt = (next: number) => { setAtState(next); setSurveyPage(next) }
+  useEffect(() => { setAtState(surveyPage) }, [surveyPage])
   const pages = useMemo(() => pagesFor(a, tier), [a, tier])
   const page = pages[Math.min(at, pages.length - 1)]
   const value = useMemo(() => ({ t, lang, setLang: () => {} }), [t, lang])
@@ -66,6 +68,7 @@ export function Survey() {
 
   const ready = page === 'orient' ? ORIENT_ORDER.every((id) => a.orient[id]) : page === 'g1' ? !!a.g1 : page === 'dilemma' ? !!(a.S.S1 && a.S.S2 && a.S.S3) : true
   const finish = () => {
+    setSurveyPage(0)
     patchAnswers({ done: true, confirmed: tier === 'sponsor', hits: checks(a).map((h) => h.id) })
     location.assign(home)
   }

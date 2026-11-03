@@ -42,7 +42,6 @@ export const LANGS = data as unknown as LangDecision[]
 export const COUNTRIES = countryMap as Record<string, string[]>
 export const REGIONS = ['英语世界', '东亚', '西欧', '南欧与拉美', '俄语区与中亚', '西亚与北非', '东南亚', '南亚', '中东欧']
 export const P_WEIGHTS = { culture: 0.6, feature: 0.4 }
-export const FIXED_WEIGHT = 20
 export const SLIDER_MAX = 40
 export const SLIDER_DEFAULT = 20
 export const AUTO_TOTAL = 60
@@ -218,13 +217,17 @@ export function weightInput(a: Answers): WeightInput | null {
 export type Weights = Record<'T' | 'A' | Scored, number>
 
 // T and A never depend on the tier. A dimension with no score gives its share back.
-export function autoWeights(pi: Record<Scored, number>, missing: Scored[]) {
+export function autoWeights(pi: Record<Scored, number>, missing: Scored[], budget = AUTO_TOTAL) {
   const dims = (['G', 'R', 'P'] as const).filter((d) => !missing.includes(d))
   const sum = dims.reduce((a, d) => a + pi[d], 0)
-  return { G: 0, R: 0, P: 0, ...Object.fromEntries(dims.map((d) => [d, sum ? (AUTO_TOTAL * pi[d]) / sum : 0])) } as Record<Scored, number>
+  return { G: 0, R: 0, P: 0, ...Object.fromEntries(dims.map((d) => [d, sum ? (budget * pi[d]) / sum : budget / dims.length])) } as Record<Scored, number>
 }
 
-export const fixedWeights = (hasA: boolean) => ({ T: FIXED_WEIGHT, A: hasA ? FIXED_WEIGHT : 0 })
+export function configuredWeights(anchors: { T: number; A: number }, ratio: Record<Scored, number>, missing: (keyof Weights)[]): Weights {
+  const t = missing.includes('T') ? 0 : Math.max(0, Math.min(100, anchors.T))
+  const a = missing.includes('A') ? 0 : Math.max(0, Math.min(100 - t, anchors.A))
+  return { T: t, A: a, ...autoWeights(ratio, missing.filter((d): d is Scored => d === 'G' || d === 'R' || d === 'P'), 100 - t - a) }
+}
 
 export function bestGoal(goals: Record<Goal, number>) {
   return GOALS.reduce((best, k) => (goals[k] > goals[best] ? k : best), GOALS[0])
@@ -269,10 +272,11 @@ const ranked = (rows: Row[], w: Weights) => [...rows].sort((x, y) => (weightedSc
 // Section 6: only G, R and P move, so A's score and meaning stay the same in every tier.
 export function shifted(w: Weights, d: Scored): Weights {
   const others = (['G', 'R', 'P'] as const).filter((x) => x !== d)
-  const next = Math.min(AUTO_TOTAL, w[d] + 10)
+  const budget = w.G + w.R + w.P
+  const next = Math.min(budget, w[d] + 10)
   const rest = others.reduce((a, x) => a + w[x], 0)
   const out = { ...w, [d]: next }
-  for (const x of others) out[x] = rest ? (w[x] * (AUTO_TOTAL - next)) / rest : 0
+  for (const x of others) out[x] = rest ? (w[x] * (budget - next)) / rest : 0
   return out
 }
 

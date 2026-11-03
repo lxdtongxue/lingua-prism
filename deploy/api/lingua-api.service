@@ -1,0 +1,23 @@
+[Unit]
+Description=Lingua Prism account sync API
+After=network.target
+
+[Service]
+User=lingua-api
+Group=lingua-api
+WorkingDirectory=/var/www/lingua-prism-auto/api-current
+ExecStart=/usr/bin/python3 -B /var/www/lingua-prism-auto/api-current/app.py
+Environment=LP_DATA_DIR=/var/lib/lingua-prism
+UMask=0077
+Restart=on-failure
+RestartSec=3
+StateDirectory=lingua-prism
+StateDirectoryMode=0700
+NoNewPrivileges=yes
+PrivateTmp=yes
+ProtectSystem=strict
+ProtectHome=yes
+ReadWritePaths=/var/lib/lingua-prism
+
+[Install]
+WantedBy=multi-user.target

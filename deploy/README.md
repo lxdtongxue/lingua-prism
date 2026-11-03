@@ -15,3 +15,7 @@
 首次接入前的完整网站保存在 `/var/www/lingua-prism-before-auto-*`，自动发布的历史文件夹保留在 `releases`。需定期检查磁盘空间，手动清理不用的旧版本，勿删除 `current` 指向的目录。
 
 回退时，可通过管理员 SSH 进入 `/var/www/lingua-prism-auto`，将 `current` 原子切换至已确认的历史 release。原有 `deploy.sh` 是旧的手工部署脚本；启用自动部署后请使用本工作流，不要混用。
+
+## V6.6 接口首次安装
+
+发布 V6.6 前需按 [server/README.md](../server/README.md) 安装账号服务，并接入现有 Nginx 的同源 `/api/` 代理。工作流先更新并检查接口，再切换静态站点；未安装接口时会停止发布，保留原静态站点。SQLite 和密钥不随静态版本切换，也不上传 GitHub。
