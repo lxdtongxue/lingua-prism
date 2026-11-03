@@ -3,6 +3,7 @@ import { TriangleAlert } from 'lucide-react'
 import { CHANCE_FLOOR, maxScore } from '../a/score'
 import { useI18n } from '../components/i18n'
 import { saveResult } from '../components/tall'
+import { useDecision } from '../components/decision'
 import { SoundBank } from './audio'
 import { audioPaths, LA_COUNT, ORDER, orderByBlock, scoreTrials, SD_COUNT, shuffle, VL_COUNT, type La, type Sd, type Sub, type TallItems, type Trial, type Vl } from './items'
 import { asset, loadItems, preloadImages } from './load'
@@ -436,6 +437,8 @@ export function Exam({ sub, onNext, onClose, onFinish }: Props) {
   )
 
   const next = ORDER[ORDER.indexOf(sub) + 1]
+  const { answers } = useDecision()
+  const askSurvey = !next && !answers.done
   const start = () => setStage(sub === 'SD' ? 'check' : 'study')
   const floor = CHANCE_FLOOR[sub]
   const steps: Record<typeof sub, number> = { VL: VL_COUNT, SD: SD_COUNT, LA: LA_COUNT }
@@ -488,14 +491,25 @@ export function Exam({ sub, onNext, onClose, onFinish }: Props) {
               {c.lowScore}
             </p>
           )}
+          {askSurvey && (
+            <div className="exam__ask">
+              <h3>{e.surveyAskTitle}</h3>
+              <p>{e.surveyAskBody}</p>
+            </div>
+          )}
           <div className="exam__row">
+            {askSurvey && (
+              <a className="exam__btn" href={`${import.meta.env.BASE_URL}survey/`}>
+                {e.surveyGo}
+              </a>
+            )}
             {next ? (
               <button type="button" className="exam__btn" onClick={() => onNext(next)}>
                 {e.nextSub.replace('{name}', c.subs[next].name)}
               </button>
             ) : (
-              <button type="button" className="exam__btn" onClick={onFinish}>
-                {e.toLab}
+              <button type="button" className={`exam__btn${askSurvey ? ' exam__btn--quiet' : ''}`} onClick={onFinish}>
+                {askSurvey ? e.surveyLater : e.toLab}
               </button>
             )}
             <button type="button" className="exam__btn exam__btn--quiet" onClick={onClose}>

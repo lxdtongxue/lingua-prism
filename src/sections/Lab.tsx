@@ -290,7 +290,8 @@ export function Lab() {
               {l.adjust}
             </span>
           </Glass>
-          <a className="lab__survey" href={surveyHref}>
+          {!answers.done && <p className="lab__nudge">{l.surveyHint}</p>}
+          <a className={`lab__survey${answers.done ? '' : ' lab__survey--main'}`} href={surveyHref}>
             <ClipboardList size={16} strokeWidth={1.8} />
             {answers.done ? l.surveyEdit : l.surveyStart}
           </a>
@@ -417,7 +418,7 @@ export function Lab() {
           <b>{pick.a == null ? '—' : Math.round(pick.a)}</b>
           <span>{l.aLabel}</span>
         </div>
-        <p className="sheet__lead">{pick.t ? l.whyT.replace('{name}', nameOf(pick.t.nearest)).replace('{s}', String(Math.round(pick.t.lexical))).replace('{gname}', nameOf(pick.t.grammarNearest)).replace('{g}', String(Math.round(pick.t.grammar))) : l.whyTNone}</p>
+        <p className="sheet__lead">{pick.t ? l.whyT.replace('{name}', nameOf(pick.t.nearest)).replace('{s}', String(Math.round(pick.t.lexical))).replace('{g}', String(Math.round(pick.t.grammar))) : l.whyTNone}</p>
         <p className="sheet__lead">{whyText}</p>
         <ul className="facets">
           {([['G', whyG], ['R', whyR], ['P', whyP]] as const).map(([k, text]) => (

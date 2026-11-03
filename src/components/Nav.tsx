@@ -18,7 +18,7 @@ const clamp01 = (v: number) => Math.min(1, Math.max(0, v))
 const FOLD_SCROLL = 48
 const DRAG_PX = 6
 const ICON_W = 50
-const LANG_SWAP_MS = 430
+const LANG_SWAP_MS = 290
 
 export function Nav() {
   const { t, lang, setLang } = useI18n()
@@ -265,7 +265,7 @@ export function Nav() {
     if (!pager.enabled) history.replaceState(null, '', `#${id}`)
   }
 
-  // A prism-coloured wipe grows from the button and the language swaps behind it.
+  // The page dips to black and the language swaps while nothing is visible.
   const switchLang = () => {
     const next = lang === 'zh' ? 'en' : 'zh'
     const box = lang2.current?.getBoundingClientRect()
@@ -279,7 +279,7 @@ export function Nav() {
     wipe.style.setProperty('--y', `${box.top + box.height / 2}px`)
     document.body.append(wipe)
     window.setTimeout(() => setLang(next), LANG_SWAP_MS)
-    wipe.addEventListener('animationend', (e) => e.animationName === 'wipe-out' && wipe.remove())
+    wipe.addEventListener('animationend', () => wipe.remove())
   }
 
   return (

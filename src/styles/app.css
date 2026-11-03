@@ -662,10 +662,14 @@ button.pic:hover, button.pic:focus-visible, .pic:focus-visible { outline: 2px so
 .dt__link { display: inline-flex; align-items: center; gap: 6px; min-height: 40px; text-align: left; font-size: .92rem; color: var(--fg); text-decoration: underline; text-underline-offset: 3px; }
 @media (max-width: 680px) { .dt__table td:first-child { white-space: normal; } }
 
-/* Language switch: a spectral ring leads a dark wipe out of the button. */
-.lang-wipe { position: fixed; z-index: 95; inset: 0; pointer-events: none; animation: wipe-out .34s .46s ease forwards; }
-.lang-wipe::before, .lang-wipe::after { content: ""; position: absolute; inset: 0; clip-path: circle(0 at var(--x) var(--y)); animation: wipe-in .46s cubic-bezier(.5, 0, .2, 1) forwards; }
-.lang-wipe::before { background: conic-gradient(from 210deg at var(--x) var(--y), var(--t), var(--a), var(--p), var(--g), var(--r), var(--t)); }
-.lang-wipe::after { background: #070a12; animation-delay: .07s; }
-@keyframes wipe-in { to { clip-path: circle(150vmax at var(--x) var(--y)); } }
-@keyframes wipe-out { to { opacity: 0; } }
+/* Language switch: the page dips to black, swaps behind it, and comes back. */
+.lang-wipe { position: fixed; z-index: 95; inset: 0; pointer-events: none; background: linear-gradient(180deg, #000, #05060a); animation: wipe-dip .62s ease-in-out forwards; }
+@keyframes wipe-dip { 0% { opacity: 0; } 42%, 52% { opacity: 1; } 100% { opacity: 0; } }
+
+/* Questionnaire prompts */
+.lab__survey--main { min-height: 48px; font-weight: 500; color: #06080e; background: #eef1fa; box-shadow: none; }
+.lab__nudge { font-size: .86rem; line-height: 1.5; color: var(--g); }
+.exam__ask { display: grid; gap: 6px; padding: 16px 18px; border-radius: 16px; text-align: left; box-shadow: inset 0 0 0 1px var(--hair); }
+.exam__ask h3 { font-size: 1.1rem; font-weight: 500; }
+.exam__ask p { color: var(--fg2); }
+.goal-note { margin-top: -6px; margin-bottom: clamp(14px, 2vw, 24px); font-size: .9rem; color: var(--fg2); }

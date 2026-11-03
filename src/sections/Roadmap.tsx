@@ -1,26 +1,24 @@
-import { useState } from 'react'
 import { Calculator, Network, Ruler, Scale3d } from 'lucide-react'
 import { useI18n } from '../components/i18n'
 import { Card } from '../components/Card'
+import { openDetail } from '../components/Details'
 import { Glass } from '../components/Glass'
 import { SectionHead } from '../components/SectionHead'
-import { Sheet } from '../components/Sheet'
 import { useReveal } from '../components/useReveal'
 import { goTo } from '../components/pager'
 
 const ICONS = [Network, Ruler, Calculator, Scale3d]
+const PAGES = ['refine', 'evaluate', 'review', 'assess'] as const
 
 export function Roadmap() {
   const { t } = useI18n()
   const r = t.roadmap
   const end = useReveal<HTMLDivElement>()
-  const [open, setOpen] = useState<number | null>(null)
-  const [last, setLast] = useState(0)
-  const step = r.steps[last]
   return (
     <section id="roadmap" className="section section--end">
       <div className="wrap">
         <SectionHead kicker={r.kicker} title={r.title} intro={r.goal} />
+        <p className="goal-note">{r.progress}</p>
         <div className="steps">
           {r.steps.map((s, i) => (
             <Card
@@ -28,11 +26,9 @@ export function Roadmap() {
               icon={ICONS[i]}
               kicker={`0${i + 1}`}
               title={s.t}
+              desc={s.d}
               delay={i * 90}
-              onOpen={() => {
-                setLast(i)
-                setOpen(i)
-              }}
+              onOpen={() => openDetail(PAGES[i])}
             />
           ))}
         </div>
@@ -45,9 +41,6 @@ export function Roadmap() {
           </div>
         </div>
       </div>
-      <Sheet open={open !== null} onClose={() => setOpen(null)} kicker={`0${last + 1}`} title={step.t}>
-        <p className="sheet__lead">{step.d}</p>
-      </Sheet>
     </section>
   )
 }
