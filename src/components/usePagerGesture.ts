@@ -187,7 +187,7 @@ export function usePagerGesture(track: RefObject<HTMLElement | null>) {
       done = false
     }
     const fold = (e: TouchEvent, t: Touch) => {
-      if (done || !pager.enabled || (e.target as Element).closest('.sheet, .dock')) return
+      if (done || !pager.enabled || (e.target as Element).closest('.sheet, .dockbar')) return
       const dx = t.clientX - startX
       const dy = t.clientY - startY
       if (Math.abs(dy) < FOLD_PX || Math.abs(dy) < Math.abs(dx) * 1.5) return

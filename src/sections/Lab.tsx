@@ -125,37 +125,51 @@ function RankList({ rows, onOpen, refs }: { rows: Row[]; onOpen: (id: string) =>
   const { t } = useI18n()
   const l = t.lab
   return (
-    <ol className="rank">
-      {rows.map((r, i) => (
-        <li
-          key={r.id}
-          ref={(el) => {
-            if (!refs) return
-            if (el) refs.set(r.id, el)
-            else refs.delete(r.id)
-          }}
-        >
-          <button type="button" className="rank__row" onClick={() => onOpen(r.id)}>
-            <span className="rank__n">{i + 1}</span>
-            <span className="rank__name">
-              <strong>{r.name}</strong>
-              {r.native && <span>{r.native}</span>}
-            </span>
-            <span className="rank__bars" style={{ '--n': DIMS.length } as React.CSSProperties}>
-              {DIMS.map((k) => {
-                const v = r.values[k]
-                return (
-                  <span key={k} className={`bar tone-${k}${v == null ? ' bar--off' : ''}`} title={l.dimShort[k]}>
-                    <i style={{ transform: `scaleX(${(v ?? 0) / 100})` }} />
-                  </span>
-                )
-              })}
-            </span>
-            <span className="rank__score">{r.score == null ? '—' : Math.round(r.score)}</span>
-          </button>
-        </li>
-      ))}
-    </ol>
+    <>
+      <div className="rank__head" aria-hidden="true">
+        <span>#</span>
+        <span>{l.colLang}</span>
+        <span className="rank__bars" style={{ '--n': DIMS.length } as React.CSSProperties}>
+          {DIMS.map((k) => (
+            <b key={k} className={`tone-${k}`} title={l.dimShort[k]}>
+              {k}
+            </b>
+          ))}
+        </span>
+        <span>{l.colScore}</span>
+      </div>
+      <ol className="rank">
+        {rows.map((r, i) => (
+          <li
+            key={r.id}
+            ref={(el) => {
+              if (!refs) return
+              if (el) refs.set(r.id, el)
+              else refs.delete(r.id)
+            }}
+          >
+            <button type="button" className="rank__row" onClick={() => onOpen(r.id)}>
+              <span className="rank__n">{i + 1}</span>
+              <span className="rank__name">
+                <strong>{r.name}</strong>
+                {r.native && <span>{r.native}</span>}
+              </span>
+              <span className="rank__bars" style={{ '--n': DIMS.length } as React.CSSProperties}>
+                {DIMS.map((k) => {
+                  const v = r.values[k]
+                  return (
+                    <span key={k} className={`bar tone-${k}${v == null ? ' bar--off' : ''}`} title={l.dimShort[k]}>
+                      <i style={{ transform: `scaleX(${(v ?? 0) / 100})` }} />
+                    </span>
+                  )
+                })}
+              </span>
+              <span className="rank__score">{r.score == null ? '—' : Math.round(r.score)}</span>
+            </button>
+          </li>
+        ))}
+      </ol>
+    </>
   )
 }
 

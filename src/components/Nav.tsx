@@ -30,14 +30,13 @@ export function Nav() {
   const active = enabled ? page - 1 : scrolled
   const dock = useRef<HTMLElement>(null)
   const drop = useRef<HTMLSpanElement>(null)
-  const home = useRef<HTMLSpanElement>(null)
+  const bar = useRef<HTMLDivElement>(null)
   const links = useRef<(HTMLAnchorElement | null)[]>([])
   const x = useRef(new Spring(0, 240, 25))
   const w = useRef(new Spring(0, 240, 25))
   const shown = useRef(new Spring(0, 200, 26))
   const min = useRef(new Spring(0, 150, 24))
   const keeps = useRef(TABS.map(() => new Spring(0, 200, 26)))
-  const keepHome = useRef(new Spring(1, 200, 26))
   const natural = useRef<number[]>([])
   const current = useRef(active)
   const drag = useRef<{ id: number; startX: number; at: number; pick: number; moved: boolean } | null>(null)
@@ -100,17 +99,17 @@ export function Nav() {
     const el = dock.current
     if (!el) return
     const m = min.current
-    m.target = pager.dockMin ? 1 : 0
-    keepHome.current.target = current.current < 0 ? 1 : 0
+    // On the hero no tab is current, so the bar stays open rather than fold to nothing.
+    m.target = pager.dockMin && current.current >= 0 ? 1 : 0
     keeps.current.forEach((s, i) => {
       s.target = current.current === i ? 1 : 0
     })
-    for (const s of [m, keepHome.current, ...keeps.current]) {
+    for (const s of [m, ...keeps.current]) {
       s.step(dt)
       if (engine.reduced) s.x = s.target
     }
     const e = clamp01(m.x)
-    const stamp = [e, keepHome.current.x, ...keeps.current.map((s) => s.x)].map((v) => v.toFixed(3)).join()
+    const stamp = [e, ...keeps.current.map((s) => s.x)].map((v) => v.toFixed(3)).join()
     if (el.dataset.m === stamp) return
     el.dataset.m = stamp
     el.style.setProperty('--m', e.toFixed(3))
@@ -120,10 +119,11 @@ export function Nav() {
       a.style.width = `${((natural.current[i] ?? 0) * (1 - e) + ICON_W * keep * e).toFixed(2)}px`
       a.style.opacity = (1 - e + keep * e).toFixed(3)
     })
-    if (home.current) home.current.style.width = `${(ICON_W * e * clamp01(keepHome.current.x)).toFixed(2)}px`
+    const b = bar.current
+    if (!b) return
     const left = brand.current?.offsetLeft ?? 0
     const centre = window.innerWidth / 2
-    el.style.transform = `translate3d(${(centre + (left + 30 - centre) * e).toFixed(2)}px,0,0) translateX(-50%)`
+    b.style.transform = `translate3d(${(centre + (left + b.offsetWidth / 2 - centre) * e).toFixed(2)}px,0,0) translateX(-50%)`
   }
 
   // The droplet slides on a spring and stretches with its own speed. It reads the
@@ -312,6 +312,11 @@ export function Nav() {
           </button>
         </div>
       </header>
+      <div className="dockbar" ref={bar}>
+      {/* The hero sits above the tabs, so its button stands apart from the bar. */}
+      <a className="dock-home chrome" href="#hero" aria-label={t.nav.home} aria-current={active < 0 ? 'true' : undefined} onClick={(e) => go(e, 'hero')}>
+        <Triangle size={20} strokeWidth={1.8} />
+      </a>
       <nav
         className="dock chrome"
         ref={dock}
@@ -328,9 +333,6 @@ export function Nav() {
         onPointerCancel={onDockUp}
       >
         <span className="dock__drop" ref={drop} aria-hidden="true" />
-        <span className="dock__home" ref={home} aria-hidden={active >= 0}>
-          <Triangle size={20} strokeWidth={1.8} />
-        </span>
         {TABS.map(({ id, icon: Icon, pages }, i) => (
           <a
             key={id}
@@ -347,6 +349,7 @@ export function Nav() {
           </a>
         ))}
       </nav>
+      </div>
       <Account open={acctOpen} onClose={() => setAcctOpen(false)} />
     </>
   )

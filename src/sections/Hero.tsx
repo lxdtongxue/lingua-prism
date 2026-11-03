@@ -62,14 +62,6 @@ export function Hero() {
           </p>
         </div>
         <div className="hero__side intro" style={at('1.85s')}>
-          <dl className="stats">
-            {h.stats.map((s) => (
-              <div key={s.l}>
-                <dd>{s.n}</dd>
-                <dt>{s.l}</dt>
-              </div>
-            ))}
-          </dl>
           <p className="hero__hint">
             <span className="for-mouse">{h.hintMouse}</span>
             <span className="for-touch">{h.hintTouch}</span>

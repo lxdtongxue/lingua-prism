@@ -1,16 +1,38 @@
 import { useEffect, useRef, useState, useSyncExternalStore } from 'react'
-import { ArrowRight } from 'lucide-react'
+import { ArrowLeft, ArrowRight } from 'lucide-react'
 import { details, type Block, type PageId } from '../content/details'
 import { Radar } from '../sections/Aptitude'
 import { useI18n } from './i18n'
 import { Sheet } from './Sheet'
 
 let current: PageId | null = null
+// Pages reached through "further reading", so each can step back to the one before.
+let trail: { id: PageId; y: number }[] = []
+let restoreY = 0
 const listeners = new Set<() => void>()
+const emit = () => listeners.forEach((fn) => fn())
 
 export function openDetail(id: PageId | null) {
   current = id
-  listeners.forEach((fn) => fn())
+  trail = []
+  restoreY = 0
+  emit()
+}
+
+function follow(id: PageId, y: number) {
+  if (current) trail = [...trail, { id: current, y }]
+  current = id
+  restoreY = 0
+  emit()
+}
+
+function back() {
+  const prev = trail[trail.length - 1]
+  if (!prev) return
+  trail = trail.slice(0, -1)
+  current = prev.id
+  restoreY = prev.y
+  emit()
 }
 
 const subscribe = (fn: () => void) => {
@@ -134,16 +156,25 @@ export function Details() {
   const open = useSyncExternalStore(subscribe, () => current)
   const [last, setLast] = useState<PageId>('lang')
   const top = useRef<HTMLDivElement>(null)
+  const body = () => top.current?.closest('.sheet__body')
   useEffect(() => {
     if (!open) return
     setLast(open)
-    top.current?.closest('.sheet__body')?.scrollTo(0, 0)
+    body()?.scrollTo(0, restoreY)
   }, [open])
+  const prev = open ? trail[trail.length - 1] : undefined
   const pages = details[lang]
   const page = pages[open ?? last]
   return (
     <Sheet open={open !== null} onClose={() => openDetail(null)} kicker={page.kicker} title={page.title}>
       <div ref={top} className="dt">
+        {prev && (
+          <button type="button" className="dt__back" onClick={back}>
+            <ArrowLeft size={15} strokeWidth={1.8} />
+            {t.backTo}
+            {pages[prev.id].title}
+          </button>
+        )}
         <p className="sheet__lead">{page.lead}</p>
         {page.blocks.map((b, i) => (
           <Part key={`${open ?? last}${i}`} b={b} />
@@ -151,7 +182,7 @@ export function Details() {
         <nav className="dt__more" aria-label={t.moreReading}>
           <p>{t.moreReading}</p>
           {page.more.map((id) => (
-            <button key={id} type="button" className="dt__link" onClick={() => openDetail(id)}>
+            <button key={id} type="button" className="dt__link" onClick={() => follow(id, body()?.scrollTop ?? 0)}>
               {pages[id].kicker.split(' · ').pop()}：{pages[id].title}
               <ArrowRight size={15} strokeWidth={1.8} />
             </button>
