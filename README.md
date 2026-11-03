@@ -93,7 +93,7 @@ PATH=/opt/homebrew/bin:$PATH node scripts/make-codes.mjs 50 >> ../登录代码.t
 
 时间为上传至 GitHub 的时间（UTC+8），以 GitHub Actions 部署记录为准。
 
-### v6.5.1
+### v6.5.1（2026-11-03 23:29:11）
 
 在低带宽网络下加快 TALL 测验的材料加载，并加入自有服务器的部署脚本。
 
