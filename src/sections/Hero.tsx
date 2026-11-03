@@ -1,4 +1,4 @@
-import { useEffect, useRef, type CSSProperties, type PointerEvent } from 'react'
+import { useEffect, useRef, useState, type CSSProperties, type PointerEvent } from 'react'
 import { useI18n } from '../components/i18n'
 import { Glass } from '../components/Glass'
 import { engine } from '../gl/engine'
@@ -11,6 +11,15 @@ export function Hero() {
   const h = t.hero
   const prism = useRef<HTMLDivElement>(null)
   const drag = useRef<number | null>(null)
+
+  // The cue only helps at the top; it steps aside as soon as the page moves.
+  const [away, setAway] = useState(false)
+  useEffect(() => {
+    const on = () => setAway(window.scrollY > 40)
+    on()
+    window.addEventListener('scroll', on, { passive: true })
+    return () => window.removeEventListener('scroll', on)
+  }, [])
 
   useEffect(() => {
     engine.heroEl = prism.current
@@ -68,6 +77,10 @@ export function Hero() {
           </p>
         </div>
       </div>
+      <button type="button" className="hero__cue intro" style={at('2.1s')} data-away={away} aria-label={h.cue} tabIndex={away ? -1 : 0} onClick={() => goTo('test')}>
+        <span>{h.cue}</span>
+        <i aria-hidden="true" />
+      </button>
     </section>
   )
 }

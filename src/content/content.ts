@@ -31,7 +31,7 @@ const zh = {
     latest: '当前版本',
     note: '从最初的棱镜，到今天的语棱。每一次修改，都留在这里。',
     languageNote: '',
-    summary: ['调整 iOS Safari 上下边缘的背景颜色，让浏览器栏与页面衔接。', '导航收起时，首页按钮一同淡出；展开后仍可单独返回首页。', '先看更新，关掉弹窗后再播放入场动画。'],
+    summary: ['在 Safari 里，点击底栏标签的跳转也有了和其他浏览器一致的弹性动画。', '首页新增向下滚动的提示，滚动页面后会自动淡出。', '页面细节保持不变，旧版本的内容都还在。'],
   },
   account: {
     open: '账号',
@@ -78,6 +78,7 @@ const zh = {
     ctaNote: '3 项测验，支持电脑、手机和平板',
     hintMouse: '移动光标，改变入射角',
     hintTouch: '左右滑动，改变入射角',
+    cue: '向下滚动',
   },
   framework: {
     kicker: '项目简介 · 框架',
@@ -384,7 +385,7 @@ const en: typeof zh = {
     latest: 'Current version',
     note: 'From the first prism to Lingua Prism today. Every change has a place here.',
     languageNote: 'Release notes are currently available in Chinese.',
-    summary: ['Safari’s top and bottom edges now follow the page background.', 'The home button folds away with the tabs and returns when you expand them.', 'Read the update first. The entrance animation begins after you close it.'],
+    summary: ['Jumping between tabs now has the same springy motion in Safari as in other browsers.', 'The home page gains a scroll cue that fades away once you start scrolling.', 'Everything else stays as it was.'],
   },
   account: {
     open: 'Account',
@@ -431,6 +432,7 @@ const en: typeof zh = {
     ctaNote: 'Three subtests. On your computer, phone or tablet.',
     hintMouse: 'Move the cursor to change the angle of light',
     hintTouch: 'Swipe sideways to change the angle of light',
+    cue: 'Scroll',
   },
   framework: {
     kicker: 'About · Framework',

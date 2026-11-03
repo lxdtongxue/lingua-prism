@@ -50,6 +50,46 @@ export function setDockMin(on: boolean) {
 const CLEAR_TOP = 72
 const CLEAR_BOTTOM = 96
 
+// Browsers animate scrollTo({ behavior: 'smooth' }) in their own ways, and Safari's is
+// plain where Chromium's feels springy. The jump runs on a spring in the engine's frame
+// instead, so every browser moves the same way and the tab droplet follows along.
+const glide = new Spring(0, 60, 13.5)
+let gliding = false
+let glideFrom = 0
+let stopGlide = () => {}
+const GRACE_MS = 400
+
+function glideTo(top: number) {
+  const max = document.documentElement.scrollHeight - window.innerHeight
+  glide.target = Math.min(max, Math.max(0, top))
+  if (gliding) return
+  gliding = true
+  glideFrom = performance.now()
+  glide.x = window.scrollY
+  glide.v = 0
+  const off = engine.onFrame((dt) => {
+    glide.step(dt)
+    pager.navUntil = performance.now() + 300
+    const done = Math.abs(glide.x - glide.target) < 0.5 && Math.abs(glide.v) < 8
+    window.scrollTo({ top: done ? glide.target : glide.x, behavior: 'instant' })
+    if (done) stopGlide()
+  })
+  // The visitor taking over ends the glide. A trackpad's coasting wheel events right
+  // after a click must not cancel it, hence the grace period.
+  const cancel = (e: Event) => {
+    if (e.type === 'wheel' && (performance.now() - glideFrom < GRACE_MS || Math.abs((e as WheelEvent).deltaY) < 2)) return
+    stopGlide()
+  }
+  const events = ['wheel', 'touchstart', 'keydown', 'pointerdown'] as const
+  events.forEach((n) => window.addEventListener(n, cancel, { passive: true }))
+  stopGlide = () => {
+    off()
+    events.forEach((n) => window.removeEventListener(n, cancel))
+    gliding = false
+    stopGlide = () => {}
+  }
+}
+
 export function goTo(id: string, instant = false) {
   // A jump is not the visitor scrolling, so it must not fold the tab bar.
   pager.navUntil = performance.now() + 1400
@@ -71,7 +111,9 @@ export function goTo(id: string, instant = false) {
   const box = (el.querySelector('.wrap') ?? el).getBoundingClientRect()
   const free = window.innerHeight - CLEAR_TOP - CLEAR_BOTTOM
   const top = id === 'hero' ? 0 : box.top + window.scrollY - CLEAR_TOP - Math.max(0, (free - box.height) / 2)
-  window.scrollTo({ top, behavior: instant || engine.reduced ? 'auto' : 'smooth' })
+  stopGlide()
+  if (instant || engine.reduced) window.scrollTo({ top, behavior: 'instant' })
+  else glideTo(top)
 }
 
 // Coming back from the test page lands on a section, not at the top. Late fonts can
