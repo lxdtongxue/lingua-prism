@@ -23,7 +23,7 @@ while IFS= read -r -d '' font; do
 done < <(find "$NEXT/fonts" -type f -name '*.ttf' -print0)
 # Keep assets needed by tabs that were open before the deployment.
 if [ -d "$BASE/$PREVIOUS/assets" ]; then
-  cp -an "$BASE/$PREVIOUS/assets/." "$NEXT/assets/"
+  rsync -a --ignore-existing "$BASE/$PREVIOUS/assets/" "$NEXT/assets/"
 fi
 find "$NEXT" -type d -exec chmod 755 {} +
 find "$NEXT" -type f -exec chmod 644 {} +
