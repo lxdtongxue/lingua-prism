@@ -58,7 +58,7 @@ PATH=/opt/homebrew/bin:$PATH npm run dev
 
 时间为上传至 GitHub 的时间（UTC+8），以 GitHub Actions 部署记录为准。
 
-### v5.4.1
+### v5.4.1（2026-11-03 13:02:00）
 
 二级菜单细节修复。
 
