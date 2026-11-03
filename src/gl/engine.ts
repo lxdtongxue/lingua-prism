@@ -122,6 +122,7 @@ class Engine {
   private scene: Target | null = null
   private downs: Target[] = []
   private ups: Target[] = []
+  private textRowHeight = 1024 / 6
   private textTex: WebGLTexture | null = null
   private textA = new Spring(0, 40, 14)
   private rayGain = RAY_COLORS.map(() => new Spring(1, 40, 13))
@@ -503,6 +504,7 @@ class Engine {
     if (!gl) return
     const big = matchMedia('(min-width: 900px)').matches
     const art = drawAtlas(big ? 2048 : 1024)
+    this.textRowHeight = art.height / 6
     const t = gl.createTexture()
     gl.bindTexture(gl.TEXTURE_2D, t)
     gl.texImage2D(gl.TEXTURE_2D, 0, gl.R8, gl.RED, gl.UNSIGNED_BYTE, art)
@@ -935,11 +937,11 @@ class Engine {
     this.tex(0, this.textTex)
     gl.uniform1i(s.u.uTxt, 0)
     // Narrow screens stack body copy over the rays, so the words stay quieter there.
-    gl.uniform1f(s.u.uTxtA, this.textA.x * mix(0.5, 0.6, clamp((this.cssW - 420) / 480, 0, 1)))
-    const atlasRow = 2048 / 2 / 6
+    gl.uniform1f(s.u.uTxtA, this.textA.x * mix(0.65, 0.78, clamp((this.cssW - 420) / 480, 0, 1)))
+    const atlasRow = this.textRowHeight
     const rowH = Math.min(this.vh * 0.125, this.cssW * 0.13 + 24)
     // Small type blurs into bands, so phones get a tighter blur.
-    gl.uniform1f(s.u.uTxtSoft, mix(0.35, 0.8, clamp((this.cssW - 420) / 480, 0, 1)))
+    gl.uniform1f(s.u.uTxtSoft, mix(0.08, 0.22, clamp((this.cssW - 420) / 480, 0, 1)))
     gl.uniform1f(s.u.uRowH, rowH)
     gl.uniform1f(s.u.uTxtLod, Math.max(0, Math.log2(atlasRow / (rowH * this.pxScale * this.sceneScale))))
     gl.drawArrays(gl.TRIANGLES, 0, 3)

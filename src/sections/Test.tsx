@@ -1,16 +1,13 @@
-import { useState } from 'react'
-import { ArrowRight, BookOpenCheck, ClipboardList, Headphones, Lock, Monitor, Puzzle, Sparkles, type LucideIcon } from 'lucide-react'
+import { ArrowRight, BookOpenCheck, ClipboardList, Headphones, Lock, Puzzle, Sparkles, type LucideIcon } from 'lucide-react'
 import { useI18n } from '../components/i18n'
 import { Card, CLEAR } from '../components/Card'
 import { Glass } from '../components/Glass'
 import { SectionHead } from '../components/SectionHead'
-import { Sheet } from '../components/Sheet'
 import { goTo } from '../components/pager'
 import { clearResults, useTall } from '../components/tall'
 import { useDecision } from '../components/decision'
 import { ABILITIES, maxScore } from '../a/score'
 import { ORDER, type Sub } from '../tall/items'
-import { isComputer } from '../tall/load'
 
 const ICONS: Record<Sub, LucideIcon> = { VL: BookOpenCheck, SD: Headphones, LA: Puzzle }
 
@@ -39,12 +36,7 @@ export function Test() {
   const c = t.test
   const { results, count, placeholder } = useTall()
   const { answers } = useDecision()
-  const [blocked, setBlocked] = useState(false)
-  // Questions live on their own page; this one only shows where you are.
-  const open = (sub: Sub) => {
-    if (isComputer()) location.assign(`${import.meta.env.BASE_URL}test/?sub=${sub}`)
-    else setBlocked(true)
-  }
+  const open = (sub: Sub) => location.assign(`${import.meta.env.BASE_URL}test/?sub=${sub}`)
   const next = ORDER.find((s) => !results[s])
   return (
     <section id="test" className="section">
@@ -103,12 +95,6 @@ export function Test() {
           <p className="note">{c.privacy}</p>
         </Glass>
       </div>
-
-      <Sheet open={blocked} onClose={() => setBlocked(false)} kicker={c.kicker} title={c.desktopOnly}>
-        <p className="sheet__lead">
-          <Monitor size={18} strokeWidth={1.8} /> {c.desktopOnlyD}
-        </p>
-      </Sheet>
     </section>
   )
 }

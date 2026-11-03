@@ -23,7 +23,12 @@ export function drawAtlas(size = 2048): HTMLCanvasElement {
   g.fillStyle = '#fff'
   g.textBaseline = 'middle'
   ROWS.forEach((words, r) => {
-    g.font = `500 ${Math.round(rowH * 0.56)}px ${STACK}`
+    const fontSize = rowH * 0.56
+    g.font = `500 ${fontSize}px ${STACK}`
+    const measured = words.reduce((sum, word) => sum + g.measureText(word).width, 0)
+    // Long rows need a smaller font, rather than negative gaps that overlap words.
+    const scale = Math.min(1, (c.width - words.length * rowH * .24) / measured)
+    g.font = `500 ${fontSize * scale}px ${STACK}`
     const widths = words.map((w) => g.measureText(w).width)
     const total = widths.reduce((a, b) => a + b, 0)
     const gap = (c.width - total) / words.length

@@ -31,6 +31,8 @@ function useRun<T extends { id: string }>(items: T[], onDone: (trials: Trial[]) 
   const trials = useRef<Trial[]>([])
   const onset = useRef(0)
   useLayoutEffect(() => {
+    // A new question starts at its prompt, even if the last answer required scrolling.
+    document.querySelector('.exam__body')?.scrollTo({ top: 0 })
     onset.current = performance.now()
     const id = requestAnimationFrame(() => {
       onset.current = performance.now()
@@ -92,11 +94,14 @@ function VlStudy({ d, auto, onEnd }: { d: Vl; auto: Auto; onEnd: () => void }) {
     <>
       <Countdown seconds={d.studySeconds} auto={auto} onEnd={onEnd} />
       <div className="pics pics--20">
-        {d.items.map((v) => (
-          <div key={v.id} className="pic" tabIndex={0} onMouseEnter={() => setHover(v.id)} onMouseLeave={() => setHover(null)} onFocus={() => setHover(v.id)} onBlur={() => setHover(null)}>
+        {d.items.map((v, n) => (
+          <button key={v.id} type="button" className="pic" aria-label={String(n + 1)} aria-pressed={hover === v.id}
+            onPointerEnter={(ev) => { if (ev.pointerType === 'mouse') setHover(v.id) }}
+            onPointerLeave={(ev) => { if (ev.pointerType === 'mouse') setHover(null) }}
+            onClick={() => setHover(v.id)} onFocus={() => setHover(v.id)} onBlur={() => setHover(null)}>
             <img src={asset(v.image)} alt="" draggable={false} />
             {hover === v.id && <span className="pic__word">{v.word}</span>}
-          </div>
+          </button>
         ))}
       </div>
     </>
@@ -355,14 +360,18 @@ function SdCheck({ d, bank, placeholder, auto, onReady }: { d: Sd; bank: { curre
   )
 }
 
-function Shell({ title, step, placeholder, onExit, tools, children }: { title: string; step: string; placeholder: boolean; onExit?: () => void; tools?: ReactNode; children: ReactNode }) {
+function Shell({ title, step, phase, sub, stage, placeholder, onExit, tools, children }: { title: string; step: string; phase: string; sub: Sub; stage: Stage; placeholder: boolean; onExit?: () => void; tools?: ReactNode; children: ReactNode }) {
   const { t } = useI18n()
   const e = t.test.exam
+  const body = useRef<HTMLElement>(null)
+  useLayoutEffect(() => {
+    body.current?.scrollTo({ top: 0 })
+  }, [stage, sub])
   return (
-    <div className="exam" role="dialog" aria-modal="true" aria-label={title}>
+    <div className="exam exam--tall" data-sub={sub} data-stage={stage}>
       <header className="exam__head">
         <span className="exam__step">{step}</span>
-        <strong>{title}</strong>
+        <div className="exam__identity"><strong>{title}</strong><span>{phase}</span></div>
         {placeholder && <em className="tag tag--demo">{e.placeholder}</em>}
         {tools}
         {onExit && (
@@ -372,7 +381,7 @@ function Shell({ title, step, placeholder, onExit, tools, children }: { title: s
         )}
       </header>
       <p className="exam__rule">{e.rule}</p>
-      <main className="exam__body">{children}</main>
+      <main className="exam__body" ref={body}><div className="exam__workspace">{children}</div></main>
       <footer className="exam__foot">{e.credit}</footer>
     </div>
   )
@@ -449,9 +458,9 @@ export function Exam({ sub, onNext, onClose, onFinish }: Props) {
       body = (
         <div className="exam__page">
           <h2>{s.name}</h2>
-          {s.steps.map((line) => (
-            <p key={line}>{line}</p>
-          ))}
+          <ol className="exam__instructions">{s.steps.map((line, i) => (
+            <li key={line}><span>{String(i + 1).padStart(2, '0')}</span><p>{line}</p></li>
+          ))}</ol>
           <p className="exam__hint">{e.noFeedback}</p>
           <button type="button" className="exam__btn" onClick={start}>
             {e.begin}
@@ -541,7 +550,7 @@ export function Exam({ sub, onNext, onClose, onFinish }: Props) {
 
   return (
     <>
-      <Shell title={`${s.name} ${s.en}`} step={`${ORDER.indexOf(sub) + 1} / ${ORDER.length}`} placeholder={data?.placeholder ?? false} tools={tools} onExit={stage === 'result' || stage === 'intro' || !data ? onClose : () => setLeaving(true)}>
+      <Shell sub={sub} stage={stage} phase={e.phases[stage]} title={`${s.name} ${s.en}`} step={`${ORDER.indexOf(sub) + 1} / ${ORDER.length}`} placeholder={data?.placeholder ?? false} tools={tools} onExit={stage === 'result' || stage === 'intro' || !data ? onClose : () => setLeaving(true)}>
         {body}
       </Shell>
       {leaving && (

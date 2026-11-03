@@ -145,9 +145,9 @@ void main(){
   float speed = .007 * (1. + mod(r * 1.7, 3.) * .35);
   float tv = (fract(yy) + mod(r, 6.)) / 6.;
   float tu = P.x / (rowH * 12.) + dir * t * speed + r * .37;
-  // A wide eight-tap blur: the words read as drifting light, not as text.
+  // A small sampling radius keeps the multilingual letterforms legible.
   float lod = uTxtLod + uTxtSoft;
-  vec2 bl = vec2(.0009, .0029) * pow(2., lod);
+  vec2 bl = vec2(.00032, .0008) * pow(2., lod);
   float tx = 0.;
   for(int i = 0; i < 8; i++){
     float a = float(i) * .7854 + .39;

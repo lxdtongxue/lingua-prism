@@ -35,12 +35,3 @@ export function preloadImages(paths: string[]) {
     ),
   )
 }
-
-// Phones and tablets can't hover. Touch laptops still count as computers, and an
-// iPad reports a Mac user agent, so it is told apart by its touch points.
-export function isComputer() {
-  const ua = navigator.userAgent
-  if (/Android|iPhone|iPad|iPod|Mobile/i.test(ua)) return false
-  if (/Macintosh/.test(ua) && navigator.maxTouchPoints > 1) return false
-  return matchMedia('(any-hover: hover) and (any-pointer: fine)').matches
-}

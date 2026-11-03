@@ -63,7 +63,7 @@ const zh = {
     lead: '同一门语言，对不同的人意味着不同的选择。语棱把这个决定分解成五束光：语言关系、学习能力、学习目标、资源条件和个人偏好。',
     cta1: '开始 TALL 测试',
     cta2: '了解项目',
-    ctaNote: '3 项测验，在本站完成，请使用电脑',
+    ctaNote: '3 项测验，支持电脑、手机和平板',
     hintMouse: '移动光标，改变入射角',
     hintTouch: '左右滑动，改变入射角',
     stats: [
@@ -286,7 +286,7 @@ const zh = {
     intro: '按顺序完成词汇学习、辨音和语言分析。中途退出的一项作废，需要重做。',
     abilities: { LA: '语言分析', SD: '语音编码', VL: '联想记忆' } as Record<Ability, string>,
     subs: {
-      VL: { name: '词汇学习', en: 'Vocabulary Learning', brief: '2 分钟学习 20 个新词', steps: ['学习阶段有 20 张图。把鼠标移到图上，就能看到它对应的新词。你有 2 分钟，可以反复查看。', '时间一到自动进入测试。屏幕每次显示一个词，请点击对应的图，不限时。'] },
+      VL: { name: '词汇学习', en: 'Vocabulary Learning', brief: '2 分钟学习 20 个新词', steps: ['学习阶段有 20 张图。用鼠标悬停或轻点图片，就能看到它对应的新词。你有 2 分钟，可以反复查看。', '时间一到自动进入测试。屏幕每次显示一个词，请点击对应的图，不限时。'] },
       SD: { name: '辨音', en: 'Sound Discrimination', brief: '听辨 3 个基本音，共 30 题', steps: ['先听 3 个基本音，每个读两遍。每读一个就出现对应的图，三张图逐张保留。', '再听 5 组短语，每组 3 个，每个读一遍。图片同样逐张出现，新的一组从头开始。', '测试共 30 题，每题请判断录音里出现的是哪个基本音，并点击对应的图。每题最多 15 秒，超时记错。'] },
       LA: { name: '语言分析', en: 'Language Analysis', brief: '5 分钟学习，30 道选择题', steps: ['学习阶段有 20 个按钮。点开后会看到一张图和描述它的句子。你有 5 分钟，顺序和次数不限。', '时间一到自动进入测试。共 30 题，每题选出最符合图意的句子，不限时。'] },
     } as Record<'VL' | 'SD' | 'LA', { name: string; en: string; brief: string; steps: string[] }>,
@@ -301,9 +301,8 @@ const zh = {
     clear: '清除结果',
     privacy: '测验结果只保存在这台设备的浏览器里，不会上传。',
     lowScore: '这一项的成绩可能没有反映真实水平，建议重做。',
-    desktopOnly: '请用电脑完成',
-    desktopOnlyD: '这几项测验需要鼠标悬停和稳定的音频播放。语言推荐页在手机和平板上仍可使用。',
     exam: {
+      phases: { intro: '任务说明', check: '声音检查', study: '学习阶段', ready: '准备作答', test: '作答阶段', result: '本项结果' },
       credit: '本测验改编自 TALL（Pan & Marsden, 2024a），材料来自 IRIS 数据库，以 CC BY-NC-SA 许可使用。',
       placeholder: '占位材料',
       exit: '退出',
@@ -409,7 +408,7 @@ const en: typeof zh = {
     lead: 'The same language means something different to every learner. Lingua Prism splits the decision into five beams: language relations, learning ability, goals, resources and personal preference.',
     cta1: 'Start the TALL test',
     cta2: 'About the project',
-    ctaNote: 'Three subtests on this site. Please use a computer.',
+    ctaNote: 'Three subtests. On your computer, phone or tablet.',
     hintMouse: 'Move the cursor to change the angle of light',
     hintTouch: 'Swipe sideways to change the angle of light',
     stats: [
@@ -632,7 +631,7 @@ const en: typeof zh = {
     intro: 'Complete Vocabulary Learning, Sound Discrimination and Language Analysis in order. A subtest you leave halfway is void and must be redone.',
     abilities: { LA: 'language analysis', SD: 'phonetic coding', VL: 'associative memory' },
     subs: {
-      VL: { name: 'Vocabulary Learning', en: '词汇学习', brief: 'Two minutes to learn 20 new words', steps: ['You will see 20 pictures. Hover over one to see its new word. You have two minutes and can look as often as you like.', 'The test starts automatically when time is up. One word appears at a time. Click the matching picture. There is no time limit.'] },
+      VL: { name: 'Vocabulary Learning', en: '词汇学习', brief: 'Two minutes to learn 20 new words', steps: ['You will see 20 pictures. Hover over or tap a picture to see its new word. You have two minutes and can look as often as you like.', 'The test starts automatically when time is up. One word appears at a time. Click the matching picture. There is no time limit.'] },
       SD: { name: 'Sound Discrimination', en: '辨音', brief: 'Three basic sounds, 30 questions', steps: ['First you hear three basic sounds, each read twice. Each brings in its picture, and the pictures stay until all three are on screen.', 'Then you hear five sets of three phrases, each read once. Pictures build up the same way, and each new set starts over.', 'In the 30 questions, decide which basic sound is in each recording and click its picture. You have up to 15 seconds each, and running out counts as wrong.'] },
       LA: { name: 'Language Analysis', en: '语言分析', brief: 'Five minutes of study, 30 questions', steps: ['You will see 20 buttons. Each opens a picture and the sentence that describes it. You have five minutes, in any order, as often as you like.', 'The test starts automatically when time is up. For each of the 30 pictures, choose the sentence that fits. There is no time limit.'] },
     },
@@ -647,9 +646,8 @@ const en: typeof zh = {
     clear: 'Clear results',
     privacy: 'Your results stay in this browser on this device and are never uploaded.',
     lowScore: 'This score may not reflect your real level. Consider retaking it.',
-    desktopOnly: 'Please use a computer',
-    desktopOnlyD: 'These subtests need mouse hover and stable audio. The recommendation page still works on phones and tablets.',
     exam: {
+      phases: { intro: 'Instructions', check: 'Sound check', study: 'Study', ready: 'Get ready', test: 'Questions', result: 'Results' },
       credit: 'Adapted from TALL (Pan & Marsden, 2024a). Materials from the IRIS database, used under CC BY-NC-SA.',
       placeholder: 'Placeholder materials',
       exit: 'Exit',

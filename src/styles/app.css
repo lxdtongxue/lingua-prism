@@ -559,7 +559,7 @@ html:not(.entered) .intro, html:not(.entered) .line > span { animation-play-stat
 .cites a { overflow-wrap: anywhere; text-decoration: underline; text-underline-offset: 3px; }
 .sheet .foot-body { margin-top: 20px; }
 
-/* The exam is deliberately plain: an opaque page with nothing moving behind it. */
+/* Shared test and questionnaire controls; TALL presentation is scoped below. */
 .exam { position: fixed; z-index: 100; inset: 0; display: flex; flex-direction: column; background: #0b0e16; color: var(--fg); }
 .exam img { display: block; width: 100%; height: 100%; object-fit: contain; user-select: none; -webkit-user-drag: none; }
 .exam__head { flex: none; display: flex; align-items: center; gap: 12px; padding: 14px var(--gutter); border-bottom: 1px solid var(--hair); }
@@ -715,3 +715,77 @@ button.pic:hover, button.pic:focus-visible, .pic:focus-visible { outline: 2px so
 .acct__status { font-size: .84rem; color: var(--fg3); }
 .acct__row { display: flex; flex-wrap: wrap; gap: 10px; }
 .acct__row .sheet__cta { flex: 1 1 auto; }
+
+/* TALL: quiet multilingual ribbons, with a separate reading surface. */
+.exam-backdrop { position: fixed; inset: 0; pointer-events: none; overflow: hidden; background: radial-gradient(ellipse at 10% 15%, #142c37 0, transparent 58%), radial-gradient(ellipse at 95% 80%, #25203a 0, transparent 60%), #080b12; }
+.exam-backdrop canvas { width: 100%; height: 100%; display: block; opacity: .065; }
+.exam--tall { background: transparent; padding-top: env(safe-area-inset-top); padding-bottom: env(safe-area-inset-bottom); padding-left: env(safe-area-inset-left); padding-right: env(safe-area-inset-right); }
+.exam--tall .exam__head { width: min(100%, 1280px); margin-inline: auto; gap: 16px; padding: 16px clamp(16px, 3vw, 40px); border: 0; background: rgba(8,11,18,.7); border-radius: 0 0 20px 20px; }
+.exam__identity { display: grid; gap: 1px; min-width: 0; }
+.exam__identity strong { font-size: .96rem; line-height: 1.4; overflow-wrap: anywhere; }
+.exam__identity > span { font-size: .76rem; color: var(--fg3); }
+.exam--tall .exam__step { display: grid; place-items: center; flex: none; min-width: 44px; min-height: 44px; border-radius: 14px; background: rgba(255,255,255,.055); color: var(--fg2); }
+.exam--tall .exam__exit { flex: none; min-height: 44px; }
+.exam--tall .exam__rule { width: min(calc(100% - 32px), 1120px); margin-inline: auto; padding: 10px 16px; border: 1px solid rgba(255,188,87,.12); border-radius: 14px; background: rgba(255,188,87,.035); color: var(--fg2); font-size: .8rem; font-weight: 400; }
+.exam--tall .exam__body { width: min(100%, 1200px); justify-content: flex-start; padding: 24px clamp(16px, 3vw, 40px); overscroll-behavior: contain; scroll-padding-block: 20px; }
+.exam__workspace { flex: none; display: flex; flex-direction: column; gap: 20px; width: 100%; margin-block: auto; padding: clamp(20px, 3vw, 38px); border-radius: 28px; background: rgba(9,13,22,.82); border: 1px solid rgba(226,236,255,.12); box-shadow: 0 20px 70px rgba(0,0,0,.18), inset 0 1px rgba(255,255,255,.035); -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px); }
+.exam--tall .exam__page { gap: 22px; width: min(100%, 700px); }
+.exam__instructions { display: grid; gap: 18px; }
+.exam__instructions li { display: grid; grid-template-columns: 24px minmax(0,1fr); gap: 14px; align-items: baseline; }
+.exam__instructions li > span { font-size: .76rem; color: var(--t); font-variant-numeric: tabular-nums; }
+.exam__instructions p { color: var(--fg2); }
+.exam--tall .exam__foot { padding: 8px 24px 12px; border: 0; font-size: .7rem; }
+.exam--tall .exam__btn { justify-content: center; min-height: 48px; text-align: center; }
+.exam--tall .pics--20 { max-width: min(100%, calc((100dvh - 330px) * 1.25)); }
+.exam--tall .pics--grow { --s: clamp(70px, 16vw, 180px); height: auto; min-height: var(--s); gap: clamp(10px,3vw,40px); }
+.exam--tall .pics--grow .pic { margin-inline: 0; }
+.exam--tall .pics--3 { grid-template-columns: repeat(3,minmax(0,180px)); gap: clamp(12px,3vw,48px); }
+.exam--tall .la__grid button { background: rgba(130,163,226,.12); box-shadow: inset 0 0 0 1px rgba(160,187,238,.14); min-height: 44px; }
+.exam--tall .la__grid button.on { background: #eef1fa; color: #06080e; }
+.exam--tall .la__options button { min-height: 52px; background: rgba(255,255,255,.025); }
+@media (max-width: 900px) {
+  .exam--tall .la { grid-template-columns: minmax(0,1fr) minmax(0,1fr); }
+  .exam--tall .la:not(.la--test) { grid-template-columns: 1fr; }
+  .exam--tall .la:not(.la--test) .la__grid { grid-template-columns: repeat(10,minmax(0,1fr)); gap: 6px; }
+  .exam--tall .la__grid button { aspect-ratio: auto; }
+  .exam--tall .pics--20 { max-width: 100%; }
+}
+@media (max-width: 600px) {
+  .exam--tall .exam__head { padding: 12px 16px; gap: 10px; flex-wrap: wrap; }
+  .exam--tall .exam__identity { flex: 1; }
+  .exam--tall .exam__identity strong { font-size: .85rem; }
+  .exam--tall .exam__step { min-width: 40px; min-height: 40px; }
+  .exam--tall .exam__exit { padding-inline: 12px; }
+  .exam--tall .exam__auto { order: 2; flex-basis: 100%; font-size: .7rem; }
+  .exam--tall .exam__auto + .exam__exit { margin-left: auto; }
+  .exam--tall .exam__rule { font-size: .73rem; line-height: 1.5; padding: 9px 12px; }
+  .exam--tall .exam__body { padding: 16px 12px; }
+  .exam__workspace { padding: 18px 14px; border-radius: 22px; gap: 16px; }
+  .exam--tall .exam__page { gap: 18px; }
+  .exam__instructions { gap: 14px; font-size: .94rem; }
+  .exam__instructions li { gap: 8px; }
+  .exam--tall .pics--20 { grid-template-columns: repeat(4,minmax(0,1fr)); gap: 7px; }
+  .exam--tall .pic { border-radius: 9px; }
+  .exam--tall .pic__word { font-size: .72rem; padding: 3px 1px; }
+  .exam--tall .pics--3 { gap: 16px; }
+  .exam--tall .pics--grow { --s: clamp(60px,21vw,110px); gap: 12px; }
+  .exam--tall .la, .exam--tall .la:not(.la--test) { grid-template-columns: minmax(0,1fr); gap: 16px; }
+  .exam--tall .la:not(.la--test) .la__grid { grid-template-columns: repeat(5,minmax(0,1fr)); gap: 6px; }
+  .exam--tall .la__card img { max-height: 30dvh; }
+  .exam--tall .la__card { font-size: .96rem; }
+  .exam--tall .la__options { gap: 8px; }
+  .exam--tall .la__options button { font-size: .94rem; padding: 10px 12px; }
+  .exam--tall .exam__row { width: 100%; gap: 8px; }
+  .exam--tall .exam__row .exam__btn { flex: 1 1 150px; }
+  .exam--tall .exam__foot { padding: 4px 20px 8px; font-size: .64rem; line-height: 1.45; }
+}
+@media (max-height: 520px) and (orientation: landscape) {
+  .exam--tall .exam__foot { padding-block: 3px; font-size: .6rem; }
+  .exam--tall .exam__head { padding-block: 6px; }
+  .exam--tall .exam__body { padding-block: 10px; }
+  .exam--tall .la { grid-template-columns: minmax(0,1fr) minmax(0,1fr); }
+  .exam--tall .la__card img { max-height: 46dvh; }
+}
+
+.exam--tall .exam__count .exam__bar { flex: 1 1 0; min-width: 0; width: auto; }
+.exam--tall .exam__count output { flex: none; min-width: 3.2em; text-align: right; }
