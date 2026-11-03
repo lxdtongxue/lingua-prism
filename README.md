@@ -51,7 +51,7 @@ PATH=/opt/homebrew/bin:$PATH node scripts/make-codes.mjs 50 >> ../登录代码.t
 | --- | --- |
 | `index.html`、`center/` | 网站的两个页面：首页（首页、项目简介、预期目标、参考文献）和测试中心（TALL 测验进度、语言推荐）。两页共用同一套组件，由 `<html data-site>` 区分 |
 | `test/`、`survey/` | 测验作答页和问卷页，不加载 WebGL 引擎 |
-| `public/404.html` | 地址错误时的提示页 |
+| `404.html` | 地址错误时的提示页，构建时写入对应部署的首页地址 |
 | `src/content/content.ts` | 中英文文案和文献列表 |
 | `src/content/details.ts`、`src/sections/Framework.tsx` | 项目缘起、三层框架及详细阅读页 |
 | `src/browserChrome.ts` | iOS Safari 浏览器栏的主题色处理 |
@@ -64,7 +64,8 @@ PATH=/opt/homebrew/bin:$PATH node scripts/make-codes.mjs 50 >> ../登录代码.t
 | `src/components/Account.tsx`、`session.ts`、`Avatar.tsx` | 代码登录、昵称和预设头像 |
 | `src/components/pager.ts` | 页面布局与跳转：`LAYOUTS` 定义两页各有哪些分页和章节，须与 `App.tsx` 的 `.tabpage` 保持一致；跨页跳转走 `navigate` |
 | `src/gl/` | WebGL 渲染引擎和着色器 |
-| `public/tall/`、`public/fonts/` | 测验材料和字体 |
+| `src/tall/tall_items.json` | 测验题库配置，构建为带内容哈希的资源，避免更新后读取旧缓存 |
+| `public/tall/`、`public/fonts/` | 测验材料和字体；69 张图片采用 WebP，原有尺寸不变 |
 
 ## 开发规范
 
@@ -92,6 +93,22 @@ PATH=/opt/homebrew/bin:$PATH node scripts/make-codes.mjs 50 >> ../登录代码.t
 ## 更新日志
 
 时间为上传至 GitHub 的时间（UTC+8），以 GitHub Actions 部署记录为准。
+
+### v6.5.2
+
+完善测验返回路径，压缩图片资源，并调整题库配置的缓存方式。
+
+修复：
+
+- 测验退出、结果页返回、三项完成后的推荐入口及问卷返回统一指向测试中心的明确 HTML 地址，兼容域名根目录和 GitHub Pages 子目录部署。
+- 404 页的首页链接改由构建时写入，不再从当前错误路径猜测站点根目录。
+- 题库配置改为带内容哈希的独立资源，避免服务器长期缓存旧配置，造成新旧图片路径不一致。腾讯云发布时保留旧标签页仍需使用的材料，不覆盖新版文件。
+
+维护：
+
+- 73 张测验图片中，69 张改用 WebP，其余保留原文件；图片总量由 4,937,212 字节降至 2,761,508 字节，减少约 44.1%。保留原始尺寸，不裁切题目内容；编码时优先比较无损方案，并对有损方案设置画质阈值。
+- 题目内容、答案、计分、录音和字体保持原样；同步更新材料许可中的格式转换说明。
+- 增加根目录与 GitHub Pages 子目录返回路径测试，更新 README 和测验配置说明。
 
 ### v6.5.1（2026-11-03 23:29:11）
 

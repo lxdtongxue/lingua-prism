@@ -1,6 +1,6 @@
 # TALL 题目怎么填
 
-题目都在 `public/tall/tall_items.json`，图片和录音也放在 `public/tall/` 下面，配置里写相对路径就行。
+题目都在 `src/tall/tall_items.json`，图片和录音也放在 `public/tall/` 下面，配置里写相对路径就行。
 
 现在用的是书面版 Set A。试听页特意用了 Set B 的一段录音，这样不会让用户提前多听一遍 Set A。
 

@@ -9,7 +9,7 @@
 | `grammar_similarity.json` | 由 Grambank v1.0（Skirgård et al., 2023）和项目 AI 编码计算，AI 部分为多数票结果，未经仲裁 | CC BY 4.0 |
 | `asjp_ldnd.json` | ASJP 基本词汇 LDND 距离矩阵，由项目组提供，以 ASJP 官方许可为准 | 见 ASJP |
 | `language_demands.json` | `D_LA`、`la_raw` 来自 Grambank（Skirgård et al., 2023） | CC BY 4.0 |
-| `public/tall/` | Pan & Marsden (2024c) 的 TALL 材料（IRIS, https://doi.org/10.48316/kYHn1-ndaUe），书面版 Set A；文件改名，T18 一处干扰项拼写更正 | CC BY-NC-SA 4.0 |
+| `public/tall/`、`src/tall/tall_items.json` | Pan & Marsden (2024c) 的 TALL 材料（IRIS, https://doi.org/10.48316/kYHn1-ndaUe），书面版 Set A；文件改名，T18 一处干扰项拼写更正；v6.5.2 将部分图片压缩为 WebP，保留原尺寸及题目内容 | CC BY-NC-SA 4.0 |
 | `language_demands.json` | `D_SD`、`sd_raw` 改编自 PHOIBLE 2.0（Moran & McCloy, 2019） | CC BY-SA 3.0 |
 
 TALL 相关内容不得用于商业用途，改编内容须以相同许可发布。

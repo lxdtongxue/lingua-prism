@@ -4,7 +4,7 @@ import { test } from 'node:test'
 import { percentile, scoreA, weightedScore } from '../a/score.ts'
 import { audioPaths, orderByBlock, scoreTrials, shuffle, validateItems, type TallItems } from './items.ts'
 
-const read = () => JSON.parse(readFileSync(new URL('../../public/tall/tall_items.json', import.meta.url), 'utf8')) as TallItems
+const read = () => JSON.parse(readFileSync(new URL('./tall_items.json', import.meta.url), 'utf8')) as TallItems
 
 test('the shipped config is valid', () => {
   assert.deepEqual(validateItems(read()), [])

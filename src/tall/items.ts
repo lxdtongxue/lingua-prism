@@ -1,4 +1,4 @@
-// Shape of public/tall/tall_items.json. See src/tall/README.md for how to fill it in.
+// Shape of src/tall/tall_items.json. See src/tall/README.md for how to fill it in.
 export type Vl = {
   studySeconds: number
   items: { id: string; image: string; word: string }[]

@@ -10,7 +10,7 @@
 - `TENCENT_DEPLOY_KEY`：专用 SSH 私钥。
 - `TENCENT_KNOWN_HOSTS`：经已有可信 SSH 连接核验的服务器主机公钥，工作流严格检查主机身份。
 
-服务器公开目录 `/var/www/lingua-prism` 指向 `/var/www/lingua-prism-auto/current`。新文件上传至 `releases/<提交>-<运行>-<重试>`，验证入口后切换 `current` 符号链接；首页健康检查失败时回退。已有页面使用的旧版 assets 会保留在新版本中。
+服务器公开目录 `/var/www/lingua-prism` 指向 `/var/www/lingua-prism-auto/current`。新文件上传至 `releases/<提交>-<运行>-<重试>`，验证入口后切换 `current` 符号链接；首页健康检查失败时回退。已有页面使用的旧版 assets 和 tall 材料会保留在新版本中，避免正在作答的旧标签页因文件改名而中断；新页面使用带哈希的题库配置和优化后的图片。
 
 首次接入前的完整网站保存在 `/var/www/lingua-prism-before-auto-*`，自动发布的历史文件夹保留在 `releases`。需定期检查磁盘空间，手动清理不用的旧版本，勿删除 `current` 指向的目录。
 

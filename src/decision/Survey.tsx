@@ -4,11 +4,12 @@ import { patchAnswers, setTier, useDecision } from '../components/decision'
 import { content } from '../content/content'
 import demands from '../data/language_demands.json'
 import { COUNTRY_EN, ORIENT_ORDER, questions, REGION_EN, REVERSED, SITUATIONS } from './questions'
+import { centerPath } from '../paths'
 import { ACAD_SUBS, bestGoal, checks, COUNTRIES, GOALS, interestOf, JOB_SUBS, LANGS, ORIENT_ITEMS, questionnaireWeights, REGIONS, topRegion, weightInput, type Answers, type Detail, type Goal, type Mode, type Scored, type Tier } from './score'
 
 type Page = 'start' | 'orient' | 'g1' | 'g2' | 'g3' | 'g4' | 'g5' | 'g6' | 'r1' | 'p1' | 'p2' | 'accept' | 'dilemma' | 'confirm'
 
-const home = `${import.meta.env.BASE_URL}center/#lab`
+const home = centerPath(import.meta.env.BASE_URL, 'lab')
 
 function pagesFor(a: Answers, tier: Tier): Page[] {
   if (tier === 'basic') return ['start', 'g1', 'g2', 'r1', 'p1', 'accept']

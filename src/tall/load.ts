@@ -1,11 +1,12 @@
 import { validateItems, type TallItems } from './items'
+import itemsUrl from './tall_items.json?url'
 
 export const asset = (path: string) => `${import.meta.env.BASE_URL}tall/${path}`
 
 let cached: Promise<TallItems> | null = null
 
 export function loadItems() {
-  cached ??= fetch(asset('tall_items.json'))
+  cached ??= fetch(itemsUrl)
     .then((r) => {
       if (!r.ok) throw new Error(`tall_items.json: HTTP ${r.status}`)
       return r.json() as Promise<TallItems>

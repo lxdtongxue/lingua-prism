@@ -1,0 +1,837 @@
+{
+  "version": 1,
+  "placeholder": false,
+  "set": "A",
+  "vl": {
+    "studySeconds": 120,
+    "items": [
+      {
+        "id": "A1",
+        "image": "vl/A1.webp",
+        "word": "alk"
+      },
+      {
+        "id": "A2",
+        "image": "vl/A2.webp",
+        "word": "bėk"
+      },
+      {
+        "id": "A3",
+        "image": "vl/A3.jpeg",
+        "word": "dek"
+      },
+      {
+        "id": "A4",
+        "image": "vl/A4.webp",
+        "word": "imk"
+      },
+      {
+        "id": "A5",
+        "image": "vl/A5.webp",
+        "word": "lėk"
+      },
+      {
+        "id": "A6",
+        "image": "vl/A6.webp",
+        "word": "lok"
+      },
+      {
+        "id": "A7",
+        "image": "vl/A7.webp",
+        "word": "sek"
+      },
+      {
+        "id": "A8",
+        "image": "vl/A8.webp",
+        "word": "šuo"
+      },
+      {
+        "id": "A9",
+        "image": "vl/A9.jpg",
+        "word": "vyk"
+      },
+      {
+        "id": "A10",
+        "image": "vl/A10.webp",
+        "word": "lai"
+      },
+      {
+        "id": "A11",
+        "image": "vl/A11.webp",
+        "word": "burė"
+      },
+      {
+        "id": "A12",
+        "image": "vl/A12.jpeg",
+        "word": "gėlė"
+      },
+      {
+        "id": "A13",
+        "image": "vl/A13.webp",
+        "word": "kasa"
+      },
+      {
+        "id": "A14",
+        "image": "vl/A14.webp",
+        "word": "lapė"
+      },
+      {
+        "id": "A15",
+        "image": "vl/A15.webp",
+        "word": "musė"
+      },
+      {
+        "id": "A16",
+        "image": "vl/A16.jpeg",
+        "word": "ožys"
+      },
+      {
+        "id": "A17",
+        "image": "vl/A17.webp",
+        "word": "pala"
+      },
+      {
+        "id": "A18",
+        "image": "vl/A18.webp",
+        "word": "sagė"
+      },
+      {
+        "id": "A19",
+        "image": "vl/A19.webp",
+        "word": "lova"
+      },
+      {
+        "id": "A20",
+        "image": "vl/A20.webp",
+        "word": "žolė"
+      }
+    ]
+  },
+  "sd": {
+    "timeLimitSeconds": 15,
+    "audition": "sd/audition.mp3",
+    "sounds": [
+      {
+        "id": "A",
+        "image": "sd/SetA_A.webp",
+        "audio": "sd/L1_A_twice.mp3"
+      },
+      {
+        "id": "B",
+        "image": "sd/SetA_B.webp",
+        "audio": "sd/L1_B_twice.mp3"
+      },
+      {
+        "id": "C",
+        "image": "sd/SetA_C.webp",
+        "audio": "sd/L1_C_twice.mp3"
+      }
+    ],
+    "lead": [
+      {
+        "id": "L2_A",
+        "audio": "sd/L2_A.mp3",
+        "sound": "A"
+      },
+      {
+        "id": "L2_B",
+        "audio": "sd/L2_B.mp3",
+        "sound": "B"
+      },
+      {
+        "id": "L2_C",
+        "audio": "sd/L2_C.mp3",
+        "sound": "C"
+      }
+    ],
+    "phraseSets": [
+      [
+        {
+          "id": "L3_A",
+          "audio": "sd/L3_A.mp3",
+          "sound": "A"
+        },
+        {
+          "id": "L3_B",
+          "audio": "sd/L3_B.mp3",
+          "sound": "B"
+        },
+        {
+          "id": "L3_C",
+          "audio": "sd/L3_C.mp3",
+          "sound": "C"
+        }
+      ],
+      [
+        {
+          "id": "L4_A",
+          "audio": "sd/L4_A.mp3",
+          "sound": "A"
+        },
+        {
+          "id": "L4_B",
+          "audio": "sd/L4_B.mp3",
+          "sound": "B"
+        },
+        {
+          "id": "L4_C",
+          "audio": "sd/L4_C.mp3",
+          "sound": "C"
+        }
+      ],
+      [
+        {
+          "id": "L5_A",
+          "audio": "sd/L5_A.mp3",
+          "sound": "A"
+        },
+        {
+          "id": "L5_B",
+          "audio": "sd/L5_B.mp3",
+          "sound": "B"
+        },
+        {
+          "id": "L5_C",
+          "audio": "sd/L5_C.mp3",
+          "sound": "C"
+        }
+      ],
+      [
+        {
+          "id": "L6_A",
+          "audio": "sd/L6_A.mp3",
+          "sound": "A"
+        },
+        {
+          "id": "L6_B",
+          "audio": "sd/L6_B.mp3",
+          "sound": "B"
+        },
+        {
+          "id": "L6_C",
+          "audio": "sd/L6_C.mp3",
+          "sound": "C"
+        }
+      ]
+    ],
+    "items": [
+      {
+        "id": "T1_A",
+        "audio": "sd/T1_A.mp3",
+        "answer": "A",
+        "block": 1
+      },
+      {
+        "id": "T1_B",
+        "audio": "sd/T1_B.mp3",
+        "answer": "B",
+        "block": 1
+      },
+      {
+        "id": "T1_C",
+        "audio": "sd/T1_C.mp3",
+        "answer": "C",
+        "block": 1
+      },
+      {
+        "id": "T2_A",
+        "audio": "sd/T2_A.mp3",
+        "answer": "A",
+        "block": 1
+      },
+      {
+        "id": "T2_B",
+        "audio": "sd/T2_B.mp3",
+        "answer": "B",
+        "block": 1
+      },
+      {
+        "id": "T2_C",
+        "audio": "sd/T2_C.mp3",
+        "answer": "C",
+        "block": 1
+      },
+      {
+        "id": "T3_A",
+        "audio": "sd/T3_A.mp3",
+        "answer": "A",
+        "block": 1
+      },
+      {
+        "id": "T3_B",
+        "audio": "sd/T3_B.mp3",
+        "answer": "B",
+        "block": 1
+      },
+      {
+        "id": "T3_C",
+        "audio": "sd/T3_C.mp3",
+        "answer": "C",
+        "block": 1
+      },
+      {
+        "id": "T4_A",
+        "audio": "sd/T4_A.mp3",
+        "answer": "A",
+        "block": 1
+      },
+      {
+        "id": "T4_B",
+        "audio": "sd/T4_B.mp3",
+        "answer": "B",
+        "block": 1
+      },
+      {
+        "id": "T4_C",
+        "audio": "sd/T4_C.mp3",
+        "answer": "C",
+        "block": 1
+      },
+      {
+        "id": "T5_A",
+        "audio": "sd/T5_A.mp3",
+        "answer": "A",
+        "block": 1
+      },
+      {
+        "id": "T5_B",
+        "audio": "sd/T5_B.mp3",
+        "answer": "B",
+        "block": 1
+      },
+      {
+        "id": "T5_C",
+        "audio": "sd/T5_C.mp3",
+        "answer": "C",
+        "block": 1
+      },
+      {
+        "id": "T6_A",
+        "audio": "sd/T6_A.mp3",
+        "answer": "A",
+        "block": 2
+      },
+      {
+        "id": "T6_B",
+        "audio": "sd/T6_B.mp3",
+        "answer": "B",
+        "block": 2
+      },
+      {
+        "id": "T6_C",
+        "audio": "sd/T6_C.mp3",
+        "answer": "C",
+        "block": 2
+      },
+      {
+        "id": "T7_A",
+        "audio": "sd/T7_A.mp3",
+        "answer": "A",
+        "block": 2
+      },
+      {
+        "id": "T7_B",
+        "audio": "sd/T7_B.mp3",
+        "answer": "B",
+        "block": 2
+      },
+      {
+        "id": "T7_C",
+        "audio": "sd/T7_C.mp3",
+        "answer": "C",
+        "block": 2
+      },
+      {
+        "id": "T8_A",
+        "audio": "sd/T8_A.mp3",
+        "answer": "A",
+        "block": 2
+      },
+      {
+        "id": "T8_B",
+        "audio": "sd/T8_B.mp3",
+        "answer": "B",
+        "block": 2
+      },
+      {
+        "id": "T8_C",
+        "audio": "sd/T8_C.mp3",
+        "answer": "C",
+        "block": 2
+      },
+      {
+        "id": "T9_A",
+        "audio": "sd/T9_A.mp3",
+        "answer": "A",
+        "block": 2
+      },
+      {
+        "id": "T9_B",
+        "audio": "sd/T9_B.mp3",
+        "answer": "B",
+        "block": 2
+      },
+      {
+        "id": "T9_C",
+        "audio": "sd/T9_C.mp3",
+        "answer": "C",
+        "block": 2
+      },
+      {
+        "id": "T10_A",
+        "audio": "sd/T10_A.mp3",
+        "answer": "A",
+        "block": 2
+      },
+      {
+        "id": "T10_B",
+        "audio": "sd/T10_B.mp3",
+        "answer": "B",
+        "block": 2
+      },
+      {
+        "id": "T10_C",
+        "audio": "sd/T10_C.mp3",
+        "answer": "C",
+        "block": 2
+      }
+    ]
+  },
+  "la": {
+    "studySeconds": 300,
+    "study": [
+      {
+        "id": "L1",
+        "image": "la/L1.webp",
+        "text": "grotuvas"
+      },
+      {
+        "id": "L2",
+        "image": "la/L2.webp",
+        "text": "grotuvas bega"
+      },
+      {
+        "id": "L3",
+        "image": "la/L3.webp",
+        "text": "grotuvai bega"
+      },
+      {
+        "id": "L4",
+        "image": "la/L4.webp",
+        "text": "plaktukas"
+      },
+      {
+        "id": "L5",
+        "image": "la/L5.webp",
+        "text": "plaktukas miega"
+      },
+      {
+        "id": "L6",
+        "image": "la/L6.webp",
+        "text": "plaktukai miega"
+      },
+      {
+        "id": "L7",
+        "image": "la/L7.webp",
+        "text": "grotuvas verda"
+      },
+      {
+        "id": "L8",
+        "image": "la/L8.webp",
+        "text": "grotuvas verdane"
+      },
+      {
+        "id": "L9",
+        "image": "la/L9.webp",
+        "text": "plaktukai verda"
+      },
+      {
+        "id": "L10",
+        "image": "la/L10.webp",
+        "text": "plaktukai verdane"
+      },
+      {
+        "id": "L11",
+        "image": "la/L11.webp",
+        "text": "grotuvas miegane"
+      },
+      {
+        "id": "L12",
+        "image": "la/L12.webp",
+        "text": "grotuvai miegane"
+      },
+      {
+        "id": "L13",
+        "image": "la/L13.webp",
+        "text": "plaktukas begane"
+      },
+      {
+        "id": "L14",
+        "image": "la/L14.webp",
+        "text": "plaktukai begane"
+      },
+      {
+        "id": "L15",
+        "image": "la/L15.webp",
+        "text": "grotuvas melyn miega"
+      },
+      {
+        "id": "L16",
+        "image": "la/L16.webp",
+        "text": "plaktukai gelton bega"
+      },
+      {
+        "id": "L17",
+        "image": "la/L17.webp",
+        "text": "grotuvai gelton verda"
+      },
+      {
+        "id": "L18",
+        "image": "la/L18.webp",
+        "text": "plaktukas melyn verdane"
+      },
+      {
+        "id": "L19",
+        "image": "la/L19.webp",
+        "text": "grotuvai melyn miegane"
+      },
+      {
+        "id": "L20",
+        "image": "la/L20.webp",
+        "text": "plaktukas gelton begane"
+      }
+    ],
+    "items": [
+      {
+        "id": "T1",
+        "image": "la/T1.webp",
+        "options": [
+          "lapinas miega",
+          "lapinai miega",
+          "lapinai miegane",
+          "lapinas miegane"
+        ],
+        "answer": 0
+      },
+      {
+        "id": "T2",
+        "image": "la/T2.webp",
+        "options": [
+          "lapinas miegane",
+          "lapinas miega",
+          "lapinai miega",
+          "lapinai miegane"
+        ],
+        "answer": 0
+      },
+      {
+        "id": "T3",
+        "image": "la/T3.webp",
+        "options": [
+          "lapinai bega",
+          "lapinai begane",
+          "lapinas bega",
+          "lapinas begane"
+        ],
+        "answer": 0
+      },
+      {
+        "id": "T4",
+        "image": "la/T4.webp",
+        "options": [
+          "lapinai verdane",
+          "lapinai verda",
+          "lapinas verdane",
+          "lapinas verda"
+        ],
+        "answer": 0
+      },
+      {
+        "id": "T5",
+        "image": "la/T5.webp",
+        "options": [
+          "grotuvas lipa",
+          "grotuvas lipane",
+          "grotuvai lipa",
+          "grotuvai lipane"
+        ],
+        "answer": 0
+      },
+      {
+        "id": "T6",
+        "image": "la/T6.webp",
+        "options": [
+          "plaktukas dirba",
+          "plaktukas dirbane",
+          "plaktukai dirba",
+          "plaktukai dirbane"
+        ],
+        "answer": 0
+      },
+      {
+        "id": "T7",
+        "image": "la/T7.webp",
+        "options": [
+          "plaktukas loja",
+          "plaktukas lojane",
+          "plaktukai loja",
+          "plaktukai lojane"
+        ],
+        "answer": 0
+      },
+      {
+        "id": "T8",
+        "image": "la/T8.webp",
+        "options": [
+          "grotuvas lipane",
+          "grotuvas lipa",
+          "grotuvai lipa",
+          "grotuvai lipane"
+        ],
+        "answer": 0
+      },
+      {
+        "id": "T9",
+        "image": "la/T9.webp",
+        "options": [
+          "grotuvas lojane",
+          "grotuvas loja",
+          "grotuvai loja",
+          "grotuvai lojane"
+        ],
+        "answer": 0
+      },
+      {
+        "id": "T10",
+        "image": "la/T10.webp",
+        "options": [
+          "plaktukas dirbane",
+          "plaktukas dirba",
+          "plaktukai dirba",
+          "plaktukai dirbane"
+        ],
+        "answer": 0
+      },
+      {
+        "id": "T11",
+        "image": "la/T11.webp",
+        "options": [
+          "grotuvai lipa",
+          "grotuvai lipane",
+          "grotuvas lipa",
+          "grotuvas lipane"
+        ],
+        "answer": 0
+      },
+      {
+        "id": "T12",
+        "image": "la/T12.webp",
+        "options": [
+          "plaktukai dirba",
+          "plaktukai dirbane",
+          "plaktukas dirba",
+          "plaktukas dirbane"
+        ],
+        "answer": 0
+      },
+      {
+        "id": "T13",
+        "image": "la/T13.webp",
+        "options": [
+          "plaktukai loja",
+          "plaktukai lojane",
+          "plaktukas lojane",
+          "plaktukas loja"
+        ],
+        "answer": 0
+      },
+      {
+        "id": "T14",
+        "image": "la/T14.webp",
+        "options": [
+          "grotuvai lipane",
+          "grotuvas lipane",
+          "grotuvas lipa",
+          "grotuvai lipa"
+        ],
+        "answer": 0
+      },
+      {
+        "id": "T15",
+        "image": "la/T15.webp",
+        "options": [
+          "grotuvai lojane",
+          "grotuvai loja",
+          "grotuvas loja",
+          "grotuvas lojane"
+        ],
+        "answer": 0
+      },
+      {
+        "id": "T16",
+        "image": "la/T16.webp",
+        "options": [
+          "plaktukai dirbane",
+          "plaktukai dirba",
+          "plaktukas dirbane",
+          "plaktukas dirba"
+        ],
+        "answer": 0
+      },
+      {
+        "id": "T17",
+        "image": "la/T17.webp",
+        "options": [
+          "grotuvas purvin miega",
+          "grotuvai purvin miega",
+          "purvin grotuvas miega",
+          "grotuvas purvin miegane"
+        ],
+        "answer": 0
+      },
+      {
+        "id": "T18",
+        "image": "la/T18.webp",
+        "options": [
+          "plaktukas tylus miegane",
+          "plaktukai tylus miegane",
+          "tylus plaktukas miegane",
+          "plaktukas tylus miega"
+        ],
+        "answer": 0
+      },
+      {
+        "id": "T19",
+        "image": "la/T19.webp",
+        "options": [
+          "plaktukas tylus verdane",
+          "plaktukai tylus verdane",
+          "tylus plaktukas verdane",
+          "plaktukas tylus verda"
+        ],
+        "answer": 0
+      },
+      {
+        "id": "T20",
+        "image": "la/T20.webp",
+        "options": [
+          "grotuvai purvin verda",
+          "grotuvas purvin verda",
+          "purvin grotuvai verda",
+          "grotuvai purvin verdane"
+        ],
+        "answer": 0
+      },
+      {
+        "id": "T21",
+        "image": "la/T21.webp",
+        "options": [
+          "grotuvai tylus begane",
+          "grotuvas tylus begane",
+          "tylus grotuvai begane",
+          "grotuvai tylus bega"
+        ],
+        "answer": 0
+      },
+      {
+        "id": "T22",
+        "image": "la/T22.webp",
+        "options": [
+          "plaktukai purvin bega",
+          "plaktukas purvin bega",
+          "purvin plaktukai bega",
+          "plaktukai purvin begane"
+        ],
+        "answer": 0
+      },
+      {
+        "id": "T23",
+        "image": "la/T23.webp",
+        "options": [
+          "grotuvas gelton lipane",
+          "grotuvai gelton lipane",
+          "gelton grotuvas lipane",
+          "grotuvas gelton lipa"
+        ],
+        "answer": 0
+      },
+      {
+        "id": "T24",
+        "image": "la/T24.webp",
+        "options": [
+          "plaktukas gelton dirbane",
+          "plaktukai gelton dirbane",
+          "gelton plaktukas dirbane",
+          "plaktukas gelton dirba"
+        ],
+        "answer": 0
+      },
+      {
+        "id": "T25",
+        "image": "la/T25.webp",
+        "options": [
+          "grotuvas melyn loja",
+          "grotuvai melyn loja",
+          "melyn grotuvas loja",
+          "grotuvas melyn lojane"
+        ],
+        "answer": 0
+      },
+      {
+        "id": "T26",
+        "image": "la/T26.webp",
+        "options": [
+          "grotuvai melyn lipa",
+          "grotuvas melyn lipa",
+          "melyn grotuvai lipa",
+          "grotuvai melyn lipane"
+        ],
+        "answer": 0
+      },
+      {
+        "id": "T27",
+        "image": "la/T27.webp",
+        "options": [
+          "plaktukai gelton dirba",
+          "plaktukas gelton dirba",
+          "gelton plaktukai dirba",
+          "plaktukai gelton dirbane"
+        ],
+        "answer": 0
+      },
+      {
+        "id": "T28",
+        "image": "la/T28.webp",
+        "options": [
+          "plaktukai melyn lojane",
+          "plaktukas melyn lojane",
+          "melyn plaktukai lojane",
+          "plaktukai melyn loja"
+        ],
+        "answer": 0
+      },
+      {
+        "id": "T29",
+        "image": "la/T29.webp",
+        "options": [
+          "lapinas gelton verdane",
+          "lapinai gelton verdane",
+          "gelton lapinas verdane",
+          "lapinas gelton verda"
+        ],
+        "answer": 0
+      },
+      {
+        "id": "T30",
+        "image": "la/T30.webp",
+        "options": [
+          "lapinai melyn bega",
+          "lapinas melyn bega",
+          "melyn lapinai bega",
+          "lapinai melyn begane"
+        ],
+        "answer": 0
+      }
+    ]
+  }
+}

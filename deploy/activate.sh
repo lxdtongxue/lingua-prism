@@ -25,6 +25,11 @@ done < <(find "$NEXT/fonts" -type f -name '*.ttf' -print0)
 if [ -d "$BASE/$PREVIOUS/assets" ]; then
   rsync -a --ignore-existing "$BASE/$PREVIOUS/assets/" "$NEXT/assets/"
 fi
+# Existing test tabs may still use the old manifest and its image filenames.
+# Retain those files without overwriting any material in the new release.
+if [ -d "$BASE/$PREVIOUS/tall" ]; then
+  rsync -a --ignore-existing "$BASE/$PREVIOUS/tall/" "$NEXT/tall/"
+fi
 find "$NEXT" -type d -exec chmod 755 {} +
 find "$NEXT" -type f -exec chmod 644 {} +
 ln -s "releases/$RELEASE" "$BASE/current.next"

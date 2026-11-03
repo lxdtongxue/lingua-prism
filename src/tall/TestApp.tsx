@@ -5,8 +5,9 @@ import { content } from '../content/content'
 import { Exam } from './Exam'
 import { ORDER, type Sub } from './items'
 import { LanguageBackdrop } from './LanguageBackdrop'
+import { centerPath } from '../paths'
 
-const home = (hash: string) => `${import.meta.env.BASE_URL}center/#${hash}`
+const home = (section: 'test' | 'lab') => centerPath(import.meta.env.BASE_URL, section)
 
 // The second-level page. Going back to the overview is a real navigation, so a
 // subtest in progress leaves nothing behind and the browser's Back button works.

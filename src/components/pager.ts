@@ -1,4 +1,5 @@
 import { engine, Spring } from '../gl/engine'
+import { centerPath } from '../paths'
 
 // The site is two pages. The home page holds the hero, the project introduction, the
 // goals and the references; the test center holds the TALL test and the recommendation.
@@ -16,7 +17,9 @@ export const SECTIONS = GROUPS.flat()
 export const groupOf = (id: string) => GROUPS.findIndex((g) => g.includes(id))
 const siteOf = (id: string) => (Object.keys(LAYOUTS) as Site[]).find((s) => LAYOUTS[s].flat().includes(id))
 // A page's first section is its top, so it needs no hash.
-export const siteUrl = (site: Site, id?: string) => `${import.meta.env.BASE_URL}${site === 'center' ? 'center/' : ''}${id && id !== LAYOUTS[site][0][0] ? `#${id}` : ''}`
+export const siteUrl = (site: Site, id?: string) => site === 'center'
+  ? centerPath(import.meta.env.BASE_URL, id === 'lab' ? 'lab' : 'test')
+  : `${import.meta.env.BASE_URL}${id && id !== 'hero' ? `#${id}` : ''}`
 const query = matchMedia('(max-width: 900px)')
 
 type Listener = () => void
