@@ -2,7 +2,7 @@
 
 推送 `main` 后，GitHub Actions 分别部署 GitHub Pages 和腾讯云。也可在 Actions 的 **Deploy to Tencent Cloud** 页面手动运行。
 
-腾讯云构建使用 Node.js 24 与 `--base=/`，不需要在服务器安装 Node.js。工作流使用专用账号 `lingua-deploy`，不使用 root 密钥。
+腾讯云构建使用 Node.js 24 与 `--base=/`，不需要在服务器安装 Node.js。工作流使用专用账号 `lingua-deploy`，不使用 root 密钥。通过 rsync 校验内容并复用当前版本的相同文件，避免重复上传字体、音频；字体压缩副本也尽量复用，变更时在服务器生成。
 
 仓库 Actions Secrets：
 

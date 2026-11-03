@@ -10,6 +10,17 @@ for page in index.html test/index.html center/index.html survey/index.html; do
 done
 test -d "$NEXT/assets"
 PREVIOUS="$(readlink "$BASE/current")"
+# Reuse precompressed fonts when the original file is unchanged.
+# New fonts are compressed on the server, avoiding an extra upload.
+while IFS= read -r -d '' font; do
+  RELATIVE="${font#"$NEXT/"}"
+  OLD="$BASE/$PREVIOUS/$RELATIVE"
+  if [ "$font" -ef "$OLD" ] && [ -s "$OLD.gz" ]; then
+    ln "$OLD.gz" "$font.gz"
+  else
+    gzip -n -9 -k -f "$font"
+  fi
+done < <(find "$NEXT/fonts" -type f -name '*.ttf' -print0)
 # Keep assets needed by tabs that were open before the deployment.
 if [ -d "$BASE/$PREVIOUS/assets" ]; then
   cp -an "$BASE/$PREVIOUS/assets/." "$NEXT/assets/"

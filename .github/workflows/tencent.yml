@@ -24,8 +24,6 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npm run build -- --base=/
-      - name: Compress fonts
-        run: find dist/fonts -type f -name '*.ttf' -exec gzip -9 -k {} \;
       - name: Upload and activate
         env:
           DEPLOY_KEY: ${{ secrets.TENCENT_DEPLOY_KEY }}
@@ -44,6 +42,7 @@ jobs:
           RELEASE="${GITHUB_SHA}-${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}"
           REMOTE="/var/www/lingua-prism-auto/releases/$RELEASE"
           "${SSH[@]}" "$TARGET" "mkdir -p '$REMOTE'"
-          tar -C dist -czf - . | "${SSH[@]}" "$TARGET" "tar -xzf - -C '$REMOTE'"
+          rsync -az --checksum --link-dest=/var/www/lingua-prism-auto/current \
+            -e "${SSH[*]}" dist/ "$TARGET:$REMOTE/"
           "${SSH[@]}" "$TARGET" "bash -s -- '$RELEASE'" < deploy/activate.sh
           printf 'Deployed commit %s\n' "$GITHUB_SHA" >> "$GITHUB_STEP_SUMMARY"
