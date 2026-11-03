@@ -1,7 +1,10 @@
 import { useEffect, useLayoutEffect, useRef, useState, type MouseEvent, type PointerEvent } from 'react'
 import { engine, Spring } from '../gl/engine'
-import { BookOpen, FlaskConical, Layers, Target, Triangle } from 'lucide-react'
+import { BookOpen, FlaskConical, Layers, Target, Triangle, UserRound } from 'lucide-react'
 import { useI18n } from './i18n'
+import { Account } from './Account'
+import { Avatar } from './Avatar'
+import { useAccount } from './session'
 import { goTo, groupOf, pager, SECTIONS, setDockMin, setPage } from './pager'
 import { usePagerState } from './usePagerGesture'
 
@@ -207,7 +210,9 @@ export function Nav() {
 
   // The title drifts to centre on the way down and the language switch dissolves.
   const brand = useRef<HTMLAnchorElement>(null)
-  const lang2 = useRef<HTMLButtonElement>(null)
+  const lang2 = useRef<HTMLDivElement>(null)
+  const [acctOpen, setAcctOpen] = useState(false)
+  const account = useAccount()
   const titleFold = useRef(new Spring(0, 90, 19))
   useEffect(
     () =>
@@ -298,9 +303,14 @@ export function Nav() {
           <span data-wordmark={lang === 'en'}>{t.brand}</span>
           <small data-wordmark={lang === 'zh'}>{t.brandEn}</small>
         </a>
-        <button className="chrome lang" ref={lang2} onClick={switchLang} aria-label={t.langLabel}>
-          {t.langSwitch}
-        </button>
+        <div className="topbar__end" ref={lang2}>
+          <button className="chrome acct-btn" onClick={() => setAcctOpen(true)} aria-label={account ? `${t.account.open} · ${account.nickname}` : t.account.open}>
+            {account ? <Avatar id={account.avatar} size={36} /> : <UserRound size={20} strokeWidth={1.8} />}
+          </button>
+          <button className="chrome lang" onClick={switchLang} aria-label={t.langLabel}>
+            {t.langSwitch}
+          </button>
+        </div>
       </header>
       <nav
         className="dock chrome"
@@ -337,6 +347,7 @@ export function Nav() {
           </a>
         ))}
       </nav>
+      <Account open={acctOpen} onClose={() => setAcctOpen(false)} />
     </>
   )
 }

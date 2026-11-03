@@ -19,6 +19,16 @@ PATH=/opt/homebrew/bin:$PATH npm run dev
 
 推送到 `main` 后，GitHub Actions 自动发布到 GitHub Pages。
 
+### 登录代码
+
+登录代码为 8 位数字，由项目组发放。`public/codes.json` 只保存代码的 SHA-256 哈希，不含明文。新增代码：
+
+```bash
+PATH=/opt/homebrew/bin:$PATH node scripts/make-codes.mjs 50 >> ../登录代码.txt
+```
+
+脚本把新代码的哈希追加到 `public/codes.json`，明文输出到终端，上例写入仓库外的 `登录代码.txt`。明文代码不得提交到仓库。
+
 ## 项目结构
 
 | 位置 | 内容 |
@@ -29,6 +39,7 @@ PATH=/opt/homebrew/bin:$PATH npm run dev
 | `src/decision/` | G、R、P 的算法、权重生成和问卷 |
 | `src/tall/` | 站内测验流程和题目校验，题目配置说明见 `src/tall/README.md` |
 | `src/data/` | 常模、语言需求、决策数据和 ASJP 距离矩阵，来源见 `src/data/LICENSE.md` |
+| `src/components/Account.tsx`、`session.ts`、`Avatar.tsx` | 代码登录、昵称和预设头像 |
 | `src/components/pager.ts` | 移动端分页，`GROUPS` 须与 `App.tsx` 的 `.tabpage` 保持一致 |
 | `src/gl/` | WebGL 渲染引擎和着色器 |
 | `public/tall/`、`public/fonts/` | 测验材料和字体 |
@@ -45,18 +56,35 @@ PATH=/opt/homebrew/bin:$PATH npm run dev
 
 - TALL 题目与常模采用 CC BY-NC-SA，本站不得用于商业用途；A 在基础版与进阶版中必须保持一致。
 - HarmonyOS Sans 字体文件不得修改或单独分发，须保留页脚声明和 `public/fonts/LICENSE.txt`。
-- 测验结果和问卷答案仅保存在用户本地浏览器，不上传服务器。
+- 测验结果、问卷答案、昵称和头像仅保存在用户本地浏览器，不上传服务器。
 
 ## 已知限制
 
 - T 的语法部分有十门语言全部或部分使用 AI 编码，且为多数票结果，未经仲裁。
-- 进阶版尚无账号与付费机制，目前为开放试用。
+- 进阶版尚无付费机制，目前为开放试用。
+- 网站没有后端，登录只核对代码是否在清单中，昵称、头像和进度不跨设备同步。清单随网页公开，代码只用于区分用户，不能保护任何数据。
+- 代码登录已实现，但入口暂时关闭；手机 / 邮箱登录仅有入口，尚未实现。
 - G、R 中的就业、学术、线上三列为经验定档，尚待统计数据替换。
 - A 的部分语法数据由 AI 编码，尚未经人工核实。
 
 ## 更新日志
 
 时间为上传至 GitHub 的时间（UTC+8），以 GitHub Actions 部署记录为准。
+
+### v6
+
+新增账号登录入口和预设头像，代码登录已实现，暂以内测状态关闭。
+
+新增：
+
+- 顶栏新增账号按钮，登录页提供「代码登录」和「手机 / 邮箱登录」两个入口，目前均标为内测中，暂未开放。
+- 代码登录已实现但未开放：输入 8 位代码，核对通过后设置昵称、选择头像，同一设备再次输入同一代码会带出上次的昵称和头像。
+- 八款预设头像：小猫、兔子、小熊、小鸡、青蛙、熊猫、狐狸、小芽，由代码绘制。
+- 新增 `scripts/make-codes.mjs`，用于随机生成登录代码，网站只保存代码的哈希。
+
+维护：
+
+- 首批生成 200 个登录代码，明文保存在仓库外。
 
 ### v5.4.1（2026-11-03 13:02:00）
 
