@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import { I18n, initialLang } from './components/i18n'
 import { content, type Lang } from './content/content'
 import { Stage } from './components/Stage'
+import { Details } from './components/Details'
 import { Nav } from './components/Nav'
 import { Intro } from './components/Intro'
 import { restoreHash } from './components/pager'
@@ -72,6 +73,7 @@ export default function App() {
           </div>
         </main>
         <div id="sheets" />
+        <Details />
       </div>
     </I18n.Provider>
   )

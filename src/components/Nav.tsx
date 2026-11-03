@@ -18,6 +18,7 @@ const clamp01 = (v: number) => Math.min(1, Math.max(0, v))
 const FOLD_SCROLL = 48
 const DRAG_PX = 6
 const ICON_W = 50
+const LANG_SWAP_MS = 430
 
 export function Nav() {
   const { t, lang, setLang } = useI18n()
@@ -264,6 +265,23 @@ export function Nav() {
     if (!pager.enabled) history.replaceState(null, '', `#${id}`)
   }
 
+  // A prism-coloured wipe grows from the button and the language swaps behind it.
+  const switchLang = () => {
+    const next = lang === 'zh' ? 'en' : 'zh'
+    const box = lang2.current?.getBoundingClientRect()
+    if (engine.reduced || !box || document.querySelector('.lang-wipe')) {
+      setLang(next)
+      return
+    }
+    const wipe = document.createElement('div')
+    wipe.className = 'lang-wipe'
+    wipe.style.setProperty('--x', `${box.left + box.width / 2}px`)
+    wipe.style.setProperty('--y', `${box.top + box.height / 2}px`)
+    document.body.append(wipe)
+    window.setTimeout(() => setLang(next), LANG_SWAP_MS)
+    wipe.addEventListener('animationend', (e) => e.animationName === 'wipe-out' && wipe.remove())
+  }
+
   return (
     <>
       <header className="topbar">
@@ -274,7 +292,7 @@ export function Nav() {
           <span data-wordmark={lang === 'en'}>{t.brand}</span>
           <small data-wordmark={lang === 'zh'}>{t.brandEn}</small>
         </a>
-        <button className="chrome lang" ref={lang2} onClick={() => setLang(lang === 'zh' ? 'en' : 'zh')} aria-label={t.langLabel}>
+        <button className="chrome lang" ref={lang2} onClick={switchLang} aria-label={t.langLabel}>
           {t.langSwitch}
         </button>
       </header>

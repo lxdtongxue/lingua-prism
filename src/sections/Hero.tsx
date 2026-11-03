@@ -40,7 +40,7 @@ export function Hero() {
         </p>
         <h1>
           {h.title.map((line, i) => (
-            <span className="line" key={line}>
+            <span className="line" key={i}>
               <span style={at(`${1.25 + i * 0.1}s`)}>{line}</span>
             </span>
           ))}

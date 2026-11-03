@@ -417,7 +417,7 @@ export function Lab() {
           <b>{pick.a == null ? '—' : Math.round(pick.a)}</b>
           <span>{l.aLabel}</span>
         </div>
-        <p className="sheet__lead">{pick.t ? l.whyT.replace('{name}', nameOf(pick.t.nearest)).replace('{s}', String(Math.round(pick.t.value))) : l.whyTNone}</p>
+        <p className="sheet__lead">{pick.t ? l.whyT.replace('{name}', nameOf(pick.t.nearest)).replace('{s}', String(Math.round(pick.t.lexical))).replace('{gname}', nameOf(pick.t.grammarNearest)).replace('{g}', String(Math.round(pick.t.grammar))) : l.whyTNone}</p>
         <p className="sheet__lead">{whyText}</p>
         <ul className="facets">
           {([['G', whyG], ['R', whyR], ['P', whyP]] as const).map(([k, text]) => (
