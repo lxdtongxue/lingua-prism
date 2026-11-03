@@ -459,7 +459,7 @@ class Engine {
     try {
       const sceneU = [
         'uCss', 'uDocTop', 'uDocLeft', 'uT', 'uVH', 'uE', 'uX', 'uIn', 'uFan', 'uSpread', 'uI1', 'uI2', 'uHero', 'uPR', 'uC',
-        'uPool', 'uPoolC', 'uRay', 'uRayG', 'uTxt', 'uTxtA', 'uTxtLod', 'uTxtSoft', 'uRowH',
+        'uPool', 'uPoolC', 'uRay', 'uRayG', 'uTxt', 'uTxtA', 'uTxtLod', 'uTxtSoft', 'uRowH', 'uWordsEnd',
       ]
       const glassU = [
         'uQuad', 'uRes', 'uRect', 'uRadius', 'uBevel', 'uDepth', 'uFrost', 'uDim', 'uAlpha', 'uPx', 'uHover', 'uShadow',
@@ -953,7 +953,11 @@ class Engine {
     this.tex(0, this.textTex)
     gl.uniform1i(s.u.uTxt, 0)
     // Narrow screens stack body copy over the rays, so the words stay quieter there.
-    gl.uniform1f(s.u.uTxtA, this.textA.x * mix(0.65, 0.78, clamp((this.cssW - 420) / 480, 0, 1)))
+    // Only the home page carries words. Horizontal paging fades them away;
+    // desktop scrolling uses a per-pixel fade before the hero's bottom edge.
+    const homeWords = this.pager ? 1 - ease(clamp(Math.abs(page), 0, 1)) : 1
+    gl.uniform1f(s.u.uTxtA, this.textA.x * pageA * homeWords * mix(0.65, 0.78, clamp((this.cssW - 420) / 480, 0, 1)))
+    gl.uniform1f(s.u.uWordsEnd, this.pager ? 0 : (hero?.closest('section')?.getBoundingClientRect().bottom ?? this.vh) + sy)
     const atlasRow = this.textRowHeight
     const rowH = Math.min(this.vh * 0.125, this.cssW * 0.13 + 24)
     // Small type blurs into bands, so phones get a tighter blur.

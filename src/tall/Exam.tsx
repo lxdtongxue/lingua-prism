@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState, type ReactNode } from 'react'
-import { TriangleAlert } from 'lucide-react'
+import { Info, TriangleAlert } from 'lucide-react'
 import { CHANCE_FLOOR, maxScore } from '../a/score'
 import { useI18n } from '../components/i18n'
 import { saveResult } from '../components/tall'
@@ -369,6 +369,7 @@ function Shell({ title, step, phase, sub, stage, placeholder, onExit, tools, chi
   }, [stage, sub])
   return (
     <div className="exam exam--tall" data-sub={sub} data-stage={stage}>
+      <div className="exam__chrome">
       <header className="exam__head">
         <span className="exam__step">{step}</span>
         <div className="exam__identity"><strong>{title}</strong><span>{phase}</span></div>
@@ -380,7 +381,8 @@ function Shell({ title, step, phase, sub, stage, placeholder, onExit, tools, chi
           </button>
         )}
       </header>
-      <p className="exam__rule">{e.rule}</p>
+      <p className="exam__rule"><Info size={15} aria-hidden="true" /><span>{e.rule}</span></p>
+      </div>
       <main className="exam__body" ref={body}><div className="exam__workspace">{children}</div></main>
       <footer className="exam__foot">{e.credit}</footer>
     </div>

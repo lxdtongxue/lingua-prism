@@ -40,7 +40,7 @@ uniform vec3 uPoolC[8];
 uniform vec3 uRay[5];
 uniform float uRayG[5];
 uniform sampler2D uTxt;
-uniform float uTxtA, uTxtLod, uTxtSoft, uRowH;
+uniform float uTxtA, uTxtLod, uTxtSoft, uRowH, uWordsEnd;
 
 float fld(vec2 q, float t){
   return sin(q.x * 1.3 + sin(q.y * 1.1 + t * .11) * 1.2)
@@ -154,7 +154,8 @@ void main(){
     tx += textureLod(uTxt, vec2(tu, tv) + vec2(cos(a), sin(a)) * bl, lod).r;
   }
   tx *= .125;
-  c += tx * uTxtA * (vec3(.11, .125, .17) * uHero + vec3(.012, .014, .02) + lit * .34 * uHero + pool * .1);
+  float wordMask = uWordsEnd > 0. ? 1. - smoothstep(uWordsEnd - uVH * .6, uWordsEnd, P.y) : 1.;
+  c += tx * uTxtA * wordMask * (vec3(.11, .125, .17) * uHero + vec3(.012, .014, .02) + lit * .34 * uHero + pool * .1);
 
   c = 1. - exp(-c * 1.32);
   o = vec4(c, 1.);

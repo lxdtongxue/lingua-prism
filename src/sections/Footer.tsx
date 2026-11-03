@@ -1,5 +1,6 @@
 import { useI18n } from '../components/i18n'
 import { goTo } from '../components/pager'
+import { openUpdates, RELEASE_VERSION } from '../components/Updates'
 
 export function FooterBody() {
   const { t } = useI18n()
@@ -29,11 +30,13 @@ export function FooterBody() {
 }
 
 export function Footer() {
+  const { t } = useI18n()
   return (
     <footer className="foot">
       <div className="wrap foot__grid">
         <FooterBody />
       </div>
+      <div className="wrap foot__updates"><span>语棱 Lingua Prism · {RELEASE_VERSION}</span><button type="button" className="foot__link" onClick={openUpdates}>{t.updates.entry}</button></div>
     </footer>
   )
 }

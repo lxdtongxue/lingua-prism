@@ -5,6 +5,7 @@ import { Stage } from './components/Stage'
 import { Details } from './components/Details'
 import { Nav } from './components/Nav'
 import { Intro } from './components/Intro'
+import { Updates } from './components/Updates'
 import { restoreHash } from './components/pager'
 import { usePagerGesture } from './components/usePagerGesture'
 import { Hero } from './sections/Hero'
@@ -74,6 +75,7 @@ export default function App() {
         </main>
         <div id="sheets" />
         <Details />
+        <Updates />
       </div>
     </I18n.Provider>
   )

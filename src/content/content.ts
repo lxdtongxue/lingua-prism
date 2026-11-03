@@ -22,6 +22,17 @@ const zh = {
   langLabel: 'Switch to English',
   intro: { hintMouse: '向下滚动，或稍候片刻', hintTouch: '向上滑动，或稍候片刻' },
   close: '关闭',
+  updates: {
+    title: '这次，语棱有了这些变化',
+    history: '历史更新',
+    entry: '版本与更新',
+    close: '关闭',
+    back: '返回更新概要',
+    latest: '当前版本',
+    note: '从最初的棱镜，到今天的语棱。每一次修改，都留在这里。',
+    languageNote: '',
+    summary: ['更新后首次打开，会在这里看到本次概要，也可以翻阅历次更新。', '首页和五维介绍换了些说法，希望读起来更像一次交谈。', '语言流瀑留在首页和测验页，其他页面回归安静的背景。', '测验页顶部合为一个完整面板，作答提醒与标题更协调。'],
+  },
   account: {
     open: '账号',
     kicker: '账号',
@@ -61,7 +72,7 @@ const zh = {
   hero: {
     eyebrow: '语棱 Lingua Prism',
     title: ['循语言之理，', '见世界之棱。'],
-    lead: '同一门语言，对不同的人意味着不同的选择。语棱把这个决定分解成五束光：语言关系、学习能力、学习目标、资源条件和个人偏好。',
+    lead: '从熟悉的语言出发，去遇见更大的世界。看看自己的长处，也听听心里的向往，让下一门语言慢慢清晰。',
     cta1: '开始 TALL 测试',
     cta2: '了解项目',
     ctaNote: '3 项测验，支持电脑、手机和平板',
@@ -98,8 +109,8 @@ const zh = {
   },
   spectrum: {
     kicker: '项目简介 · 五维',
-    title: '一个决定，五束光。',
-    intro: '五个指标回答五个不同的问题。它们评价的对象不同，彼此互补，不互相替代。',
+    title: '下一门语言，从哪里开始？',
+    intro: '有些语言似曾相识，有些恰好合你的长处。你想用它去哪里，身边有哪些学习的门路，又对哪一种心生欢喜？把这些放在一起，选择便有了轮廓。',
     coreLabel: '核心问题',
     boundaryLabel: '构念边界',
     items: {
@@ -364,6 +375,17 @@ const en: typeof zh = {
   langLabel: '切换到中文',
   intro: { hintMouse: 'Scroll down, or just wait a moment', hintTouch: 'Swipe up, or just wait a moment' },
   close: 'Close',
+  updates: {
+    title: 'A few things have changed',
+    history: 'Update history',
+    entry: 'Versions & updates',
+    close: 'Close',
+    back: 'Back to the overview',
+    latest: 'Current version',
+    note: 'From the first prism to Lingua Prism today. Every change has a place here.',
+    languageNote: 'Release notes are currently available in Chinese.',
+    summary: ['A short overview appears on your first visit after an update, with the full history close at hand.', 'The home page and five-dimension introduction read a little more like a conversation.', 'The word stream stays on the home and test pages; other pages have a quieter background.', 'The test header and instructions now share one balanced panel.'],
+  },
   account: {
     open: 'Account',
     kicker: 'Account',
@@ -403,7 +425,7 @@ const en: typeof zh = {
   hero: {
     eyebrow: '语棱 Lingua Prism',
     title: ['Follow the grain of language,', 'see the facets of the world.'],
-    lead: 'The same language means something different to every learner. Lingua Prism splits the decision into five beams: language relations, learning ability, goals, resources and personal preference.',
+    lead: 'Start with the languages you know, and see where they might take you. Bring your strengths and curiosity along. Your next language may be closer than you think.',
     cta1: 'Start the TALL test',
     cta2: 'About the project',
     ctaNote: 'Three subtests. On your computer, phone or tablet.',
@@ -440,8 +462,8 @@ const en: typeof zh = {
   },
   spectrum: {
     kicker: 'About · Spectrum',
-    title: 'One decision. Five beams.',
-    intro: 'Each dimension answers a different question about a different object. They complement one another and never stand in for one another.',
+    title: 'Where might your next language begin?',
+    intro: 'Some languages feel familiar; others play to your strengths. Where would you like yours to take you? What could help you learn it, and which one keeps calling to you? Together, these give your choice a shape.',
     coreLabel: 'Core question',
     boundaryLabel: 'Construct boundary',
     items: {
