@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { History, Sparkles, X } from 'lucide-react'
 import changelog from '../../CHANGELOG.md?raw'
 import { version } from '../../package.json'
@@ -10,7 +10,7 @@ const releases = parseReleaseNotes(changelog)
 const SEEN = 'lingua-prism-seen-release'
 export const openUpdates = () => window.dispatchEvent(new Event('lp-updates'))
 
-function unseen() {
+export function hasUnseenRelease() {
   try {
     return localStorage.getItem(SEEN) !== RELEASE_VERSION && sessionStorage.getItem(SEEN) !== RELEASE_VERSION
   } catch {
@@ -26,37 +26,25 @@ function remember() {
 
 const inline = (text: string) => text.split(/(`[^`]+`)/).map((s, i) => s.startsWith('`') ? <code key={i}>{s.slice(1, -1)}</code> : s)
 
-export function Updates() {
+export function Updates({ initialOverview, onInitialDismiss }: { initialOverview: boolean; onInitialDismiss: () => void }) {
   const { t } = useI18n()
   const u = t.updates
-  const [view, setView] = useState<'overview' | 'history' | null>(null)
+  const [view, setView] = useState<'overview' | 'history' | null>(() => initialOverview ? 'overview' : null)
   const dialog = useRef<HTMLDialogElement>(null)
   const scroll = useRef<HTMLDivElement>(null)
-  const autoHandled = useRef(false)
-  const dismiss = useCallback(() => { remember(); setView(null) }, [])
+  const dismiss = useCallback(() => {
+    remember()
+    setView(null)
+    if (initialOverview) onInitialDismiss()
+  }, [initialOverview, onInitialDismiss])
 
   useEffect(() => {
-    let timer = 0
-    const check = () => {
-      if (autoHandled.current || !unseen()) return
-      const html = document.documentElement
-      const ready = html.classList.contains('entered') && !html.classList.contains('intro-on') && !html.classList.contains('sheet-open')
-      if (!ready) { window.clearTimeout(timer); timer = 0; return }
-      if (timer) return
-      timer = window.setTimeout(() => {
-        autoHandled.current = true
-        setView('overview')
-      }, 700)
-    }
-    const history = () => { autoHandled.current = true; window.clearTimeout(timer); setView('history') }
-    const observer = new MutationObserver(check)
-    observer.observe(document.documentElement, { attributes: true, attributeFilter: ['class'] })
+    const history = () => setView('history')
     window.addEventListener('lp-updates', history)
-    check()
-    return () => { observer.disconnect(); window.clearTimeout(timer); window.removeEventListener('lp-updates', history) }
+    return () => window.removeEventListener('lp-updates', history)
   }, [])
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     const el = dialog.current!
     if (view) {
       if (!el.open) el.showModal()

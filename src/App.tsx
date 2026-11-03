@@ -5,7 +5,7 @@ import { Stage } from './components/Stage'
 import { Details } from './components/Details'
 import { Nav } from './components/Nav'
 import { Intro } from './components/Intro'
-import { Updates } from './components/Updates'
+import { Updates, hasUnseenRelease } from './components/Updates'
 import { restoreHash } from './components/pager'
 import { usePagerGesture } from './components/usePagerGesture'
 import { Hero } from './sections/Hero'
@@ -20,6 +20,7 @@ import { Footer } from './sections/Footer'
 
 export default function App() {
   const [lang, setLang] = useState<Lang>(initialLang)
+  const [startupUpdates, setStartupUpdates] = useState(hasUnseenRelease)
   const t = content[lang]
   const track = useRef<HTMLElement>(null)
   usePagerGesture(track)
@@ -51,7 +52,7 @@ export default function App() {
           <i />
         </div>
         <Nav />
-        <Intro />
+        <Intro blocked={startupUpdates} />
         <main className="page" ref={track}>
           <div className="tabpage">
             <Hero />
@@ -75,7 +76,7 @@ export default function App() {
         </main>
         <div id="sheets" />
         <Details />
-        <Updates />
+        <Updates initialOverview={startupUpdates} onInitialDismiss={() => setStartupUpdates(false)} />
       </div>
     </I18n.Provider>
   )

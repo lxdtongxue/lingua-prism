@@ -28,9 +28,9 @@ const enter = () => document.documentElement.classList.add('entered')
 
 // First visit in a session: the name types itself. Scrolling or swiping drives it,
 // and if the visitor does nothing it finishes on its own.
-export function Intro() {
+export function Intro({ blocked = false }: { blocked?: boolean }) {
   const { t } = useI18n()
-  const [play, setPlay] = useState(shouldPlay)
+  const [play, setPlay] = useState(() => (blocked && !engine.reduced && !location.hash) || shouldPlay())
   const root = useRef<HTMLDivElement>(null)
   const word = useRef<HTMLDivElement>(null)
   const caret = useRef<HTMLElement>(null)
@@ -39,7 +39,15 @@ export function Intro() {
 
   useLayoutEffect(() => {
     const html = document.documentElement
+    if (blocked) {
+      engine.holdIntro()
+      engine.setPageAlpha(0, true)
+      html.classList.add('updates-pending')
+      return () => html.classList.remove('updates-pending')
+    }
     if (!play) {
+      engine.releaseIntro()
+      engine.setPageAlpha(1)
       enter()
       return
     }
@@ -47,10 +55,10 @@ export function Intro() {
     engine.setPageAlpha(0, true)
     html.classList.add('intro-on')
     return () => html.classList.remove('intro-on')
-  }, [play])
+  }, [play, blocked])
 
   useEffect(() => {
-    if (!play) return
+    if (!play || blocked) return
     let p = 0
     let target = 0
     let lastInput = -1e9
@@ -180,9 +188,9 @@ export function Intro() {
       engine.setPageAlpha(1)
       enter()
     }
-  }, [play])
+  }, [play, blocked])
 
-  if (!play) return null
+  if (!play || blocked) return null
   return (
     <div className="splash" ref={root} aria-hidden="true">
       <div className="splash__word" ref={word}>

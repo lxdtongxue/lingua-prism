@@ -146,6 +146,7 @@ class Engine {
   private scrolledAt = 0
   private sampledAt = 0
   private barColor = ''
+  private touchChrome = matchMedia('(pointer: coarse)').matches
 
   // Interaction state.
   private ptr = { x: -1e4, y: -1e4, inside: false, touch: false, down: false }
@@ -719,31 +720,43 @@ class Engine {
     }
     this.monitor(raw)
     this.draw(dt)
-    if (this.pager) this.sampleBar(now)
+    if (this.pager || this.touchChrome) this.sampleBar(now)
   }
 
-  // Browsers paint the status bar from the page colour, not the canvas, so it is
-  // kept matched to the scene's top edge. Reading pixels stalls the GPU, so this
-  // stays rare and never runs while anything is moving.
+  // Safari extends the document background into its browser chrome. Match both
+  // visible viewport edges, rather than the canvas's offscreen/large-height edges.
+  // Read only two rows, after drawing and while the page has settled.
   private sampleBar(now: number) {
     const gl = this.gl!
     if (now - this.sampledAt < SAMPLE_MS || now - this.scrolledAt < 400 || Math.abs(this.pagePos - Math.round(this.pagePos)) > 0.002) return
     this.sampledAt = now
-    const w = this.canvas!.width
+    const canvas = this.canvas!
+    const w = canvas.width
     const px = new Uint8Array(w * 4)
-    gl.readPixels(0, this.canvas!.height - 1, w, 1, gl.RGBA, gl.UNSIGNED_BYTE, px)
-    const c = [0, 1, 2].map((k) => {
-      let sum = 0
-      for (let i = 0; i < w; i++) sum += px[i * 4 + k]
-      return Math.round(sum / w)
-    })
-    const hex = `#${c.map((v) => v.toString(16).padStart(2, '0')).join('')}`
-    if (hex === this.barColor) return
-    this.barColor = hex
-    document.documentElement.style.backgroundColor = hex
-    document.documentElement.style.setProperty('--bar', hex)
-    document.body.style.backgroundColor = hex
-    document.querySelector('meta[name="theme-color"]')?.setAttribute('content', hex)
+    const viewport = window.visualViewport
+    const top = this.overscan + (viewport?.offsetTop ?? 0)
+    const bottom = top + (viewport?.height ?? this.vh)
+    const sample = (cssY: number) => {
+      const y = Math.round(clamp(canvas.height - cssY * this.pxScale - 1, 0, canvas.height - 1))
+      gl.readPixels(0, y, w, 1, gl.RGBA, gl.UNSIGNED_BYTE, px)
+      // A lost context returns zeroes; keep the last valid background in that case.
+      if (!px.some((v, i) => i % 4 === 3 && v > 0)) return null
+      return '#' + [0, 1, 2].map((k) => {
+        let sum = 0
+        for (let i = 0; i < w; i++) sum += px[i * 4 + k]
+        return Math.round(sum / w).toString(16).padStart(2, '0')
+      }).join('')
+    }
+    const upper = sample(top)
+    const lower = sample(bottom)
+    if (!upper || !lower || `${upper}/${lower}` === this.barColor) return
+    this.barColor = `${upper}/${lower}`
+    const html = document.documentElement
+    html.style.setProperty('--bar', upper)
+    html.style.setProperty('--bar-bottom', lower)
+    html.style.backgroundColor = upper
+    document.body.style.backgroundColor = lower
+    document.querySelector('meta[name="theme-color"]')?.setAttribute('content', upper)
   }
 
   private stepPanes(dt: number, now: number) {

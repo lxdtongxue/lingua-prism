@@ -31,6 +31,7 @@ export function Nav() {
   const dock = useRef<HTMLElement>(null)
   const drop = useRef<HTMLSpanElement>(null)
   const bar = useRef<HTMLDivElement>(null)
+  const home = useRef<HTMLAnchorElement>(null)
   const links = useRef<(HTMLAnchorElement | null)[]>([])
   const x = useRef(new Spring(0, 240, 25))
   const w = useRef(new Spring(0, 240, 25))
@@ -121,6 +122,13 @@ export function Nav() {
     })
     const b = bar.current
     if (!b) return
+    b.style.setProperty('--m', e.toFixed(3))
+    b.dataset.folded = e > 0.98 ? 'true' : 'false'
+    if (home.current) {
+      home.current.inert = m.target === 1
+      home.current.style.visibility = e > 0.98 ? 'hidden' : ''
+    }
+    links.current.forEach((a, i) => { if (a) a.inert = m.target === 1 && current.current !== i })
     const left = brand.current?.offsetLeft ?? 0
     const centre = window.innerWidth / 2
     b.style.transform = `translate3d(${(centre + (left + b.offsetWidth / 2 - centre) * e).toFixed(2)}px,0,0) translateX(-50%)`
@@ -313,8 +321,8 @@ export function Nav() {
         </div>
       </header>
       <div className="dockbar" ref={bar}>
-      {/* The hero sits above the tabs, so its button stands apart from the bar. */}
-      <a className="dock-home chrome" href="#hero" aria-label={t.nav.home} aria-current={active < 0 ? 'true' : undefined} onClick={(e) => go(e, 'hero')}>
+      {/* Home stands apart while expanded, and folds away with the tabs. */}
+      <a ref={home} className="dock-home chrome" href="#hero" aria-label={t.nav.home} aria-current={active < 0 ? 'true' : undefined} onClick={(e) => go(e, 'hero')}>
         <Triangle size={20} strokeWidth={1.8} />
       </a>
       <nav

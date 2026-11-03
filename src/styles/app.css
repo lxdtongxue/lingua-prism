@@ -33,10 +33,10 @@
 html:lang(en) { --font: "HarmonyOS Sans", "HarmonyOS Sans SC", "HarmonyOS Sans Naskh Arabic", -apple-system, "PingFang SC", "Apple SD Gothic Neo", "Noto Sans CJK KR", sans-serif; }
 
 *, *::before, *::after { box-sizing: border-box; }
-html { background: var(--ink); color-scheme: dark; -webkit-text-size-adjust: 100%; scroll-padding-top: 84px; }
+html { background: linear-gradient(180deg, var(--bar, #172334), var(--bar-bottom, #191b2b)) fixed; background-color: var(--bar, #172334); color-scheme: dark; -webkit-text-size-adjust: 100%; scroll-padding-top: 84px; }
 body {
   margin: 0;
-  background: var(--ink);
+  background: transparent;
   color: var(--fg);
   font-family: var(--font);
   font-size: 1rem;
@@ -143,9 +143,9 @@ h4 { font-size: 1.06rem; font-weight: 500; line-height: 1.4; }
 .dockbar {
   position: fixed; z-index: 31; left: 0; bottom: calc(14px + env(safe-area-inset-bottom));
   transform: translateX(calc(50vw - 50%));
-  display: flex; align-items: center; gap: 10px;
+  --m: 0; display: flex; align-items: center; gap: calc(10px * (1 - var(--m)));
 }
-.dock-home { flex: none; display: grid; place-items: center; width: 60px; height: 60px; border-radius: 50%; color: var(--fg2); touch-action: manipulation; }
+.dock-home { flex: none; display: grid; place-items: center; width: calc(60px * (1 - var(--m))); height: 60px; border-radius: 50%; color: var(--fg2); touch-action: manipulation; overflow: hidden; opacity: calc(1 - var(--m)); transform: scale(calc(1 - var(--m) * .3)); }
 .dock-home[aria-current] { color: #fff; box-shadow: inset 0 0 0 1.5px rgba(255, 255, 255, .42), inset 0 .5px 0 rgba(255, 255, 255, .62), 0 12px 36px rgba(0, 0, 0, .42); }
 @media (hover: hover) { .dock-home:not([aria-current]):hover { color: var(--fg); } }
 .dock {
@@ -513,7 +513,7 @@ html.pager .veil i:nth-child(3) { -webkit-backdrop-filter: blur(12px); backdrop-
 .splash__hint { position: absolute; left: 0; right: 0; bottom: calc(env(safe-area-inset-bottom) + 12vh); text-align: center; font-size: .86rem; color: var(--fg3); opacity: 0; transition: opacity .5s; }
 html.intro-on { overflow: hidden; }
 html.intro-on .brand { opacity: 0; }
-html.intro-on .topbar__end, html.intro-on .dockbar { opacity: 0; pointer-events: none; }
+html.updates-pending .topbar, html.updates-pending .dockbar, html.intro-on .topbar__end, html.intro-on .dockbar { opacity: 0; pointer-events: none; }
 .topbar__end, .dockbar { transition-property: opacity; transition-duration: .7s; transition-timing-function: var(--ease); }
 html:not(.entered) .intro, html:not(.entered) .line > span { animation-play-state: paused; }
 
@@ -833,3 +833,8 @@ button.pic:hover, button.pic:focus-visible, .pic:focus-visible { outline: 2px so
   .updates__actions button { flex: 1; padding-inline: 10px; font-size: .88rem; }
   .updates__summary li { font-size: .9rem; gap: 10px; }
 }
+
+/* Keep Safari's safe areas colored even before the canvases are ready. */
+html:has(.exam-backdrop) { --bar: #14202c; --bar-bottom: #201d31; }
+html:has(.exam-backdrop) body { background-color: var(--bar-bottom); }
+html:has(.exam--survey) { --bar: #0b0e16; --bar-bottom: #0b0e16; }

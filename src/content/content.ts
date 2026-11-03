@@ -31,7 +31,7 @@ const zh = {
     latest: '当前版本',
     note: '从最初的棱镜，到今天的语棱。每一次修改，都留在这里。',
     languageNote: '',
-    summary: ['更新后首次打开，会在这里看到本次概要，也可以翻阅历次更新。', '首页和五维介绍换了些说法，希望读起来更像一次交谈。', '语言流瀑留在首页和测验页，其他页面回归安静的背景。', '测验页顶部合为一个完整面板，作答提醒与标题更协调。'],
+    summary: ['调整 iOS Safari 上下边缘的背景颜色，让浏览器栏与页面衔接。', '导航收起时，首页按钮一同淡出；展开后仍可单独返回首页。', '先看更新，关掉弹窗后再播放入场动画。'],
   },
   account: {
     open: '账号',
@@ -384,7 +384,7 @@ const en: typeof zh = {
     latest: 'Current version',
     note: 'From the first prism to Lingua Prism today. Every change has a place here.',
     languageNote: 'Release notes are currently available in Chinese.',
-    summary: ['A short overview appears on your first visit after an update, with the full history close at hand.', 'The home page and five-dimension introduction read a little more like a conversation.', 'The word stream stays on the home and test pages; other pages have a quieter background.', 'The test header and instructions now share one balanced panel.'],
+    summary: ['Safari’s top and bottom edges now follow the page background.', 'The home button folds away with the tabs and returns when you expand them.', 'Read the update first. The entrance animation begins after you close it.'],
   },
   account: {
     open: 'Account',
