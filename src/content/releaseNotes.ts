@@ -1,5 +1,7 @@
 export type Release = { version: string; date?: string; lead: string[]; groups: { label: string; items: string[] }[] }
 
+export const formatVersion = (version: string) => `v${version.startsWith('0.') ? version.slice(2) : version.replace(/\.0\.0$/, '')}`
+
 // The site reads the same changelog as the repository; releases aren't copied by hand.
 export function parseReleaseNotes(markdown: string): Release[] {
   const headings = [...markdown.matchAll(/^### (v[^\n（]+?)(?:（([^）]+)）)?\s*$/gm)]

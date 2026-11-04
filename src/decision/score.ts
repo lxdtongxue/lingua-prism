@@ -211,7 +211,8 @@ export const ORIENT_ITEMS = { G: ['O1', 'O4', 'O7', 'O10'], R: ['O2', 'O5', 'O8'
 export function weightInput(a: Answers): WeightInput | null {
   const pick = (ids: readonly string[]) => ids.map((id) => a.orient[id])
   const out = { G: pick(ORIENT_ITEMS.G), R: pick(ORIENT_ITEMS.R), P: pick(ORIENT_ITEMS.P), S1: a.S.S1 as number, S2: a.S.S2 as number, S3: a.S.S3 as number }
-  return [...out.G, ...out.R, ...out.P, out.S1, out.S2, out.S3].some((v) => v == null) ? null : out
+  return [...out.G, ...out.R, ...out.P].every(v => Number.isInteger(v) && v >= 1 && v <= 5)
+    && [out.S1, out.S2, out.S3].every(v => [3, 1, -1, -3].includes(v)) ? out : null
 }
 
 export type Weights = Record<'T' | 'A' | Scored, number>
@@ -281,11 +282,11 @@ export function shifted(w: Weights, d: Scored): Weights {
 }
 
 export function report(rows: Row[], w: Weights) {
-  const order = ranked(rows, w)
+  const order = ranked(rows, w).filter(row => weightedScore(row.values, w) !== null)
   return order.slice(0, 5).map((row, i) => {
     const have = DIMS.filter((d) => row.values[d] != null && w[d] > 0)
     const by = (fn: (d: (typeof DIMS)[number]) => number) => [...have].sort((a, b) => fn(b) - fn(a))
-    const top = by((d) => w[d] * (row.values[d] as number)).slice(0, 2)
+    const top = by((d) => w[d] * (row.values[d] as number)).filter(d => (row.values[d] as number) > 0).slice(0, 2)
     const weak = by((d) => -(row.values[d] as number))[0]
     const flips = (['G', 'R', 'P'] as const).flatMap((d) => {
       const first = ranked(rows, shifted(w, d))[0]

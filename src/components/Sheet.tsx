@@ -25,6 +25,9 @@ export function Sheet({ open, onClose, kicker, title, tone, fill, children }: Pr
   const close = useRef<HTMLButtonElement>(null)
   const returnTo = useRef<Element | null>(null)
   const drag = useRef<number | null>(null)
+  const dismiss = useRef(onClose)
+
+  useLayoutEffect(() => { dismiss.current = onClose }, [onClose])
 
   useLayoutEffect(() => {
     if (open) {
@@ -36,25 +39,42 @@ export function Sheet({ open, onClose, kicker, title, tone, fill, children }: Pr
     engine.dismiss(pane.current)
     const id = window.setTimeout(() => setMounted(false), CLOSE_MS)
     return () => window.clearTimeout(id)
-  }, [open, mounted])
+  }, [open])
 
   useEffect(() => {
-    if (!open) return
+    if (!open || !mounted) return
     setBackdrop(1)
     close.current?.focus({ preventScroll: true })
-    const onKey = (e: KeyboardEvent) => e.key === 'Escape' && onClose()
+    const onKey = (e: KeyboardEvent) => {
+      const sheet = pane.current?.closest('.sheet')
+      const sheets = document.querySelectorAll('#sheets > .sheet:not([inert])')
+      if (sheet !== sheets[sheets.length - 1]) return
+      if (e.key === 'Escape') {
+        e.preventDefault()
+        dismiss.current()
+      } else if (e.key === 'Tab') {
+        const items = [...(pane.current?.querySelectorAll<HTMLElement>('button, a[href], input, select, textarea, [tabindex]') ?? [])]
+          .filter(el => el.tabIndex >= 0 && !el.matches(':disabled, [aria-disabled="true"]') && el.getClientRects().length > 0)
+        const first = items[0]
+        const last = items.at(-1)
+        if (first && last && (!pane.current?.contains(document.activeElement) || (e.shiftKey ? document.activeElement === first : document.activeElement === last))) {
+          e.preventDefault()
+          ;(e.shiftKey ? last : first).focus()
+        }
+      }
+    }
     window.addEventListener('keydown', onKey)
     return () => {
       setBackdrop(-1)
       window.removeEventListener('keydown', onKey)
       if (returnTo.current instanceof HTMLElement) returnTo.current.focus({ preventScroll: true })
     }
-  }, [open, onClose])
+  }, [open, mounted])
 
   const root = document.getElementById('sheets')
   if (!mounted || !root) return null
   return createPortal(
-    <div className={`sheet${tone ? ` tone-${tone}` : ''}`} role="dialog" aria-modal="true" aria-label={title} onClick={(e) => e.target === e.currentTarget && onClose()}>
+    <div className={`sheet${tone ? ` tone-${tone}` : ''}`} role="dialog" aria-modal="true" aria-label={title} inert={!open} onClick={(e) => e.target === e.currentTarget && onClose()}>
       <Glass className={`sheet__pane${fill ? ' sheet__pane--fill' : ''}`} radius={34} bevel={22} depth={1.5} frost={0.2} dim={0.2} shadow={0.8} layer={2} force elRef={pane}>
         <header
           className="sheet__head"

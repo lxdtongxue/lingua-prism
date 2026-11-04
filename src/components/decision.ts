@@ -44,7 +44,9 @@ window.addEventListener('storage', (e) => {
 })
 window.addEventListener('lp-state-imported', reload)
 
-export const setTier = (tier: Tier) => commit({ ...state, tier })
+export const setTier = (tier: Tier) => {
+  if (tier !== state.tier) commit({ ...state, tier, surveyPage: 0 })
+}
 export const patchAnswers = (patch: Partial<Answers>) => commit({ ...state, answers: { ...state.answers, ...patch } })
 export const setSlider = (d: Scored, v: number) => commit({ ...state, sliders: { ...state.sliders, [d]: v } })
 export const setAnchor = (d: 'T' | 'A', v: number, otherWeight?: number) => {

@@ -70,6 +70,7 @@ export function Account({ open, onClose }: { open: boolean; onClose: () => void 
     body = <form className="acct acct__form" onSubmit={onCode}>
       {back}<label className="field"><span>{a.codeLabel}</span><input className="acct__input" type="password" value={token} autoComplete="off" autoCapitalize="none" spellCheck={false} maxLength={32} placeholder={a.codePh} onChange={event => { setToken(event.target.value); setError(null) }} /></label>
       <p className="note">{a.codeHelp}</p>
+      {location.protocol === 'http:' && !['localhost', '127.0.0.1', '[::1]'].includes(location.hostname) && <p className="acct__err" role="note">{a.transportNote}</p>}
       <label className="acct__consent"><input type="checkbox" checked={consent} onChange={event => setConsent(event.target.checked)} /><span>{a.consent}</span></label>
       {!account && <label className="acct__consent"><input type="checkbox" checked={importLocal} onChange={event => setImportLocal(event.target.checked)} /><span>{a.importLocal}</span></label>}
       {err}<button type="submit" className="sheet__cta" disabled={busy || !consent || !/^[A-Za-z0-9_-]{8,32}$/.test(token.trim())}>{busy ? a.connecting : a.next}</button>

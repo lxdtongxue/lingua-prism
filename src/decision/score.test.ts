@@ -199,3 +199,11 @@ test('T/A sweeps through zero budget and back without corrupting G:R:P', () => {
   }
   assert.deepEqual(ratio, { G: 5, R: 3, P: 2 })
 })
+
+test('reports handle zero budgets, a single contribution and empty inputs', () => {
+  const rows = [{ id: 'a', values: { T: 60, A: null, G: null, R: 0, P: null } }]
+  assert.deepEqual(report([], { T: 20, A: 20, G: 20, R: 20, P: 20 }), [])
+  assert.deepEqual(report(rows, { T: 0, A: 0, G: 0, R: 0, P: 0 }), [])
+  assert.deepEqual(report(rows, { T: 20, A: 0, G: 0, R: 80, P: 0 })[0].top, ['T'])
+  assert.deepEqual(report(rows, { T: 0, A: 0, G: 0, R: 100, P: 0 })[0].top, [])
+})

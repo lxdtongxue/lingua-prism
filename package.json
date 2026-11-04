@@ -1,13 +1,13 @@
 {
   "name": "lingua-prism",
   "private": true,
-  "version": "0.6.7",
+  "version": "7.0.0",
   "type": "module",
   "scripts": {
     "dev": "vite --host",
     "build": "tsc --noEmit && vite build",
     "preview": "vite preview --host",
-    "test": "node --test src/a/score.test.ts src/a/similarity.test.ts src/decision/score.test.ts src/tall/items.test.ts src/paths.test.ts src/components/sync-data.test.ts src/components/slider.test.ts",
+    "test": "node --test src/a/score.test.ts src/a/similarity.test.ts src/decision/score.test.ts src/decision/flow.test.ts src/tall/items.test.ts src/paths.test.ts src/components/sync-data.test.ts src/components/slider.test.ts src/content/content.test.ts",
     "test:server": "python3 -m unittest discover -s server -p 'test_*.py'"
   },
   "dependencies": {

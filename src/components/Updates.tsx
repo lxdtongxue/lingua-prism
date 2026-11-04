@@ -2,10 +2,10 @@ import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react
 import { History, Sparkles, X } from 'lucide-react'
 import changelog from '../../CHANGELOG.md?raw'
 import { version } from '../../package.json'
-import { parseReleaseNotes } from '../content/releaseNotes'
+import { formatVersion, parseReleaseNotes } from '../content/releaseNotes'
 import { useI18n } from './i18n'
 
-export const RELEASE_VERSION = `v${version.replace(/^0\./, '')}`
+export const RELEASE_VERSION = formatVersion(version)
 const releases = parseReleaseNotes(changelog)
 const SEEN = 'lingua-prism-seen-release'
 export const openUpdates = () => window.dispatchEvent(new Event('lp-updates'))
@@ -63,7 +63,7 @@ export function Updates({ initialOverview, onInitialDismiss }: { initialOverview
           <p className="updates__intro">{u.note}</p>
           {u.languageNote && <p className="note">{u.languageNote}</p>}
           <div className="updates__history">{releases.map((r, i) => <details key={r.version} open={i === 0}>
-            <summary><strong>{r.version}</strong>{r.date && <time dateTime={`${r.date.replace(' ', 'T')}+08:00`}>{r.date.slice(0, 10)}</time>}</summary>
+            <summary><strong>{r.version}</strong>{r.date && <time dateTime={r.date.includes(' ') ? `${r.date.replace(' ', 'T')}+08:00` : r.date}>{r.date.slice(0, 10)}</time>}</summary>
             <div className="updates__release">{r.lead.map((s) => <p key={s}>{inline(s)}</p>)}{r.groups.map((g) => <section key={g.label}><h3>{g.label}</h3><ul>{g.items.map((s) => <li key={s}>{inline(s)}</li>)}</ul></section>)}</div>
           </details>)}</div>
         </> : <ul className="updates__summary">{u.summary.map((s, i) => <li key={s}><span>{String(i + 1).padStart(2, '0')}</span><p>{s}</p></li>)}</ul>}

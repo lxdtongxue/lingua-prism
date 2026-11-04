@@ -268,14 +268,22 @@ export function Lab() {
   const partial = pick?.lang.la_source === 'grambank+ai_fill'
   const dec = LANGS.find((x) => x.id === pick?.id)
   const goal = bestGoal(answers.goals)
-  const whyG = dec && pick?.values.G != null ? l.whyG.replace('{goal}', c.goalsShort[goal]).replace('{level}', l.levels[dec.g[goal] - 1]) : l.surveyFirst
+  const whyG = dec && pick?.values.G != null
+    ? tier === 'sponsor'
+      ? l.whyGDetail.replace('{score}', String(Math.round(pick.values.G)))
+      : l.whyG.replace('{goal}', c.goalsShort[goal]).replace('{level}', l.levels[dec.g[goal] - 1])
+    : l.surveyFirst
   const whyR = dec ? l.whyR.replace('{cover}', l.levels[dec.r.coverage - 1]).replace('{mode}', c.modeWords[answers.mode]).replace('{level}', l.levels[modeTier(dec, answers.mode) - 1]) : ''
-  const interest = dec ? interestOf(dec, answers) : null
+  const interest = dec ? tier === 'sponsor' ? interestOf(dec, answers) : answers.regionInterest[dec.region] ?? null : null
   const acceptKeys: Accept[] = tier === 'sponsor' ? ['VL', 'SD', 'LA'] : ['VL', 'SD']
   const whyP = pick?.values.P == null
     ? l.surveyFirst
     : [
-        interest != null ? l.whyP.replace('{region}', lang === 'zh' ? (dec?.region ?? '') : (REGION_EN[dec?.region ?? ''] ?? '')).replace('{score}', String(interest)) : '',
+        interest != null
+          ? (tier === 'sponsor' && dec && answers.langInterest[dec.id] != null
+              ? l.whyLangP.replace('{name}', pick?.name ?? '')
+              : l.whyP.replace('{region}', lang === 'zh' ? (dec?.region ?? '') : (REGION_EN[dec?.region ?? ''] ?? ''))).replace('{score}', String(interest))
+          : '',
         // A language at the bottom of the scale doesn't demand this, so there is nothing to warn about.
         ...acceptKeys.filter((k) => answers.accept[k] != null && answers.accept[k] !== 3 && (dec?.[`D_${k}`] ?? 0) > 0.2).map((k) => l.whyAccept.replace('{need}', l.needs[k]).replace('{choice}', c.willing[(answers.accept[k] as number) - 1])),
       ].join('')
@@ -336,6 +344,7 @@ export function Lab() {
               </button>
             )}
             {rows.length === 0 && <p className="note">{l.emptyPool}</p>}
+            {rows.length > 0 && rows.every(row => row.score === null) && <p className="note">{l.noScore}</p>}
             <RankList rows={shown} onOpen={openDetail} refs={rowEls.current} />
             {rows.length > SHOW_TOP && (
               <button type="button" className="lab__more" onClick={() => setOpen('all')}>
@@ -424,7 +433,7 @@ export function Lab() {
         <ol className="cites">
           {reports.map((r) => (
             <li key={r.id}>
-              {l.reportTop.replace('{name}', nameById(r.id)).replace('{rank}', String(r.rank)).replace('{a}', dimLine(r.top[0], nameById(r.id))).replace('{b}', r.top[1] ? dimLine(r.top[1], nameById(r.id)) : '')}
+              {(r.top.length ? l.reportTop.replace('{factors}', r.top.map(d => dimLine(d, nameById(r.id))).join(lang === 'zh' ? '、' : ' and ')) : l.reportNoContribution).replace('{name}', nameById(r.id)).replace('{rank}', String(r.rank))}
               {r.weak && l.reportWeak.replace('{dim}', dimLine(r.weak, nameById(r.id)))}
               {r.flips.map((f) => l.reportFlip.replace('{dim}', l.dimShort[f.dim]).replace('{name}', nameById(f.id))).join('')}
             </li>

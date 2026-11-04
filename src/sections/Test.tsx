@@ -45,7 +45,7 @@ export function Test() {
         <div className="flow">
           {ORDER.map((sub, i) => {
             const r = results[sub]
-            const locked = i > 0 && !results[ORDER[i - 1]]
+            const locked = ORDER.slice(0, i).some(previous => !results[previous])
             const s = c.subs[sub]
             return (
               <Card
@@ -87,7 +87,7 @@ export function Test() {
               {c.toLab}
             </button>
             {count > 0 && (
-              <button type="button" className="sheet__link" onClick={clearResults}>
+              <button type="button" className="sheet__link" onClick={() => { if (window.confirm(c.clearConfirm)) clearResults() }}>
                 {c.clear}
               </button>
             )}

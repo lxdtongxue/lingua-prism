@@ -4,18 +4,11 @@ import { patchAnswers, setTier, setSurveyPage, useDecision } from '../components
 import { content } from '../content/content'
 import demands from '../data/language_demands.json'
 import { COUNTRY_EN, ORIENT_ORDER, questions, REGION_EN, REVERSED, SITUATIONS } from './questions'
+import { pageIndex, pageReady, pagesFor, type Page } from './flow'
 import { centerPath } from '../paths'
-import { ACAD_SUBS, bestGoal, checks, COUNTRIES, GOALS, interestOf, JOB_SUBS, LANGS, ORIENT_ITEMS, questionnaireWeights, REGIONS, topRegion, weightInput, type Answers, type Detail, type Goal, type Mode, type Scored, type Tier } from './score'
-
-type Page = 'start' | 'orient' | 'g1' | 'g2' | 'g3' | 'g4' | 'g5' | 'g6' | 'r1' | 'p1' | 'p2' | 'accept' | 'dilemma' | 'confirm'
+import { ACAD_SUBS, bestGoal, checks, COUNTRIES, GOALS, interestOf, JOB_SUBS, LANGS, ORIENT_ITEMS, questionnaireWeights, REGIONS, topRegion, weightInput, type Answers, type Detail, type Goal, type Mode, type Scored } from './score'
 
 const home = centerPath(import.meta.env.BASE_URL, 'lab')
-
-function pagesFor(a: Answers, tier: Tier): Page[] {
-  if (tier === 'basic') return ['start', 'g1', 'g2', 'r1', 'p1', 'accept']
-  const detail: Page[] = [...(a.goals.job >= 2 ? (['g3'] as const) : []), ...(a.goals.study >= 2 ? (['g4'] as const) : []), ...(a.goals.travel >= 2 ? (['g5'] as const) : []), ...(a.goals.academic >= 2 ? (['g6'] as const) : [])]
-  return ['start', 'orient', 'g1', 'g2', ...detail, 'r1', 'p1', 'p2', 'accept', 'dilemma', 'confirm']
-}
 
 function Choices({ labels, value, onPick, values }: { labels: string[]; value: number | string | null | undefined; onPick: (v: never) => void; values?: (number | string)[] }) {
   return (
@@ -47,11 +40,11 @@ export function Survey() {
   const c = questions[lang]
   const t = content[lang]
   const { answers: a, tier, surveyPage } = useDecision()
-  const [at, setAtState] = useState(surveyPage)
-  const setAt = (next: number) => { setAtState(next); setSurveyPage(next) }
-  useEffect(() => { setAtState(surveyPage) }, [surveyPage])
   const pages = useMemo(() => pagesFor(a, tier), [a, tier])
-  const page = pages[Math.min(at, pages.length - 1)]
+  const at = pageIndex(pages, surveyPage, a)
+  const setAt = setSurveyPage
+  useEffect(() => { if (surveyPage !== at) setSurveyPage(at) }, [surveyPage, at])
+  const page = pages[at]
   const value = useMemo(() => ({ t, lang, setLang: () => {} }), [t, lang])
   const set = (patch: Partial<Answers>) => patchAnswers({ ...patch, confirmed: false })
 
@@ -63,11 +56,12 @@ export function Survey() {
   }, [t, c, at])
 
   const regionName = (r: string | null) => (r ? (lang === 'zh' ? r : (REGION_EN[r] ?? r)) : c.someRegion)
-  const goalWord = a.g1 && a.g1 !== 'none' ? a.g1 : bestGoal(a.goals)
-  const fill = (s: string) => s.replace(/\{goal\}/g, c.goalsShort[goalWord]).replace(/\{region\}/g, regionName(topRegion(a))).replace(/\{mode\}/g, c.modeWords[a.mode])
+  const goalWord = a.g1 && a.g1 !== 'none' ? a.g1 : GOALS.some(g => a.goals[g] > 0) ? bestGoal(a.goals) : null
+  const fill = (s: string) => s.replace(/\{goal\}/g, goalWord ? c.goalsShort[goalWord] : c.generalGoal).replace(/\{region\}/g, regionName(topRegion(a))).replace(/\{mode\}/g, c.modeWords[a.mode])
 
-  const ready = page === 'orient' ? ORIENT_ORDER.every((id) => a.orient[id]) : page === 'g1' ? !!a.g1 : page === 'dilemma' ? !!(a.S.S1 && a.S.S2 && a.S.S3) : true
+  const ready = pageReady(page, a)
   const finish = () => {
+    if (!pages.every(page => pageReady(page, a))) return
     setSurveyPage(0)
     patchAnswers({ done: true, confirmed: tier === 'sponsor', hits: checks(a).map((h) => h.id) })
     location.assign(home)
@@ -109,7 +103,7 @@ export function Survey() {
     const q = weightInput(a)
     if (!q) return null
     const r = questionnaireWeights(q)
-    const dims = (['G', 'R', 'P'] as const).map((d, i) => ({ d, pi: r.pi[i], w: Math.round([r.G, r.R, r.P][i]) })).sort((x, y) => y.pi - x.pi)
+    const dims = (['G', 'R', 'P'] as const).map((d, i) => ({ d, pi: r.pi[i], w: Math.round(r.pi[i] * 1000) / 10 })).sort((x, y) => y.pi - x.pi)
     const top = dims[0].d
     const scored = (id: string) => (REVERSED.includes(id) ? 6 - a.orient[id] : a.orient[id])
     const item = [...ORIENT_ITEMS[top]].sort((x, y) => scored(y) - scored(x))[0]
@@ -128,6 +122,7 @@ export function Survey() {
         ))}
         <h2>{c.confirmTitle}</h2>
         <p>{c.confirmLead}</p>
+        <p className="sv-hint">{c.ratioNote}</p>
         <ul>
           <li>
             <strong>{c.firstDim.replace('{dim}', c.dims[top]).replace('{w}', String(dims[0].w))}</strong>
@@ -137,7 +132,7 @@ export function Survey() {
           <li>{c.secondDim.replace('{dim}', c.dims[dims[1].d]).replace('{w}', String(dims[1].w))}</li>
           <li>{c.thirdDim.replace('{dim}', c.dims[dims[2].d]).replace('{w}', String(dims[2].w))}</li>
         </ul>
-        <p>{c.summary.replace('{goal}', c.goalsShort[goalWord]).replace('{region}', regionName(topRegion(a))).replace('{mode}', c.modeWords[a.mode])}</p>
+        <p>{c.summary.replace('{goal}', goalWord ? c.goalsShort[goalWord] : c.unset).replace('{region}', topRegion(a) ? regionName(topRegion(a)) : c.unset).replace('{mode}', c.modeWords[a.mode])}</p>
         <p className="sv-q">{c.confirmAsk}</p>
         <div className="exam__row">
           <button type="button" className="exam__btn" onClick={finish}>
@@ -161,7 +156,6 @@ export function Survey() {
             <button key={id} type="button" className="sv-tier" aria-pressed={tier === id} onClick={() => setTier(id)}>
               <strong>
                 {id === 'basic' ? c.basicName : c.sponsorName}
-                {id === 'sponsor' && <em className="tag">{c.trial}</em>}
               </strong>
               <span>{id === 'basic' ? c.basicBody : c.sponsorBody}</span>
             </button>
