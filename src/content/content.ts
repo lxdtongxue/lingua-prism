@@ -304,7 +304,10 @@ const zh = {
     endCta: '前往测试中心',
   },
   footer: {
-    mobileLabel: '字体、数据与许可',
+    mobileLabel: '联系方式、字体、数据与许可',
+    contactTitle: '联系我们',
+    contact: '项目咨询与反馈',
+    contactEmail: 'lingua-prism@outlook.com',
     fontTitle: '字体声明',
     font: '本站使用 HarmonyOS Sans 字体。Copyright 2021 Huawei Device Co., Ltd. 依据 HarmonyOS Sans Fonts License Agreement 使用。',
     fontLink: '查看字体许可',
@@ -684,7 +687,10 @@ const en: typeof zh = {
     endCta: 'Go to the Test Center',
   },
   footer: {
-    mobileLabel: 'Fonts, data & licenses',
+    mobileLabel: 'Contact, fonts, data & licenses',
+    contactTitle: 'Contact',
+    contact: 'Project questions and feedback',
+    contactEmail: 'lingua-prism@outlook.com',
     fontTitle: 'Font notice',
     font: 'This site uses HarmonyOS Sans. Copyright 2021 Huawei Device Co., Ltd. Used under the HarmonyOS Sans Fonts License Agreement.',
     fontLink: 'View the font license',

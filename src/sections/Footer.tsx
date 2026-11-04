@@ -25,6 +25,11 @@ export function FooterBody() {
           <h4>{f.sampleTitle}</h4>
           <p>{f.sample}</p>
         </div>
+        <div>
+          <h4>{f.contactTitle}</h4>
+          <p>{f.contact}</p>
+          <a href={`mailto:${f.contactEmail}`}>{f.contactEmail}</a>
+        </div>
     </>
   )
 }

@@ -406,7 +406,7 @@ html.sheet-open .veil { opacity: 0; }
 
 /* Footer */
 .foot { padding-block: clamp(30px, 5vh, 54px) calc(96px + env(safe-area-inset-bottom)); border-top: 1px solid var(--hair); background: rgba(5, 6, 10, .55); }
-.foot__grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 24px clamp(24px, 4vw, 64px); }
+.foot__grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 24px clamp(20px, 3vw, 48px); }
 .foot__mobile { display: none; }
 @media (max-width: 900px) {
   .foot .foot__desktop { display: none; }
@@ -545,7 +545,6 @@ html.pager .veil i:nth-child(3) { -webkit-backdrop-filter: blur(12px); backdrop-
 .splash__hint { position: absolute; left: 0; right: 0; bottom: calc(env(safe-area-inset-bottom) + 12vh); text-align: center; font-size: .86rem; color: var(--fg3); opacity: 0; transition: opacity .5s; }
 html.intro-on { overflow: hidden; }
 html.intro-on .brand { opacity: 0; }
-html.updates-pending .topbar, html.updates-pending .dockbar, html.intro-on .topbar__end, html.intro-on .dockbar { opacity: 0; pointer-events: none; }
 .topbar__end, .dockbar { transition-property: opacity; transition-duration: .7s; transition-timing-function: var(--ease); }
 html:not(.entered) .intro, html:not(.entered) .line > span { animation-play-state: paused; }
 

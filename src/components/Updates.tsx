@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react'
+import { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { History, Sparkles, X } from 'lucide-react'
 import changelog from '../../CHANGELOG.md?raw'
 import { version } from '../../package.json'
@@ -7,36 +7,17 @@ import { useI18n } from './i18n'
 
 export const RELEASE_VERSION = formatVersion(version)
 const releases = parseReleaseNotes(changelog)
-const SEEN = 'lingua-prism-seen-release'
 export const openUpdates = () => window.dispatchEvent(new Event('lp-updates'))
-
-export function hasUnseenRelease() {
-  try {
-    return localStorage.getItem(SEEN) !== RELEASE_VERSION && sessionStorage.getItem(SEEN) !== RELEASE_VERSION
-  } catch {
-    return true
-  }
-}
-
-function remember() {
-  for (const name of ['localStorage', 'sessionStorage'] as const) {
-    try { window[name].setItem(SEEN, RELEASE_VERSION) } catch { /* dismiss still works if storage is blocked */ }
-  }
-}
 
 const inline = (text: string) => text.split(/(`[^`]+`)/).map((s, i) => s.startsWith('`') ? <code key={i}>{s.slice(1, -1)}</code> : s)
 
-export function Updates({ initialOverview, onInitialDismiss }: { initialOverview: boolean; onInitialDismiss: () => void }) {
+export function Updates() {
   const { t } = useI18n()
   const u = t.updates
-  const [view, setView] = useState<'overview' | 'history' | null>(() => initialOverview ? 'overview' : null)
+  const [view, setView] = useState<'overview' | 'history' | null>(null)
   const dialog = useRef<HTMLDialogElement>(null)
   const scroll = useRef<HTMLDivElement>(null)
-  const dismiss = useCallback(() => {
-    remember()
-    setView(null)
-    if (initialOverview) onInitialDismiss()
-  }, [initialOverview, onInitialDismiss])
+  const dismiss = () => setView(null)
 
   useEffect(() => {
     const history = () => setView('history')
@@ -69,7 +50,7 @@ export function Updates({ initialOverview, onInitialDismiss }: { initialOverview
         </> : <ul className="updates__summary">{u.summary.map((s, i) => <li key={s}><span>{String(i + 1).padStart(2, '0')}</span><p>{s}</p></li>)}</ul>}
       </div>
       <footer className="updates__actions">
-        <button type="button" className="sheet__cta sheet__cta--quiet" onClick={() => { remember(); setView(view === 'history' ? 'overview' : 'history') }}><History size={16} />{view === 'history' ? u.back : u.history}</button>
+        <button type="button" className="sheet__cta sheet__cta--quiet" onClick={() => setView(view === 'history' ? 'overview' : 'history')}><History size={16} />{view === 'history' ? u.back : u.history}</button>
         <button type="button" className="sheet__cta" onClick={dismiss}>{u.close}</button>
       </footer>
     </dialog>
