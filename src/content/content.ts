@@ -31,7 +31,7 @@ const zh = {
     latest: '当前版本',
     note: '从最初的棱镜，到今天的语棱。每一次修改，都留在这里。',
     languageNote: '',
-    summary: ['用自己设定的短令牌，在不同设备上接续已完成的测验、问卷和个人选择。', 'T、A 权重都可以调整；进阶版会保留问卷给出的 G:R:P 比例，分配剩余占比。', '手机页脚收为可展开的来源与许可入口，完整说明仍可随时查阅。'],
+    summary: ['修复调整 T、A 时其他滑块跳动、越出轨道的问题，所有滑块统一按 0–100% 显示。', '进阶版的 G、R、P 仅显示数值，按 T、A 的剩余占比自动分配；只有基础版保留这三项滑块。', '没有数据的 T、A 显示为 0%，暂不可拖动；剩余占比与实际计分保持一致。'],
   },
   account: {
     open: '个人记录',
@@ -244,6 +244,7 @@ const zh = {
     surveyEdit: '修改问卷答案',
     fixedNote: '两版都可以调整 T、A。基础版还可自主调整 G、R、P；进阶版用问卷梳理它们的内部比例。没有数据的指标暂不计入，剩余占比在可用指标间分配。',
     autoNote: 'G、R、P 保持已确认问卷生成的内部比例，分配 T、A 之外的剩余占比。可返回问卷修改答案。',
+    autoPending: '请完成并确认进阶问卷，生成 G、R、P 的内部比例。目前按原有手动比例预览剩余占比，仅基础版可直接调整这三项。',
     budgetNote: '当前 G、R、P 可分配 {n}%。',
     basicGuide: '简短问卷提供基础参照。你可以自主调整五项权重，直接表达自己的侧重。',
     advancedGuide: '详细问卷梳理目标与取舍，生成三项配置和解释；确认后使用，也可返回修改答案。T、A 由你调整。',
@@ -404,7 +405,7 @@ const en: typeof zh = {
     latest: 'Current version',
     note: 'From the first prism to Lingua Prism today. Every change has a place here.',
     languageNote: 'Release notes are currently available in Chinese.',
-    summary: ['Choose a short token to sync completed tests, questionnaire progress and preferences across devices.', 'Adjust T and A in either mode. Advanced keeps your confirmed G:R:P proportions when sharing the remaining weight.', 'Sources and licences now fold into a compact entry on mobile, with the full notices a tap away.'],
+    summary: ['Fixed other sliders jumping or leaving their tracks when T or A changes. Every track now uses a fixed 0–100% scale.', 'Advanced shows G, R and P as read-only values sharing the weight left after T and A. Only Basic keeps sliders for these three weights.', 'T and A show 0% and cannot be dragged without data, keeping the displayed budget consistent with scoring.'],
   },
   account: {
     open: 'Your records',
@@ -617,6 +618,7 @@ const en: typeof zh = {
     surveyEdit: 'Change my answers',
     fixedNote: 'T and A are adjustable in both tiers. Basic also lets you adjust G, R and P; Advanced uses the questionnaire to set their proportions. Dimensions without data are excluded and their share is redistributed.',
     autoNote: 'G, R and P keep the proportions from your confirmed questionnaire and share the weight left after T and A. Return to the questionnaire to revise your choices.',
+    autoPending: 'Complete and confirm the advanced questionnaire to generate G:R:P proportions. Until then, the remaining weight is previewed using your saved manual proportions. Only Basic allows direct adjustments to these three weights.',
     budgetNote: 'G, R and P currently share {n}%.',
     basicGuide: 'A brief questionnaire offers a starting point. Adjust all five weights to express your priorities.',
     advancedGuide: 'A detailed questionnaire explores your trade-offs and proposes G:R:P proportions with explanations. Confirm or revise your answers, and adjust T and A yourself.',

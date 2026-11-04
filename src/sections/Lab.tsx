@@ -15,8 +15,9 @@ import { LANGUAGES, sortedLanguages, toggleLanguage, useKnownLanguages, type Slo
 import { goTo } from '../components/pager'
 import { setAnchor, setManualWeight, setTier, useDecision } from '../components/decision'
 import { questions, REGION_EN } from '../decision/questions'
-import { configuredWeights, bestGoal, interestOf, LANGS, modeTier, questionnaireWeights, report, scoresFor, weightInput, type Accept, type Scored } from '../decision/score'
+import { configuredWeights, bestGoal, interestOf, LANGS, modeTier, questionnaireWeights, report, scoresFor, weightInput, type Accept } from '../decision/score'
 import { engine, Spring } from '../gl/engine'
+import { sliderShare, sliderValue } from '../components/slider'
 
 type W = Dim
 const SHOW_TOP = 8
@@ -41,18 +42,23 @@ function Slider({ dim, label, value, max = 100, onChange, locked }: { dim: W; la
         pos.current.step(dt)
         held.current.step(dt)
         const w = track.current?.clientWidth ?? 0
-        const x = THUMB_W / 2 + (max > 0 ? pos.current.x / max : 0) * (w - THUMB_W)
+        // Every track represents 0–100%. A changing budget must not rescale a
+        // spring still travelling from the previous value (especially at zero).
+        const share = sliderShare(pos.current.x)
+        const x = THUMB_W / 2 + share * Math.max(0, w - THUMB_W)
         const stretch = Math.min(Math.abs(pos.current.v) / 900, 0.3)
         const grow = 1 + held.current.x * 0.16
         if (thumb.current) thumb.current.style.transform = `translate3d(${x.toFixed(2)}px,0,0) scale(${(grow * (1 + stretch)).toFixed(3)},${(grow * (1 - stretch * 0.4)).toFixed(3)})`
         if (fill.current) fill.current.style.transform = `scaleX(${(x / Math.max(1, w)).toFixed(4)})`
       }),
-    [max],
+    [],
   )
 
   const at = (e: PointerEvent) => {
+    if (locked || max <= 0) return
     const r = track.current!.getBoundingClientRect()
-    onChange(Math.round(Math.min(max, Math.max(0, ((e.clientX - r.left - THUMB_W / 2) / (r.width - THUMB_W)) * max))))
+    const next = sliderValue(e.clientX - r.left, r.width, THUMB_W, max)
+    if (next !== null) onChange(next)
   }
   const onKey = (e: KeyboardEvent) => {
     if (locked) return
@@ -72,7 +78,7 @@ function Slider({ dim, label, value, max = 100, onChange, locked }: { dim: W; la
       <div
         className="slider__hit"
         role="slider"
-        tabIndex={0}
+        tabIndex={locked ? -1 : 0}
         aria-label={label}
         aria-valuemin={0}
         aria-valuemax={max}
@@ -80,7 +86,8 @@ function Slider({ dim, label, value, max = 100, onChange, locked }: { dim: W; la
         aria-disabled={locked}
         onKeyDown={onKey}
         onPointerDown={(e) => {
-          if (locked) return
+          if (locked || !e.isPrimary || e.button !== 0) return
+          dragged.current = false
           e.currentTarget.setPointerCapture(e.pointerId)
           held.current.target = 1
           // A finger may be starting a page scroll, so touch waits for a sideways drag or a tap.
@@ -88,7 +95,7 @@ function Slider({ dim, label, value, max = 100, onChange, locked }: { dim: W; la
           if (e.pointerType === 'mouse') at(e)
         }}
         onPointerMove={(e) => {
-          if (!e.currentTarget.hasPointerCapture(e.pointerId)) return
+          if (locked || !e.currentTarget.hasPointerCapture(e.pointerId)) return
           if (e.pointerType !== 'mouse' && !dragged.current) {
             const dx = Math.abs(e.clientX - start.current[0])
             const dy = Math.abs(e.clientY - start.current[1])
@@ -98,11 +105,17 @@ function Slider({ dim, label, value, max = 100, onChange, locked }: { dim: W; la
           at(e)
         }}
         onPointerUp={(e) => {
+          if (!e.currentTarget.hasPointerCapture(e.pointerId)) return
           if (e.pointerType !== 'mouse' && !dragged.current) at(e)
+          e.currentTarget.releasePointerCapture(e.pointerId)
           dragged.current = false
           held.current.target = 0
         }}
         onPointerCancel={() => {
+          dragged.current = false
+          held.current.target = 0
+        }}
+        onLostPointerCapture={() => {
           dragged.current = false
           held.current.target = 0
         }}
@@ -205,7 +218,7 @@ export function Lab() {
     return { rows: list.sort((x, y) => (y.score ?? -1) - (x.score ?? -1)), w }
   }, [known, answers, tier, sliders, anchors, percentiles, lang, hasA, auto])
 
-  const off = (d: Scored) => rows.length > 0 && rows.every((r) => r.values[d] == null)
+  const off = (d: Dim) => rows.length > 0 && rows.every((r) => r.values[d] == null)
   const surveyHref = `${import.meta.env.BASE_URL}survey/`
   const reports = tier === 'sponsor' && answers.confirmed ? report(rows, w) : []
 
@@ -365,13 +378,13 @@ export function Lab() {
             <legend>{l.weights}</legend>
             <p className="note">{l.fixedNote}</p>
             {(['T', 'A'] as const).map(k => (
-              <Slider key={k} dim={k} label={l.dimShort[k]} value={anchors[k]} max={100 - anchors[k === 'T' ? 'A' : 'T']} onChange={v => setAnchor(k, v)} />
+              <Slider key={k} dim={k} label={l.dimShort[k]} value={w[k]} max={100 - w[k === 'T' ? 'A' : 'T']} locked={off(k)} onChange={v => setAnchor(k, v, w[k === 'T' ? 'A' : 'T'])} />
             ))}
             <p className="note">{l.budgetNote.replace('{n}', String(Math.round((100 - w.T - w.A) * 10) / 10))}</p>
             {!hasA && <p className="locked tone-A">{l.locked}</p>}
-            {auto ? (
+            {tier === 'sponsor' ? (
               <>
-                <p className="note">{l.autoNote}</p>
+                <p className="note">{auto ? l.autoNote : l.autoPending}</p>
                 {(['G', 'R', 'P'] as const).map((k) => (
                   <div className={`slider__label tone-${k}`} key={k}>
                     <b>{k}</b>

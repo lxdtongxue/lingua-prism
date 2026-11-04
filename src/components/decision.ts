@@ -47,11 +47,12 @@ window.addEventListener('lp-state-imported', reload)
 export const setTier = (tier: Tier) => commit({ ...state, tier })
 export const patchAnswers = (patch: Partial<Answers>) => commit({ ...state, answers: { ...state.answers, ...patch } })
 export const setSlider = (d: Scored, v: number) => commit({ ...state, sliders: { ...state.sliders, [d]: v } })
-export const setAnchor = (d: 'T' | 'A', v: number) => {
+export const setAnchor = (d: 'T' | 'A', v: number, otherWeight?: number) => {
   const other = d === 'T' ? 'A' : 'T'
-  commit({ ...state, anchors: { ...state.anchors, [d]: Math.max(0, Math.min(100 - state.anchors[other], v)) } })
+  commit({ ...state, anchors: { ...state.anchors, [d]: Math.max(0, Math.min(100 - (otherWeight ?? state.anchors[other]), v)) } })
 }
 export const setManualWeight = (d: Scored, value: number, budget: number, available: Scored[] = ['G', 'R', 'P']) => {
+  if (state.tier !== 'basic' || budget <= 0 || !available.includes(d)) return
   const next = Math.max(0, Math.min(budget, value))
   const others = available.filter(k => k !== d)
   const total = others.reduce((sum, k) => sum + state.sliders[k], 0)

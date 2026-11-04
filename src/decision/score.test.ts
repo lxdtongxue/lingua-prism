@@ -183,3 +183,19 @@ test('adjusting T/A preserves the confirmed G:R:P ratio', () => {
   const s = shifted(w, 'G')
   assert.ok(Math.abs(s.G + s.R + s.P - 80) < 1e-9)
 })
+
+test('T/A sweeps through zero budget and back without corrupting G:R:P', () => {
+  const ratio = { G: 5, R: 3, P: 2 }
+  for (const missing of [[], ['A'], ['T'], ['G'], ['R', 'P'], ['T', 'A', 'G', 'P']] as const) {
+    for (const T of [0, 10, 20, 80, 100, 80, 20, 0]) {
+      for (const A of [0, 20, 100]) {
+        const w = configuredWeights({ T, A }, ratio, [...missing])
+        assert.ok(Object.values(w).every(v => Number.isFinite(v) && v >= 0 && v <= 100))
+        assert.ok(Math.abs(Object.values(w).reduce((s, v) => s + v, 0) - 100) < 1e-9)
+        for (const d of missing) assert.equal(w[d], 0)
+        if (w.G > 0 && w.R > 0) assert.ok(Math.abs(w.G / w.R - 5 / 3) < 1e-9)
+      }
+    }
+  }
+  assert.deepEqual(ratio, { G: 5, R: 3, P: 2 })
+})
