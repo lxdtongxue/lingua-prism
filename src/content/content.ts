@@ -23,7 +23,7 @@ const zh = {
   intro: { hintMouse: '向下滚动，或稍候片刻', hintTouch: '向上滑动，或稍候片刻' },
   close: '关闭',
   updates: {
-    title: '语棱 V7，正式与你相见',
+    title: '语棱 V8，从心出发',
     history: '历史更新',
     entry: '版本与更新',
     close: '关闭',
@@ -31,7 +31,7 @@ const zh = {
     latest: '当前版本',
     note: '从最初的棱镜，到今天的语棱。每一次修改，都留在这里。',
     languageNote: '',
-    summary: ['V7 正式上线：从语言背景、TALL 测验到问卷与推荐，统一说明与操作提示。', '完善权重调整、问卷进度恢复和结果确认，让显示的比例与实际计分含义一致。', '校准推荐解释与键盘操作，保留清楚的数据来源、许可和分数适用范围。'],
+    summary: ['V8 正式发布。从心里的向往出发，让每一次语言选择，都有自己的理由。', '已有语言、能力任务、目标、资源与偏好汇成五束光，陪你读懂选择的依据。', '基础版与进阶版均可使用；在自有服务器站点，可用短令牌接续不同设备上的记录。'],
   },
   account: {
     open: '个人记录',
@@ -403,7 +403,7 @@ const en: typeof zh = {
   intro: { hintMouse: 'Scroll down, or just wait a moment', hintTouch: 'Swipe up, or just wait a moment' },
   close: 'Close',
   updates: {
-    title: 'Welcome to Lingua Prism V7',
+    title: 'Lingua Prism V8 · Follow your curiosity',
     history: 'Update history',
     entry: 'Versions & updates',
     close: 'Close',
@@ -411,7 +411,7 @@ const en: typeof zh = {
     latest: 'Current version',
     note: 'From the first prism to Lingua Prism today. Every change has a place here.',
     languageNote: 'Release notes are currently available in Chinese.',
-    summary: ['V7 is here, with consistent guidance from language background and TALL tasks to the questionnaire and recommendations.', 'Refined weight controls, restored questionnaire progress and confirmation so displayed proportions match their scoring meaning.', 'Corrected recommendation explanations and keyboard interaction, with clear sources, licences and score interpretation.'],
+    summary: ['V8 is the official release. Begin with what draws you to a language, and find reasons of your own.', 'Known languages, task performance, goals, resources and preferences bring five perspectives to your next choice.', 'Basic and Advanced are available. On the self-hosted site, a short token carries your saved records across devices.'],
   },
   account: {
     open: 'Your records',

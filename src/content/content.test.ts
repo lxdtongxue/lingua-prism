@@ -27,9 +27,10 @@ test('current user-facing copy has no experimental or trial labels', () => {
   assert.match(copy, /尚未经人工核实/)
 })
 
-test('release labels support historical versions and the V7 formal release', () => {
+test('release labels support historical versions and the V8 formal release', () => {
   assert.equal(formatVersion('0.6.7'), 'v6.7')
   assert.equal(formatVersion('7.0.0'), 'v7')
+  assert.equal(formatVersion('8.0.0'), 'v8')
   assert.equal(formatVersion('7.0.1'), 'v7.0.1')
   assert.equal(parseReleaseNotes('### v7（2026-11-04）\n正式版\n\n### v6.7\n历史版本')[0].version, 'v7')
 })
