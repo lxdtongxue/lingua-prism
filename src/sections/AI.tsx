@@ -4,7 +4,7 @@ import { SectionHead } from '../components/SectionHead'
 import { Glass } from '../components/Glass'
 import { Bot, GitBranch, Puzzle, BookOpen } from 'lucide-react'
 import { useAiContext, type AiContext } from '../ai/context'
-import { SiriOrb, ORB_CSS } from '../ai/SiriOrb'
+import { Orb, ORB_CSS } from '../ai/Orb'
 
 type Explain = {
   headline?: string
@@ -255,7 +255,7 @@ export function AI() {
           </div>
 
           <div className="ai__stage">
-            <SiriOrb size={112} state={busy ? 'busy' : 'idle'} />
+            <Orb size={112} state={busy ? 'busy' : 'idle'} />
             <div className="ai__stage__main">
               {!busy && (
                 <div>

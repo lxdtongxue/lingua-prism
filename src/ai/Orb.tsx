@@ -1,7 +1,7 @@
 import { useEffect, useRef } from 'react'
 
 /**
- * Siri 风格旋转光球。
+ * 旋转光球组件。
  * 用 Canvas 2D + 'lighter' 混合模式绘制若干彩色光核，
  * 各自沿不同半径/速度旋转，叠加后自然形成流动感。
  *
@@ -22,7 +22,7 @@ const COLORS = [
   [255, 209, 102],  // 暖黄
 ]
 
-export function SiriOrb({ size = 84, state = 'busy' }: Props) {
+export function Orb({ size = 84, state = 'busy' }: Props) {
   const ref = useRef<HTMLCanvasElement>(null)
 
   useEffect(() => {

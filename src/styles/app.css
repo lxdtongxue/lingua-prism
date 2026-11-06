@@ -139,7 +139,7 @@ h4 { font-size: 1.06rem; font-weight: 500; line-height: 1.4; }
 .lang { position: relative; min-width: 48px; height: 44px; padding: 0 14px; border-radius: 999px; font-size: .86rem; font-weight: 500; }
 .acct-btn { position: relative; display: grid; place-items: center; width: 44px; height: 44px; border-radius: 50%; overflow: hidden; }
 .acct-btn .avatar { display: block; }
-/* Dissolves through a spectral ring, in the spirit of Apple's new Siri edge glow. */
+/* Dissolves through a spectral ring, in the spirit of 棱镜光晕. */
 .lang::after {
   content: ""; position: absolute; inset: -5px; border-radius: inherit; opacity: var(--glow); pointer-events: none; filter: blur(5px);
   background: conic-gradient(from 210deg, var(--t), var(--a), var(--p), var(--g), var(--r), var(--t));
