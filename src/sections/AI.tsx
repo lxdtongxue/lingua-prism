@@ -48,9 +48,38 @@ const CSS = `
 .ai__load__head{display:flex;align-items:baseline;gap:10px;font-size:14px;font-weight:600}
 .ai__load__time{margin-left:auto;font-variant-numeric:tabular-nums;opacity:.55;font-size:12px}
 .ai__load__hint{margin:7px 0 12px;font-size:12px;opacity:.55;line-height:1.6}
-.ai__bar{position:relative;height:3px;border-radius:99px;overflow:hidden;background:rgba(255,255,255,.12)}
-.ai__bar i{position:absolute;inset:0;border-radius:99px;background:linear-gradient(90deg,transparent,#ff5f6d,#7b6cff,#00d4ff,#43e97b,#ffd166,transparent);transform:translateX(-100%);animation:lpSweep 1.7s cubic-bezier(.5,0,.5,1) infinite}
-@keyframes lpSweep{0%{transform:translateX(-100%)}100%{transform:translateX(100%)}}
+/* Liquid Glass 光条：半透明玻璃 + 内外高光 + 流动镜面 + 光谱薄膜 */
+.ai__bar{position:relative;height:12px;border-radius:99px;overflow:hidden;
+  background:linear-gradient(180deg,rgba(255,255,255,.10),rgba(255,255,255,.03));
+  border:1px solid rgba(255,255,255,.16);
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.22),
+    inset 0 -1px 2px rgba(0,0,0,.35),
+    0 2px 14px rgba(123,108,255,.18);
+  backdrop-filter:blur(6px) saturate(1.2)}
+/* 光谱薄膜：模仿玻璃边缘色散 */
+.ai__bar::before{content:'';position:absolute;inset:0;border-radius:99px;z-index:2;pointer-events:none;
+  background:linear-gradient(100deg,rgba(255,95,109,.18),rgba(123,108,255,.24) 28%,rgba(0,212,255,.22) 55%,rgba(67,233,123,.18) 80%,rgba(255,209,102,.18));
+  mix-blend-mode:screen}
+/* 玻璃上沿的连续高光 */
+.ai__bar::after{content:'';position:absolute;left:8%;right:8%;top:1px;height:3px;border-radius:99px;z-index:3;pointer-events:none;
+  background:linear-gradient(90deg,transparent,rgba(255,255,255,.55),transparent);
+  filter:blur(1px)}
+/* 流动的镜面反射 */
+.ai__bar i{position:absolute;inset:0;border-radius:99px;z-index:1;
+  background:linear-gradient(105deg,
+    rgba(255,255,255,0) 0%,
+    rgba(255,255,255,.08) 18%,
+    rgba(255,255,255,.42) 42%,
+    rgba(255,255,255,.68) 50%,
+    rgba(255,255,255,.42) 58%,
+    rgba(255,255,255,.08) 82%,
+    rgba(255,255,255,0) 100%);
+  transform:translateX(-100%);
+  animation:lpSweep 2.1s cubic-bezier(.42,0,.58,1) infinite}
+@keyframes lpSweep{
+  0%{transform:translateX(-100%) skewX(-12deg)}
+  100%{transform:translateX(100%) skewX(-12deg)}}
 .ai__steps{display:flex;flex-wrap:wrap;gap:8px 16px;margin-top:12px;font-size:12px}
 .ai__step{opacity:.32;transition:opacity .3s}
 .ai__step--done{opacity:.7}
@@ -58,7 +87,7 @@ const CSS = `
 .ai__step i{font-style:normal;margin-right:5px}
 .ai__fade{animation:lpFade .28s ease-out both}
 @keyframes lpFade{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:none}}
-@media (prefers-reduced-motion: reduce){.ai__bar i,.ai__fade{animation:none!important}}
+@media (prefers-reduced-motion: reduce){.ai__bar i{animation:none!important;transform:translateX(0)}.ai__fade{animation:none!important}}
 `
 
 const PARTS = [

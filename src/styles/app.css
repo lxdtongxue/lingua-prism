@@ -108,7 +108,7 @@ h4 { font-size: 1.06rem; font-weight: 500; line-height: 1.4; }
 .kicker { font-size: .84rem; font-weight: 500; letter-spacing: .06em; color: var(--fg3); margin-bottom: 18px; font-variant-numeric: tabular-nums; }
 .micro { font-size: .76rem; font-weight: 500; letter-spacing: .05em; color: var(--fg3); }
 /* Framework 三个 level 标题：原来的 .micro 太小，中英混排更局促 */
-.micro--lg { font-size: .86rem; font-weight: 600; letter-spacing: .035em; }
+.micro--lg { font-size: 1.02rem; font-weight: 600; letter-spacing: .02em; }
 .note { font-size: .84rem; color: var(--fg3); line-height: 1.6; }
 .eyebrow { font-size: clamp(.86rem, .8rem + .2vw, 1rem); font-weight: 500; color: var(--fg2); margin-bottom: clamp(16px, 2.4vh, 26px); }
 
