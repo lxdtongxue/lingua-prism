@@ -201,6 +201,16 @@ export function Lab() {
   const weightsIn = tier === 'sponsor' && answers.confirmed ? weightInput(answers) : null
   const auto = weightsIn ? questionnaireWeights(weightsIn) : null
 
+  // DEV 调试：定位「进阶版问卷后仍显示等分」的原因
+  // 在浏览器控制台看 [GRP weights]，重点看 auto 是不是 null
+  if (import.meta.env.DEV) {
+    console.debug('[GRP weights]', {
+      tier, confirmed: answers.confirmed,
+      weightsIn: weightsIn ? 'OK' : 'null（问卷未完成或未确认）',
+      auto: auto ? { G: auto.G, R: auto.R, P: auto.P } : 'null → 走 sliders（等分）',
+    })
+  }
+
   const { rows, w } = useMemo(() => {
     // Languages you already have are never recommended.
     const have = new Set([...known.l1, ...known.l2])
@@ -273,7 +283,7 @@ export function Lab() {
       ? l.whyGDetail.replace('{score}', String(Math.round(pick.values.G)))
       : l.whyG.replace('{goal}', c.goalsShort[goal]).replace('{level}', l.levels[dec.g[goal] - 1])
     : l.surveyFirst
-  const whyR = dec ? l.whyR.replace('{cover}', l.levels[dec.r.coverage - 1]).replace('{mode}', c.modeWords[answers.mode]).replace('{level}', l.levels[modeTier(dec, answers.mode) - 1]) : ''
+  const whyR = dec ? l.whyR.replace('{cover}', l.levels[dec.r.coverage - 1]).replace('{mode}', c.modeWords[answers.mode ?? 'both']).replace('{level}', l.levels[modeTier(dec, answers.mode ?? 'both') - 1]) : ''
   const interest = dec ? tier === 'sponsor' ? interestOf(dec, answers) : answers.regionInterest[dec.region] ?? null : null
   const acceptKeys: Accept[] = tier === 'sponsor' ? ['VL', 'SD', 'LA'] : ['VL', 'SD']
   const whyP = pick?.values.P == null
@@ -408,7 +418,7 @@ export function Lab() {
             ) : (
               (['G', 'R', 'P'] as const).map((k) => (
                 <div key={k}>
-                  <Slider dim={k} label={l.dimShort[k]} value={w[k]} max={100 - w.T - w.A} locked={off(k) || 100 - w.T - w.A === 0} onChange={(v) => setManualWeight(k, v, 100 - w.T - w.A, (['G', 'R', 'P'] as const).filter(d => !off(d)))} />
+                  <Slider dim={k} label={l.dimShort[k]} value={w[k]} max={100 - w.T - w.A} locked={off(k) || auto !== null || 100 - w.T - w.A === 0} onChange={(v) => setManualWeight(k, v, 100 - w.T - w.A, (['G', 'R', 'P'] as const).filter(d => !off(d)))} />
                   {off(k) && <p className="locked">{l.fillFirst}</p>}
                 </div>
               ))

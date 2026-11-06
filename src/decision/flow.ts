@@ -4,7 +4,7 @@ export type Page = 'start' | 'orient' | 'g1' | 'g2' | 'g3' | 'g4' | 'g5' | 'g6' 
 
 export function pagesFor(a: Answers, tier: Tier): Page[] {
   if (tier === 'basic') return ['start', 'g1', 'g2', 'r1', 'p1', 'accept']
-  const detail: Page[] = [...(a.goals.job >= 2 ? (['g3'] as const) : []), ...(a.goals.study >= 2 ? (['g4'] as const) : []), ...(a.goals.travel >= 2 ? (['g5'] as const) : []), ...(a.goals.academic >= 2 ? (['g6'] as const) : [])]
+  const detail: Page[] = [...((a.goals.job ?? 0) >= 2 ? (['g3'] as const) : []), ...((a.goals.study ?? 0) >= 2 ? (['g4'] as const) : []), ...((a.goals.travel ?? 0) >= 2 ? (['g5'] as const) : []), ...((a.goals.academic ?? 0) >= 2 ? (['g6'] as const) : [])]
   return ['start', 'orient', 'g1', 'g2', ...detail, 'r1', 'p1', 'p2', 'accept', 'dilemma', 'confirm']
 }
 

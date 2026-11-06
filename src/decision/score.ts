@@ -129,10 +129,10 @@ export function scaleGroup<K extends string>(goal: number, subs: readonly K[], a
 export type Answers = {
   orient: Record<string, number>
   g1: Goal | 'none' | null
-  goals: Record<Goal, number>
+  goals: Partial<Record<Goal, number>>
   sub: Partial<Record<Detail, number>>
   countries: { study: string[]; travel: string[] }
-  mode: Mode
+  mode: Mode | null
   regionInterest: Record<string, number>
   langInterest: Record<string, number>
   accept: Partial<Record<Accept, number>>
@@ -145,10 +145,10 @@ export type Answers = {
 export const emptyAnswers = (): Answers => ({
   orient: {},
   g1: null,
-  goals: { job: 0, study: 0, travel: 0, academic: 0 },
+  goals: {},
   sub: {},
   countries: { study: [], travel: [] },
-  mode: 'both',
+  mode: null,
   regionInterest: {},
   langInterest: {},
   accept: {},
@@ -159,17 +159,17 @@ export const emptyAnswers = (): Answers => ({
 })
 
 export function subgoalsOf(a: Answers): UserDetail['subgoals'] {
-  const job = scaleGroup(a.goals.job, JOB_SUBS, a.sub)
-  const acad = scaleGroup(a.goals.academic, ACAD_SUBS, a.sub)
-  return { ...(job ?? { job: a.goals.job }), study: a.goals.study, travel: a.goals.travel, ...(acad ?? { academic: a.goals.academic }) }
+  const job = scaleGroup(a.goals.job ?? 0, JOB_SUBS, a.sub)
+  const acad = scaleGroup(a.goals.academic ?? 0, ACAD_SUBS, a.sub)
+  return { ...(job ?? { job: a.goals.job ?? 0 }), study: a.goals.study ?? 0, travel: a.goals.travel ?? 0, ...(acad ?? { academic: a.goals.academic ?? 0 }) }
 }
 
 export function scoresFor(l: LangDecision, a: Answers, tier: Tier): Record<Scored, number | null> {
   const accept = tier === 'sponsor' ? a.accept : { VL: a.accept.VL, SD: a.accept.SD }
-  const base: UserDecision = { goals: a.goals, mode: a.mode, regionInterest: a.regionInterest, accept }
+  const base: UserDecision = { goals: { job: a.goals.job ?? 0, study: a.goals.study ?? 0, travel: a.goals.travel ?? 0, academic: a.goals.academic ?? 0 }, mode: a.mode ?? 'both', regionInterest: a.regionInterest, accept }
   if (tier === 'basic') return { G: scoreG(l, base), R: scoreR(l, base), P: scoreP(l, base) }
   return {
-    G: scoreGDetail(l, { ...base, subgoals: subgoalsOf(a), countries: { study: a.goals.study >= 2 ? a.countries.study : [], travel: a.goals.travel >= 2 ? a.countries.travel : [] } }),
+    G: scoreGDetail(l, { ...base, subgoals: subgoalsOf(a), countries: { study: (a.goals.study ?? 0) >= 2 ? a.countries.study : [], travel: (a.goals.travel ?? 0) >= 2 ? a.countries.travel : [] } }),
     R: scoreRDetail(l, base),
     P: scoreP(l, { ...base, langInterest: a.langInterest }),
   }
@@ -230,8 +230,8 @@ export function configuredWeights(anchors: { T: number; A: number }, ratio: Reco
   return { T: t, A: a, ...autoWeights(ratio, missing.filter((d): d is Scored => d === 'G' || d === 'R' || d === 'P'), 100 - t - a) }
 }
 
-export function bestGoal(goals: Record<Goal, number>) {
-  return GOALS.reduce((best, k) => (goals[k] > goals[best] ? k : best), GOALS[0])
+export function bestGoal(goals: Partial<Record<Goal, number>>) {
+  return GOALS.reduce((best, k) => ((goals[k] ?? 0) > (goals[best] ?? 0) ? k : best), GOALS[0])
 }
 
 export const interestOf = (l: LangDecision, a: Answers) => a.langInterest[l.id] ?? a.regionInterest[l.region] ?? null
@@ -255,8 +255,8 @@ export function checks(a: Answers, langs = LANGS) {
   if (q) {
     const r = questionnaireWeights(q)
     if (r.straight) hits.push({ id: 'K2' })
-    if (a.g1 && a.g1 !== 'none' && Math.max(...GOALS.map((k) => a.goals[k])) > a.goals[a.g1]) hits.push({ id: 'K3', other: bestGoal(a.goals) })
-    if (r.s.G >= 4 && GOALS.every((k) => a.goals[k] <= 1)) hits.push({ id: 'K4' })
+    if (a.g1 && a.g1 !== 'none' && Math.max(...GOALS.map((k) => a.goals[k] ?? 0)) > (a.goals[a.g1] ?? 0)) hits.push({ id: 'K3', other: bestGoal(a.goals) })
+    if (r.s.G >= 4 && GOALS.every((k) => (a.goals[k] ?? 0) <= 1)) hits.push({ id: 'K4' })
     if (r.s.P >= 4 && !langs.some((l) => (interestOf(l, a) ?? 0) >= 4)) hits.push({ id: 'K5' })
     if (r.cyclic) hits.push({ id: 'K6' })
     const top = (v: number[]) => v.indexOf(Math.max(...v))

@@ -20,17 +20,47 @@ export function percentile(suite: Suite, k: Ability, raw: number): number | null
   return table[String(raw)] ?? null
 }
 
+/**
+ * A = 能力画像与语言难点画像的余弦相似度（0-100）。
+ *
+ * 为什么不用加权平均：
+ * 加权平均是 P 向量的凸组合，当 P_LA=P_SD=P_VL 时对所有语言恒等于 P，
+ * 区分度为 0（实测 SD=0.00）。余弦测的是「方向匹配」，
+ * 即使能力完全均衡，语言的 D 向量方向仍然不同。
+ *
+ * 详见《GRP权重分配方案-技术规范-v1.3》附录 B。
+ */
 export function scoreA(lang: Lang, p: Percentiles): number | null {
-  let num = 0
-  let den = 0
+  let dot = 0
+  let nd = 0
+  let np = 0
+  let has = false
   for (const k of ABILITIES) {
     const pk = p[k]
     if (pk == null) continue
-    const w = BETA[k] * lang[`D_${k}`]
-    num += w * pk
-    den += w
+    const d = lang[`D_${k}`]
+    has = true
+    const w = BETA[k]
+    dot += w * d * pk
+    nd += w * d * d
+    np += w * pk * pk
   }
-  return den > 0 ? num / den : null
+  if (!has) return null
+  const den = Math.sqrt(nd) * Math.sqrt(np)
+  return den > 0 ? (dot / den) * 100 : null
+}
+
+/**
+ * 25 门语言内线性拉伸到 0-100，改善绝对值观感。
+ * 计算用 scoreA（保留几何意义），UI 展示用本函数。
+ */
+export function normalizeA(raw: Map<string, number>): Map<string, number> {
+  const vals = [...raw.values()]
+  if (!vals.length) return raw
+  const lo = Math.min(...vals)
+  const hi = Math.max(...vals)
+  if (hi - lo < 1e-9) return new Map([...raw].map(([k]) => [k, 50]))
+  return new Map([...raw].map(([k, v]) => [k, (100 * (v - lo)) / (hi - lo)]))
 }
 
 // How each language's difficulty divides, among the abilities the learner has scores for.

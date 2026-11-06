@@ -33,6 +33,7 @@ export function Framework() {
               key={x.level}
               icon={ICONS[i]}
               kicker={x.level}
+              kickerSize="lg"
               title={x.q}
               desc={x.brief}
               delay={i * 110}

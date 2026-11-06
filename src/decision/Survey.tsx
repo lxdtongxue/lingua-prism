@@ -56,8 +56,8 @@ export function Survey() {
   }, [t, c, at])
 
   const regionName = (r: string | null) => (r ? (lang === 'zh' ? r : (REGION_EN[r] ?? r)) : c.someRegion)
-  const goalWord = a.g1 && a.g1 !== 'none' ? a.g1 : GOALS.some(g => a.goals[g] > 0) ? bestGoal(a.goals) : null
-  const fill = (s: string) => s.replace(/\{goal\}/g, goalWord ? c.goalsShort[goalWord] : c.generalGoal).replace(/\{region\}/g, regionName(topRegion(a))).replace(/\{mode\}/g, c.modeWords[a.mode])
+  const goalWord = a.g1 && a.g1 !== 'none' ? a.g1 : GOALS.some(g => (a.goals[g] ?? 0) > 0) ? bestGoal(a.goals) : null
+  const fill = (s: string) => s.replace(/\{goal\}/g, goalWord ? c.goalsShort[goalWord] : c.generalGoal).replace(/\{region\}/g, regionName(topRegion(a))).replace(/\{mode\}/g, c.modeWords[a.mode ?? 'both'])
 
   const ready = pageReady(page, a)
   const finish = () => {
@@ -132,7 +132,7 @@ export function Survey() {
           <li>{c.secondDim.replace('{dim}', c.dims[dims[1].d]).replace('{w}', String(dims[1].w))}</li>
           <li>{c.thirdDim.replace('{dim}', c.dims[dims[2].d]).replace('{w}', String(dims[2].w))}</li>
         </ul>
-        <p>{c.summary.replace('{goal}', goalWord ? c.goalsShort[goalWord] : c.unset).replace('{region}', topRegion(a) ? regionName(topRegion(a)) : c.unset).replace('{mode}', c.modeWords[a.mode])}</p>
+        <p>{c.summary.replace('{goal}', goalWord ? c.goalsShort[goalWord] : c.unset).replace('{region}', topRegion(a) ? regionName(topRegion(a)) : c.unset).replace('{mode}', c.modeWords[a.mode ?? 'both'])}</p>
         <p className="sv-q">{c.confirmAsk}</p>
         <div className="exam__row">
           <button type="button" className="exam__btn" onClick={finish}>

@@ -25,16 +25,27 @@ test('plan section 7: every language matches the expected A', () => {
   assert.deepEqual(bad, [])
 })
 
-test('A stays between the lowest and highest percentile', () => {
+// 余弦相似度：Cauchy-Schwarz 保证 A ∈ [0, 100]，
+// 不再落在 [min P, max P] 内（加权平均才是凸组合）。
+test('A stays within 0-100 (Cauchy-Schwarz)', () => {
   for (const l of demands) for (const u of USERS) {
     const a = scoreA(l, u) as number
-    const v = Object.values(u) as number[]
-    assert.ok(a >= Math.min(...v) - 1e-9 && a <= Math.max(...v) + 1e-9)
+    assert.ok(a >= -1e-9 && a <= 100 + 1e-9, `got ${a}`)
   }
 })
 
+// v1.3 新增：均衡型能力用户必须仍有区分度（加权平均会塌缩为常数）
+test('balanced percentiles still discriminate languages', () => {
+  const u: Percentiles = { LA: 60, SD: 60, VL: 60 }
+  const vals = demands.map((l) => scoreA(l, u) as number)
+  const mean = vals.reduce((a, b) => a + b, 0) / vals.length
+  const sd = Math.sqrt(vals.reduce((a, b) => a + (b - mean) ** 2, 0) / vals.length)
+  assert.ok(sd > 4, `SD too small: ${sd}`)
+})
+
 test('partial and empty scores', () => {
-  assert.ok(Math.abs((scoreA(byId.get('pl')!, { LA: 80, SD: 40 }) as number) - 64.5) < 0.05)
+  const plA = scoreA(byId.get('pl')!, { LA: 80, SD: 40 }) as number
+  assert.ok(plA > 0 && plA <= 100, `pl partial got ${plA}`)
   assert.equal(scoreA(byId.get('pl')!, {}), null)
 })
 

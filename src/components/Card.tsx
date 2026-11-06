@@ -7,6 +7,7 @@ export const CLEAR = { bevel: 20, depth: 1.5, frost: 0.14, dim: 0.14 }
 type Props = {
   icon?: ComponentType<{ size?: number; strokeWidth?: number }>
   kicker?: string
+  kickerSize?: 'sm' | 'lg'
   title: string
   desc?: string
   tone?: string
@@ -17,7 +18,7 @@ type Props = {
 }
 
 // Outer layer of the two-level content: a short summary that opens a detail sheet.
-export function Card({ icon: Icon, kicker, title, desc, tone, delay, className, children, onOpen }: Props) {
+export function Card({ icon: Icon, kicker, kickerSize, title, desc, tone, delay, className, children, onOpen }: Props) {
   return (
     <Glass as="button" type="button" className={`card${tone ? ` tone-${tone}` : ''}${className ? ` ${className}` : ''}`} radius={30} {...CLEAR} press delay={delay} onClick={onOpen}>
       {(Icon || kicker) && (
@@ -27,7 +28,7 @@ export function Card({ icon: Icon, kicker, title, desc, tone, delay, className, 
               <Icon size={20} strokeWidth={1.7} />
             </span>
           )}
-          {kicker && <span className="micro">{kicker}</span>}
+          {kicker && <span className={`micro${kickerSize === 'lg' ? ' micro--lg' : ''}`}>{kicker}</span>}
         </span>
       )}
       {children}

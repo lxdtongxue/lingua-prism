@@ -1,8 +1,10 @@
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useI18n } from '../components/i18n'
 import { SectionHead } from '../components/SectionHead'
 import { Glass } from '../components/Glass'
 import { Bot, GitBranch, Puzzle, BookOpen } from 'lucide-react'
+import { useAiContext, type AiContext } from '../ai/context'
+import { SiriOrb, ORB_CSS } from '../ai/SiriOrb'
 
 type Explain = {
   headline?: string
@@ -11,11 +13,6 @@ type Explain = {
   sources?: string[]
   _debug_url?: string
   _cached?: boolean
-}
-
-const SAMPLE = {
-  scores: { T: 62, A: 71, G: 80, R: 55, P: 68 },
-  weights: { T: 0.3, A: 0.3, G: 0.2, R: 0.1, P: 0.1 },
 }
 
 const CSS = `
@@ -39,6 +36,29 @@ const CSS = `
 .ai__warn{margin-top:10px;font-size:12.5px;opacity:.7;line-height:1.7;border-left:2px solid rgba(255,255,255,.25);padding-left:10px}
 .ai__input{flex:1;min-width:200px;border:1px solid rgba(255,255,255,.18);background:transparent;color:inherit;border-radius:99px;padding:11px 18px;font-size:14px;outline:none}
 .ai__input::placeholder{opacity:.45}
+.ai__badge{display:inline-flex;align-items:center;gap:6px;font-size:11.5px;letter-spacing:.05em;padding:4px 11px;border-radius:99px;border:1px solid rgba(255,255,255,.20);opacity:.85}
+.ai__badge--demo{border-color:#c8862a;color:#e8b06a}
+.ai__badge b{font-weight:650}
+.ai__hours{display:inline-flex;align-items:center;gap:7px;font-size:12.5px;opacity:.82;white-space:nowrap}
+.ai__hours input{width:56px;border:1px solid rgba(255,255,255,.20);background:transparent;color:inherit;border-radius:99px;padding:6px 10px;font-size:13px;text-align:center;outline:none;font-variant-numeric:tabular-nums}
+.ai__hours input::placeholder{opacity:.4}
+.ai__hours input:focus{border-color:rgba(255,255,255,.42)}
+.ai__stage{display:flex;align-items:center;gap:22px;padding:10px 2px 4px}
+.ai__stage__main{flex:1;min-width:0}
+.ai__load__head{display:flex;align-items:baseline;gap:10px;font-size:14px;font-weight:600}
+.ai__load__time{margin-left:auto;font-variant-numeric:tabular-nums;opacity:.55;font-size:12px}
+.ai__load__hint{margin:7px 0 12px;font-size:12px;opacity:.55;line-height:1.6}
+.ai__bar{position:relative;height:3px;border-radius:99px;overflow:hidden;background:rgba(255,255,255,.12)}
+.ai__bar i{position:absolute;inset:0;border-radius:99px;background:linear-gradient(90deg,transparent,#ff5f6d,#7b6cff,#00d4ff,#43e97b,#ffd166,transparent);transform:translateX(-100%);animation:lpSweep 1.7s cubic-bezier(.5,0,.5,1) infinite}
+@keyframes lpSweep{0%{transform:translateX(-100%)}100%{transform:translateX(100%)}}
+.ai__steps{display:flex;flex-wrap:wrap;gap:8px 16px;margin-top:12px;font-size:12px}
+.ai__step{opacity:.32;transition:opacity .3s}
+.ai__step--done{opacity:.7}
+.ai__step--now{opacity:1;font-weight:600}
+.ai__step i{font-style:normal;margin-right:5px}
+.ai__fade{animation:lpFade .28s ease-out both}
+@keyframes lpFade{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:none}}
+@media (prefers-reduced-motion: reduce){.ai__bar i,.ai__fade{animation:none!important}}
 `
 
 const PARTS = [
@@ -51,11 +71,34 @@ const PARTS = [
 export function AI() {
   const { lang } = useI18n()
   const zh = lang === 'zh'
+  const ctx: AiContext = useAiContext(!zh)
+  const [hours, setHours] = useState('')
+  const profile = {
+    ...ctx.profile,
+    weekly_hours: hours.trim() && Number(hours) > 0 ? Number(hours) : null,
+  }
   const [busy, setBusy] = useState<'explain' | 'ask' | null>(null)
   const [data, setData] = useState<Explain | null>(null)
   const [err, setErr] = useState('')
   const [q, setQ] = useState('')
   const [answer, setAnswer] = useState('')
+  const [elapsed, setElapsed] = useState(0)
+  const timer = useRef<number | null>(null)
+
+  useEffect(() => {
+    if (!busy) {
+      setElapsed(0)
+      if (timer.current) window.clearInterval(timer.current)
+      timer.current = null
+      return
+    }
+    setElapsed(0)
+    timer.current = window.setInterval(() => setElapsed((x) => x + 1), 1000)
+    return () => {
+      if (timer.current) window.clearInterval(timer.current)
+      timer.current = null
+    }
+  }, [busy])
 
   const L = zh
     ? {
@@ -75,6 +118,18 @@ export function AI() {
         workflow: '工作流',
         plugin: '插件',
         kb: '知识库',
+        hours: '每周可投入',
+        hoursUnit: '小时',
+        idleTitle: '语棱智能助手',
+        idleHint: '点「生成一次解释」看推荐依据，或直接向智能体提问。',
+        ready: '已完成',
+        thinking: '智能体思考中',
+        generating: '正在生成解释',
+        slowHint: '还在处理中 —— 扣子首次响应较慢，已经在跑了',
+        fastHint: '首次生成约 20 秒，之后命中缓存只要 2 秒',
+        stepConnect: '连接扣子',
+        stepRetrieve: '检索知识库',
+        stepGenerate: '生成解释',
       }
     : {
         kicker: 'About · AI implementation',
@@ -93,6 +148,18 @@ export function AI() {
         workflow: 'Workflow',
         plugin: 'Plugin',
         kb: 'Knowledge base',
+        hours: 'Per week',
+        hoursUnit: 'h',
+        idleTitle: 'Lingua assistant',
+        idleHint: 'Generate an explanation, or ask the agent directly.',
+        ready: 'Ready',
+        thinking: 'Thinking',
+        generating: 'Generating explanation',
+        slowHint: 'Still working - the first Coze call is slow',
+        fastHint: 'First call takes about 20s; cached calls return in 2s',
+        stepConnect: 'Connect Coze',
+        stepRetrieve: 'Retrieve knowledge',
+        stepGenerate: 'Generate',
       }
 
   async function explain() {
@@ -102,7 +169,14 @@ export function AI() {
       const r = await fetch('/api/explain', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ...SAMPLE, question: zh ? '为什么这门语言排第一？' : 'Why does this language rank first?', lang: zh ? 'zh' : 'en' }),
+        body: JSON.stringify({
+          scores: ctx.scores,
+          weights: ctx.weights,
+          profile,
+          language: ctx.language,
+          question: zh ? `为什么${ctx.language}排第一？` : `Why does ${ctx.languageEn} rank first?`,
+          lang: zh ? 'zh' : 'en',
+        }),
         signal: AbortSignal.timeout(30000),
       })
       if (!r.ok) throw new Error(String(r.status))
@@ -125,7 +199,15 @@ export function AI() {
       const r = await fetch('/api/ask', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ question: text, ...SAMPLE, lang: zh ? 'zh' : 'en', user_id: 'site' }),
+        body: JSON.stringify({
+          question: text,
+          scores: ctx.scores,
+          weights: ctx.weights,
+          profile,
+          language: ctx.language,
+          lang: zh ? 'zh' : 'en',
+          user_id: 'site',
+        }),
         signal: AbortSignal.timeout(60000),
       })
       if (!r.ok) throw new Error(String(r.status))
@@ -140,7 +222,7 @@ export function AI() {
 
   return (
     <section id="ai" className="section ai">
-      <style>{CSS}</style>
+      <style>{CSS + '\n' + ORB_CSS}</style>
       <div className="wrap">
         <SectionHead kicker={L.kicker} title={L.title} intro={L.intro} />
 
@@ -159,6 +241,52 @@ export function AI() {
 
         <Glass className="ai__demo" radius={20} frost={0.3} dim={0.25} delay={240}>
           <div className="ai__row">
+            {ctx.isDemo ? (
+              <span className="ai__badge ai__badge--demo">
+                ⚠ {zh ? '示例数据' : 'Demo data'} · {ctx.demoReason}
+              </span>
+            ) : (
+              <span className="ai__badge">
+                {zh ? '当前候选' : 'Current candidate'}：<b>{ctx.language}</b>
+                {' · '}
+                {zh ? '真实测评结果' : 'real results'}
+              </span>
+            )}
+          </div>
+
+          <div className="ai__stage">
+            <SiriOrb size={112} state={busy ? 'busy' : 'idle'} />
+            <div className="ai__stage__main">
+              {!busy && (
+                <div>
+                  <div className="ai__load__head">
+                    <span>{L.idleTitle}</span>
+                    {(data || answer) && <span className="ai__load__time">{L.ready}</span>}
+                  </div>
+                  <p className="ai__load__hint">{L.idleHint}</p>
+                </div>
+              )}
+              {busy && (
+                <>
+                  <div className="ai__load__head">
+                    <span>{busy === 'ask' ? L.thinking : L.generating}</span>
+                    <span className="ai__load__time">{elapsed}s</span>
+                  </div>
+                  <p className="ai__load__hint">{elapsed >= 15 ? L.slowHint : L.fastHint}</p>
+                  <div className="ai__bar"><i /></div>
+                  {busy === 'explain' && (
+                    <div className="ai__steps">
+                      <span className="ai__step ai__step--now"><i>●</i>{L.stepConnect}</span>
+                      <span className={`ai__step ${elapsed >= 6 ? 'ai__step--done' : ''}`}><i>{elapsed >= 6 ? '✓' : '○'}</i>{L.stepRetrieve}</span>
+                      <span className={`ai__step ${elapsed >= 12 ? 'ai__step--now' : ''}`}><i>{elapsed >= 12 ? '●' : '○'}</i>{L.stepGenerate}</span>
+                    </div>
+                  )}
+                </>
+              )}
+            </div>
+          </div>
+
+          <div className="ai__row">
             <button type="button" className="ai__btn" onClick={explain} disabled={busy !== null}>
               {busy === 'explain' ? L.loading : L.cta}
             </button>
@@ -168,7 +296,7 @@ export function AI() {
           {err && <p className="ai__warn">{err}</p>}
 
           {data && (
-            <div>
+            <div className="ai__fade">
               <p className="ai__out">
                 <b>{data.headline}</b>
               </p>
@@ -199,7 +327,22 @@ export function AI() {
             </div>
           )}
 
-          <div className="ai__row" style={{ marginTop: 18 }}>
+          <div className="ai__row" style={{ marginTop: 18, alignItems: 'center' }}>
+            <label className="ai__hours">
+              {L.hours}
+              <input
+                type="number"
+                min={0}
+                max={80}
+                step={0.5}
+                inputMode="decimal"
+                value={hours}
+                placeholder="—"
+                onChange={(e) => setHours(e.target.value)}
+                aria-label={zh ? '每周可投入学习时间（小时）' : 'Weekly study hours'}
+              />
+              {L.hoursUnit}
+            </label>
             <input
               className="ai__input"
               value={q}
@@ -212,7 +355,7 @@ export function AI() {
             </button>
           </div>
           {answer && (
-            <div>
+            <div className="ai__fade">
               <p className="ai__meta">{L.ask}</p>
               <p className="ai__out">{answer}</p>
             </div>
