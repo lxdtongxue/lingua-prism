@@ -5,8 +5,8 @@ import { pagePath, readSection, siteForSection, type Site } from '../paths'
 // goals and the references; the test center holds the TALL test and the recommendation.
 export type { Site } from '../paths'
 const LAYOUTS: Record<Site, string[][]> = {
-  home: [['hero'], ['framework', 'spectrum', 'aptitude'], ['roadmap'], ['references']],
-  center: [['test', 'lab']],
+  home: [['hero'], ['framework', 'ai', 'spectrum', 'aptitude'], ['roadmap'], ['references']],
+  center: [['test', 'lab', 'ai']],
 }
 // Each html file says which page it is, before any script runs.
 export const SITE: Site = document.documentElement.dataset.site === 'center' ? 'center' : 'home'

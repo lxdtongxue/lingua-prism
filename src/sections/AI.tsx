@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useI18n } from '../components/i18n'
 import { SectionHead } from '../components/SectionHead'
+import { Glass } from '../components/Glass'
 import { Bot, GitBranch, Puzzle, BookOpen } from 'lucide-react'
 
 type Explain = {
@@ -20,23 +21,23 @@ const SAMPLE = {
 const CSS = `
 .ai{position:relative}
 .ai__grid{display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));margin:26px 0 30px}
-.ai__card{border:1px solid color-mix(in srgb,currentColor 16%,transparent);border-radius:16px;padding:18px 18px 16px;background:color-mix(in srgb,currentColor 4%,transparent)}
+.ai__card{padding:18px 18px 16px}
 .ai__card h4{display:flex;align-items:center;gap:8px;margin:0 0 8px;font-size:15px;font-weight:600}
 .ai__card h4 svg{width:17px;height:17px;opacity:.75}
 .ai__card p{margin:0;font-size:13px;line-height:1.7;opacity:.72}
-.ai__tag{display:inline-block;margin-top:10px;font-size:11px;letter-spacing:.06em;padding:3px 9px;border-radius:99px;border:1px solid color-mix(in srgb,currentColor 22%,transparent);opacity:.7}
-.ai__demo{border:1px solid color-mix(in srgb,currentColor 16%,transparent);border-radius:18px;padding:20px;background:color-mix(in srgb,currentColor 4%,transparent)}
+.ai__tag{display:inline-block;margin-top:10px;font-size:11px;letter-spacing:.06em;padding:3px 9px;border-radius:99px;border:1px solid rgba(255,255,255,.18);opacity:.7}
+.ai__demo{padding:20px}
 .ai__row{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-bottom:14px}
 .ai__btn{cursor:pointer;border:0;border-radius:99px;padding:11px 22px;font-size:14px;font-weight:600;background:#eef1fa;color:#05060a}
-.ai__btn--ghost{background:transparent;color:inherit;border:1px solid color-mix(in srgb,currentColor 26%,transparent)}
+.ai__btn--ghost{background:transparent;color:inherit;border:1px solid rgba(255,255,255,.22)}
 .ai__btn:disabled{opacity:.5;cursor:default}
 .ai__out{margin:0;font-size:14px;line-height:1.8;white-space:pre-wrap;word-break:break-word}
 .ai__out b{font-weight:650}
 .ai__meta{margin-top:12px;font-size:11.5px;opacity:.55;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;word-break:break-all}
 .ai__li{display:flex;gap:9px;margin:7px 0;font-size:13.5px;line-height:1.7}
 .ai__li i{font-style:normal;opacity:.55;min-width:16px}
-.ai__warn{margin-top:10px;font-size:12.5px;opacity:.7;line-height:1.7;border-left:2px solid color-mix(in srgb,currentColor 30%,transparent);padding-left:10px}
-.ai__input{flex:1;min-width:200px;border:1px solid color-mix(in srgb,currentColor 22%,transparent);background:transparent;color:inherit;border-radius:99px;padding:11px 18px;font-size:14px;outline:none}
+.ai__warn{margin-top:10px;font-size:12.5px;opacity:.7;line-height:1.7;border-left:2px solid rgba(255,255,255,.25);padding-left:10px}
+.ai__input{flex:1;min-width:200px;border:1px solid rgba(255,255,255,.18);background:transparent;color:inherit;border-radius:99px;padding:11px 18px;font-size:14px;outline:none}
 .ai__input::placeholder{opacity:.45}
 `
 
@@ -144,19 +145,19 @@ export function AI() {
         <SectionHead kicker={L.kicker} title={L.title} intro={L.intro} />
 
         <div className="ai__grid">
-          {PARTS.map(({ icon: Icon, key, tag }) => (
-            <div className="ai__card" key={key}>
+          {PARTS.map(({ icon: Icon, key, tag }, i) => (
+            <Glass key={key} className="ai__card" radius={16} frost={0.25} dim={0.2} delay={i * 60}>
               <h4>
                 <Icon aria-hidden="true" />
                 {L[key]}
               </h4>
               <p>{desc(zh, key)}</p>
               <span className="ai__tag">{tag}</span>
-            </div>
+            </Glass>
           ))}
         </div>
 
-        <div className="ai__demo">
+        <Glass className="ai__demo" radius={20} frost={0.3} dim={0.25} delay={240}>
           <div className="ai__row">
             <button type="button" className="ai__btn" onClick={explain} disabled={busy !== null}>
               {busy === 'explain' ? L.loading : L.cta}
@@ -216,7 +217,7 @@ export function AI() {
               <p className="ai__out">{answer}</p>
             </div>
           )}
-        </div>
+        </Glass>
       </div>
     </section>
   )

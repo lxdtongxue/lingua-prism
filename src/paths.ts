@@ -1,9 +1,9 @@
-export const sections = ['hero', 'framework', 'spectrum', 'aptitude', 'roadmap', 'references', 'test', 'lab'] as const
+export const sections = ['hero', 'framework', 'ai', 'spectrum', 'aptitude', 'roadmap', 'references', 'test', 'lab'] as const
 export type Section = typeof sections[number]
 export type Site = 'home' | 'center'
 
 const isSection = (value: string | null): value is Section => sections.includes(value as Section)
-export const siteForSection = (id: string): Site | undefined => !isSection(id) ? undefined : id === 'test' || id === 'lab' ? 'center' : 'home'
+export const siteForSection = (id: string): Site | undefined => !isSection(id) ? undefined : id === 'test' || id === 'lab' || id === 'ai' ? 'center' : 'home'
 
 // Query parameters survive clients that encode a fragment delimiter into %23.
 export function pagePath(base: string, site: Site, section?: string) {
@@ -12,7 +12,7 @@ export function pagePath(base: string, site: Site, section?: string) {
   return `${root}${site === 'center' ? 'center/' : ''}index.html${id === 'hero' ? '' : `?section=${id}`}`
 }
 
-export function centerPath(base: string, section: 'test' | 'lab' = 'test') {
+export function centerPath(base: string, section: 'test' | 'lab' | 'ai' = 'test') {
   return pagePath(base, 'center', section)
 }
 

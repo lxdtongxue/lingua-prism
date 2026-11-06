@@ -59,6 +59,7 @@ export default function App() {
             <div className="tabpage">
               <Test />
               <Lab />
+              <AI />
               <Footer />
             </div>
           ) : (
@@ -68,9 +69,9 @@ export default function App() {
               </div>
               <div className="tabpage">
                 <Framework />
+                <AI />
                 <Spectrum />
                 <Aptitude />
-                <AI />
               </div>
               <div className="tabpage">
                 <Roadmap />

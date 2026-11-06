@@ -10,8 +10,8 @@ import { usePagerState } from './usePagerGesture'
 
 // Each tab groups one or more pages and opens on the first of them.
 const TABS: { id: 'test' | 'about' | 'goals' | 'refs'; icon: typeof FlaskConical; site: Site; pages: string[] }[] = [
-  { id: 'test', icon: FlaskConical, site: 'center', pages: ['test', 'lab'] },
-  { id: 'about', icon: Layers, site: 'home', pages: ['framework', 'spectrum', 'aptitude'] },
+  { id: 'test', icon: FlaskConical, site: 'center', pages: ['test', 'lab', 'ai'] },
+  { id: 'about', icon: Layers, site: 'home', pages: ['framework', 'ai', 'spectrum', 'aptitude'] },
   { id: 'goals', icon: Target, site: 'home', pages: ['roadmap'] },
   { id: 'refs', icon: BookOpen, site: 'home', pages: ['references'] },
 ]
