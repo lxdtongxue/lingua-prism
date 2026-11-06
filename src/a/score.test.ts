@@ -4,7 +4,7 @@ import demands from '../data/language_demands.json' with { type: 'json' }
 import cases from './cases.json' with { type: 'json' }
 import { percentile, scoreA, weightedScore, explainA, type Percentiles } from './score.ts'
 
-const USERS: Percentiles[] = [
+export const USERS: Percentiles[] = [
   { LA: 85, SD: 50, VL: 50 },
   { LA: 50, SD: 85, VL: 50 },
   { LA: 50, SD: 50, VL: 85 },
@@ -44,8 +44,9 @@ test('balanced percentiles still discriminate languages', () => {
 })
 
 test('partial and empty scores', () => {
-  const plA = scoreA(byId.get('pl')!, { LA: 80, SD: 40 }) as number
-  assert.ok(plA > 0 && plA <= 100, `pl partial got ${plA}`)
+  // 《A指标计算公式-Astra》§七.1：三项测验不完整时综合 A 为 null
+  // 缺失值不得当作 0、满分或其他默认能力值。
+  assert.equal(scoreA(byId.get('pl')!, { LA: 80, SD: 40 }), null)
   assert.equal(scoreA(byId.get('pl')!, {}), null)
 })
 

@@ -9,10 +9,10 @@ const byId = new Map(LANGS.map((l) => [l.id, l]))
 const close = (a: number | null, want: number, at: string) => assert.ok(a !== null && Math.abs(a - want) <= 0.0501, `${at}: got ${a}, want ${want}`)
 const all = (v: number) => Object.fromEntries(REGIONS.map((r) => [r, v]))
 
-const jia: UserDecision = { goals: { job: 3, study: 1, travel: 2, academic: 0 }, mode: 'both', regionInterest: { ...all(3), 东亚: 5 }, accept: { VL: 4, SD: 3 } }
-const yi: UserDecision = { goals: { job: 0, study: 3, travel: 0, academic: 3 }, mode: 'online', regionInterest: { ...all(2), 西欧: 5, 中东欧: 4 }, accept: { VL: 2, SD: 2 } }
-const blank: UserDecision = { goals: { job: 0, study: 0, travel: 0, academic: 0 }, mode: 'both', regionInterest: {}, accept: {} }
-const ding: UserDetail = {
+export const jia: UserDecision = { goals: { job: 3, study: 1, travel: 2, academic: 0 }, mode: 'both', regionInterest: { ...all(3), 东亚: 5 }, accept: { VL: 4, SD: 3 } }
+export const yi: UserDecision = { goals: { job: 0, study: 3, travel: 0, academic: 3 }, mode: 'online', regionInterest: { ...all(2), 西欧: 5, 中东欧: 4 }, accept: { VL: 2, SD: 2 } }
+export const blank: UserDecision = { goals: { job: 0, study: 0, travel: 0, academic: 0 }, mode: 'both', regionInterest: {}, accept: {} }
+export const ding: UserDetail = {
   goals: { job: 3, study: 3, travel: 0, academic: 2 },
   mode: 'both',
   regionInterest: {},

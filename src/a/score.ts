@@ -21,55 +21,43 @@ export function percentile(suite: Suite, k: Ability, raw: number): number | null
 }
 
 /**
- * A = 能力画像与语言难点画像的余弦相似度（0-100）。
+ * A = 能力适配参考分
  *
- * 为什么不用加权平均：
- * 加权平均是 P 向量的凸组合，当 P_LA=P_SD=P_VL 时对所有语言恒等于 P，
- * 区分度为 0（实测 SD=0.00）。余弦测的是「方向匹配」，
- * 即使能力完全均衡，语言的 D 向量方向仍然不同。
+ *   A(L,u) = 100 - [ D_LA·(100-P_LA) + D_SD·(100-P_SD) + D_VL·(100-P_VL) ] / 3
  *
- * 详见《GRP权重分配方案-技术规范-v1.3》附录 B。
+ * 依据《A指标计算公式-Astra》：
+ *   含义：根据学习者当前的能力表现，评估其应对某门语言学习任务的相对有利程度。
+ *         既考虑能力水平，也考虑强项是否对应语言的需求。
+ *
+ * 实施规则（§七）：
+ *   1. 三项测验全部完成后才生成综合 A，缺失时返回 null；
+ *      缺失值不得当作 0、满分或其他默认能力值。
+ *   2. 不做最大最小值拉伸、不做 z-score，展示与总分使用同一个 A。
+ *   3. D 值参照固定语言库与映射版本，不随候选筛选重新排名。
+ *   4. 分母固定为 3，A 内部三项等权；这与用户调节的外层 A 权重是两回事。
  */
 export function scoreA(lang: Lang, p: Percentiles): number | null {
-  let dot = 0
-  let nd = 0
-  let np = 0
-  let has = false
-  for (const k of ABILITIES) {
-    const pk = p[k]
-    if (pk == null) continue
-    const d = lang[`D_${k}`]
-    has = true
-    const w = BETA[k]
-    dot += w * d * pk
-    nd += w * d * d
-    np += w * pk * pk
-  }
-  if (!has) return null
-  const den = Math.sqrt(nd) * Math.sqrt(np)
-  return den > 0 ? (dot / den) * 100 : null
-}
-
-/**
- * 25 门语言内线性拉伸到 0-100，改善绝对值观感。
- * 计算用 scoreA（保留几何意义），UI 展示用本函数。
- */
-export function normalizeA(raw: Map<string, number>): Map<string, number> {
-  const vals = [...raw.values()]
-  if (!vals.length) return raw
-  const lo = Math.min(...vals)
-  const hi = Math.max(...vals)
-  if (hi - lo < 1e-9) return new Map([...raw].map(([k]) => [k, 50]))
-  return new Map([...raw].map(([k, v]) => [k, (100 * (v - lo)) / (hi - lo)]))
-}
-
-// How each language's difficulty divides, among the abilities the learner has scores for.
-export function demandShares(lang: Lang, among: readonly Ability[] = ABILITIES) {
-  const total = among.reduce((sum, k) => sum + lang[`D_${k}`], 0)
-  return Object.fromEntries(among.map((k) => [k, lang[`D_${k}`] / total])) as Partial<Record<Ability, number>>
+  const LA = p.LA
+  const SD = p.SD
+  const VL = p.VL
+  if (LA == null || SD == null || VL == null) return null
+  const penalty =
+    (lang.D_LA * (100 - LA) +
+     lang.D_SD * (100 - SD) +
+     lang.D_VL * (100 - VL)) / 3
+  return 100 - penalty
 }
 
 export type Why = { kind: 'none' } | { kind: 'balanced'; even: boolean } | { kind: 'focus'; ability: Ability; share: number; percentile: number; even: boolean }
+
+/** 每门语言三类难点各占多少（用于解释文字） */
+export function demandShares(lang: Lang, only: readonly Ability[] = ABILITIES): Record<Ability, number> {
+  const keys = [...only]
+  const total = keys.reduce((a, k) => a + lang[`D_${k}`], 0) || 1
+  const out = { LA: 0, SD: 0, VL: 0 } as Record<Ability, number>
+  for (const k of keys) out[k] = lang[`D_${k}`] / total
+  return out
+}
 
 export function explainA(lang: Lang, p: Percentiles): Why {
   const have = ABILITIES.filter((k) => p[k] != null)

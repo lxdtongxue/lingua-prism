@@ -88,7 +88,22 @@ export function scoreP(l: LangDecision, u: UserDecision) {
     if (acc == null) continue
     const s = (acc - 3) / 2
     const x = (l[`D_${k}`] - 0.2) / 0.8
-    fits.push(50 + 50 * s * (2 * x - 1))
+    // fit_k：意愿与语言挑战的匹配度
+    //
+    // 语义是非对称的，必须分段：
+    //   愿学（s>0）：x=1 得到想学的挑战 → 100；x=0 意愿落空 → 50（中性）
+    //   不愿（s<0）：x=1 被迫接受挑战 → 0；x=0 成功避开 → 100
+    //   无所谓（s=0）：50
+    //
+    // 旧公式 50+50·s·(2x-1) 对称处理，把 x=0 当成"负难点"，
+    // 导致「想学新文字 + 语言没有新文字」得 0 分（应为中性 50）。
+    //
+    // 五点校验：
+    //   (+1,+1)=100  (+1,0)=50  (0,any)=50  (-1,+1)=0  (-1,0)=100
+    const fit = s >= 0
+      ? 50 + 50 * s * x
+      : 50 + 50 * -s * (1 - 2 * x)
+    fits.push(fit)
   }
   const p2 = fits.length ? fits.reduce((a, b) => a + b, 0) / fits.length : null
   if (p1 == null && p2 == null) return null
