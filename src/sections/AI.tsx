@@ -49,33 +49,33 @@ const CSS = `
 .ai__load__time{margin-left:auto;font-variant-numeric:tabular-nums;opacity:.55;font-size:12px}
 .ai__load__hint{margin:7px 0 12px;font-size:12px;opacity:.55;line-height:1.6}
 /* Liquid Glass 光条：半透明玻璃 + 内外高光 + 流动镜面 + 光谱薄膜 */
+/* Liquid Glass 光条：高通透度，让背景光线穿透 */
 .ai__bar{position:relative;height:12px;border-radius:99px;overflow:hidden;
-  background:linear-gradient(180deg,rgba(255,255,255,.10),rgba(255,255,255,.03));
-  border:1px solid rgba(255,255,255,.16);
+  background:rgba(255,255,255,.02);
+  border:1px solid rgba(255,255,255,.10);
   box-shadow:
-    inset 0 1px 0 rgba(255,255,255,.22),
-    inset 0 -1px 2px rgba(0,0,0,.35),
-    0 2px 14px rgba(123,108,255,.18);
-  backdrop-filter:blur(6px) saturate(1.2)}
-/* 光谱薄膜：模仿玻璃边缘色散 */
+    inset 0 1px 0 rgba(255,255,255,.14),
+    inset 0 -1px 0 rgba(255,255,255,.05),
+    0 1px 10px rgba(123,108,255,.08);
+  backdrop-filter:blur(2px) saturate(1.4) brightness(1.06)}
+/* 光谱色散：只在边缘可见，中间让位给背景 */
 .ai__bar::before{content:'';position:absolute;inset:0;border-radius:99px;z-index:2;pointer-events:none;
-  background:linear-gradient(100deg,rgba(255,95,109,.18),rgba(123,108,255,.24) 28%,rgba(0,212,255,.22) 55%,rgba(67,233,123,.18) 80%,rgba(255,209,102,.18));
+  background:linear-gradient(100deg,rgba(255,95,109,.10),rgba(123,108,255,.14) 28%,rgba(0,212,255,.12) 55%,rgba(67,233,123,.10) 80%,rgba(255,209,102,.10));
   mix-blend-mode:screen}
-/* 玻璃上沿的连续高光 */
-.ai__bar::after{content:'';position:absolute;left:8%;right:8%;top:1px;height:3px;border-radius:99px;z-index:3;pointer-events:none;
-  background:linear-gradient(90deg,transparent,rgba(255,255,255,.55),transparent);
-  filter:blur(1px)}
-/* 流动的镜面反射 */
-.ai__bar i{position:absolute;inset:0;border-radius:99px;z-index:1;
+/* 上沿细高光：勾出玻璃轮廓 */
+.ai__bar::after{content:'';position:absolute;left:6%;right:6%;top:1px;height:1.5px;border-radius:99px;z-index:3;pointer-events:none;
+  background:linear-gradient(90deg,transparent,rgba(255,255,255,.38),transparent);
+  filter:blur(.6px)}
+/* 流动镜面：细而亮，不做大面积填充 */
+.ai__bar i{position:absolute;top:0;bottom:0;width:34%;border-radius:99px;z-index:1;
   background:linear-gradient(105deg,
     rgba(255,255,255,0) 0%,
-    rgba(255,255,255,.08) 18%,
-    rgba(255,255,255,.42) 42%,
-    rgba(255,255,255,.68) 50%,
-    rgba(255,255,255,.42) 58%,
-    rgba(255,255,255,.08) 82%,
+    rgba(255,255,255,.10) 35%,
+    rgba(255,255,255,.42) 50%,
+    rgba(255,255,255,.10) 65%,
     rgba(255,255,255,0) 100%);
-  transform:translateX(-100%);
+  filter:blur(1px);
+  transform:translateX(-140%);
   animation:lpSweep 2.1s cubic-bezier(.42,0,.58,1) infinite}
 @keyframes lpSweep{
   0%{transform:translateX(-100%) skewX(-12deg)}
@@ -87,7 +87,7 @@ const CSS = `
 .ai__step i{font-style:normal;margin-right:5px}
 .ai__fade{animation:lpFade .28s ease-out both}
 @keyframes lpFade{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:none}}
-@media (prefers-reduced-motion: reduce){.ai__bar i{animation:none!important;transform:translateX(0)}.ai__fade{animation:none!important}}
+@media (prefers-reduced-motion: reduce){.ai__bar i{animation:none!important;transform:translateX(130%)}.ai__fade{animation:none!important}}
 `
 
 const PARTS = [
