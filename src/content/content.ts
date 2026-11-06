@@ -95,6 +95,11 @@ const zh = {
       background: '选二外时，建议从来不少：有人谈就业，有人说难易，也有人只为一部电影、一首歌而心动。难的是，把别人的经验放回自己的生活，分清哪些理由真正与你有关。',
       approach: '语棱是一项面向第二、第三外语选择的个性化决策支持项目。我们把已有语言、能力表现、学习目标、资源条件和个人偏好放在一起比较，陪你看清每个选择背后的理由。',
       audience: '从高校二外选课出发，也面向为学术研读、海外学习、职业发展或文化兴趣寻找下一门外语的你。',
+      xisu: [
+        '语棱从西安外国语大学 25 个本科外语语种的真实选课场景出发。西外的俄语、阿拉伯语、西班牙语等语种实力雄厚，但对很多同学来说，「二外选什么」依然是信息最不透明的一道选择题：已经会的英语要不要继续叠加？想跨考的语种值不值得从零开始？校内课程资源、辅修安排、就业方向各不相同，网上通用的「哪门外语好学」回答不了这些具体问题。',
+        '因此我们把选择拆成五个可检验的维度——语言之间的客观关系、自己的能力表现、目标匹配、资源条件与个人偏好，让每一门语言的推荐都能回到你自己的处境上。',
+      ],
+
       journeyLabel: '在语棱，走过一次选择',
       journey: ['留下你的语言背景', '认识自己的长处与向往', '比较语言，读懂推荐', '调整侧重，作出选择'],
       readMore: '读一读语棱的缘起',
@@ -478,6 +483,11 @@ const en: typeof zh = {
       background: 'Advice is easy to find when choosing another language: careers, difficulty, a film or a song that stays with you. The harder part is knowing which of those reasons belongs in your own life.',
       approach: 'Lingua Prism supports the choice of a second or third foreign language. It brings your language background, task performance, goals, learning resources, and preferences into one comparison, so you can read the reasons behind each possibility.',
       audience: 'Beginning with university language-course choices, and welcoming those learning for research, study abroad, work, or a love of language and culture.',
+      xisu: [
+        "Lingua Prism begins from the real course-choice situation of the 25 undergraduate foreign-language programmes at Xi'an International Studies University. XISU's Russian, Arabic and Spanish programmes are strong, yet for many students \"which second language?\" remains the least transparent question: should English be stacked on what you already have, and is a language you want for a cross-exam worth starting from zero? Course resources, minor arrangements and career paths all differ, and generic advice online cannot answer these specific questions.",
+        'So we break the choice down into five testable dimensions - objective relations between languages, your own ability, goal fit, resources and personal preference - so every recommendation returns to your own situation.',
+      ],
+
       journeyLabel: 'A choice, step by step',
       journey: ['Start with the languages you know', 'Explore your strengths and interests', 'Compare languages and read the reasons', 'Adjust your priorities and decide'],
       readMore: 'Read how Lingua Prism began',

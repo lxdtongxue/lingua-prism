@@ -18,6 +18,7 @@ export function Framework() {
           <div className="about-project__story">
             <p>{f.project.background}</p>
             <p>{f.project.approach}</p>
+            {f.project.xisu.map((para) => <p key={para.slice(0, 16)}>{para}</p>)}
             <p className="note">{f.project.audience}</p>
             <button type="button" className="sheet__cta sheet__cta--quiet" onClick={() => openDetail('project')}>{f.project.readMore}</button>
           </div>

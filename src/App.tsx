@@ -16,6 +16,7 @@ import { Spectrum } from './sections/Spectrum'
 import { Aptitude } from './sections/Aptitude'
 import { Lab } from './sections/Lab'
 import { Roadmap } from './sections/Roadmap'
+import { AI } from './sections/AI'
 import { Footer } from './sections/Footer'
 
 export default function App() {
@@ -69,6 +70,7 @@ export default function App() {
                 <Framework />
                 <Spectrum />
                 <Aptitude />
+                <AI />
               </div>
               <div className="tabpage">
                 <Roadmap />
