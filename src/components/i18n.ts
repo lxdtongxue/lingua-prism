@@ -13,5 +13,5 @@ export function initialLang(): Lang {
   } catch {
     /* storage can be blocked; the default is fine */
   }
-  return navigator.language.toLowerCase().startsWith('zh') ? 'zh' : 'en'
+  return 'zh'
 }
