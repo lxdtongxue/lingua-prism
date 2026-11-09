@@ -45,7 +45,7 @@ export function Footer() {
         <summary>{t.footer.mobileLabel}</summary>
         <div className="foot-body"><FooterBody /></div>
       </details>
-      <div className="wrap foot__updates"><span>语棱 Lingua Prism · {RELEASE_VERSION}</span><a className="foot__link" href="https://beian.miit.gov.cn/" target="_blank" rel="noreferrer">蜀ICP备2026069383号</a><button type="button" className="foot__link" onClick={openUpdates}>{t.updates.entry}</button></div>
+      <div className="wrap foot__updates"><span>语棱 Lingua Prism · {RELEASE_VERSION}</span><a className="foot__link" href="https://beian.miit.gov.cn/" target="_blank" rel="noreferrer" style={{ color: '#fff' }}>蜀ICP备2026069383号</a><button type="button" className="foot__link" onClick={openUpdates}>{t.updates.entry}</button></div>
     </footer>
   )
 }
